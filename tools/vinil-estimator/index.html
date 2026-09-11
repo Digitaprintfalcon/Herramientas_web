@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Precio - Vinil por Medida</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center min-vh-100 p-3">
+
+  <div class="card shadow-sm border-0 p-4 w-100" style="max-width: 520px;">
+    <h2 class="h5 fw-bold text-dark mb-1">Calculadora de Precio - Vinil</h2>
+    <p class="text-muted small mb-4">Cálculo por dimensiones, laminado, diseño, corte, instalación y cantidad</p>
+
+    <!-- Medidas de la Pieza de Vinil -->
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label for="anchoPieza" class="form-label fw-semibold small text-secondary">Ancho de Pieza</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="anchoPieza" placeholder="100" value="100" step="0.1" min="0">
+          <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <label for="altoPieza" class="form-label fw-semibold small text-secondary">Alto / Largo de Pieza</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="altoPieza" placeholder="135" value="135" step="0.1" min="0">
+          <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ancho del Rollo Base -->
+    <div class="mb-3">
+      <label for="anchoRollo" class="form-label fw-semibold small text-secondary">Ancho del Rollo de Vinil ($)</label>
+      <div class="input-group input-group-sm">
+        <input type="number" class="form-control" id="anchoRollo" placeholder="135" value="135" step="0.1" min="0">
+        <span class="input-group-text bg-light text-muted">cm</span>
+      </div>
+    </div>
+
+    <!-- Precio Base -->
+    <div class="mb-3">
+      <label for="precioImpresion" class="form-label fw-semibold small text-secondary">Precio Metro Lineal de Vinil ($)</label>
+      <div class="input-group input-group-sm">
+        <input type="number" class="form-control" id="precioImpresion" placeholder="25.00" value="25" step="0.01" min="0">
+        <span class="input-group-text bg-light text-muted">$</span>
+      </div>
+    </div>
+
+    <!-- Sección de Laminado -->
+    <div class="card bg-white border p-3 rounded-3 mb-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirLaminado">
+        <label class="form-check-label fw-semibold small text-dark" for="incluirLaminado">
+          Agregar Laminado (Protección)
+        </label>
+      </div>
+      <div id="seccionLaminado" class="row g-2" style="display: none;">
+        <div class="col-6">
+          <label for="anchoLaminado" class="form-label fw-semibold small text-secondary">Ancho Máx. Laminado</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" id="anchoLaminado" value="135" step="0.1" min="0">
+            <span class="input-group-text bg-light text-muted">cm</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <label for="precioLaminado" class="form-label fw-semibold small text-secondary">Precio Metro Laminado ($)</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" id="precioLaminado" value="7" step="0.01" min="0">
+            <span class="input-group-text bg-light text-muted">$</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Diseño -->
+    <div class="card bg-white border p-3 rounded-3 mb-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirDiseno">
+        <label class="form-check-label fw-semibold small text-dark" for="incluirDiseno">
+          Agregar Costo de Diseño
+        </label>
+      </div>
+      <div id="seccionDiseno" style="display: none;">
+        <label for="costoDiseno" class="form-label fw-semibold small text-secondary">Costo Total de Diseño ($)</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="costoDiseno" placeholder="10.00" value="10" step="0.01" min="0">
+          <span class="input-group-text bg-light text-muted">$</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Corte -->
+    <div class="card bg-white border p-3 rounded-3 mb-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirCorte">
+        <label class="form-check-label fw-semibold small text-dark" for="incluirCorte">
+          Agregar Costo de Corte Especial / Troquelado
+        </label>
+      </div>
+      <div id="seccionCorte" style="display: none;">
+        <label for="costoCorte" class="form-label fw-semibold small text-secondary">Costo Total de Corte ($)</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="costoCorte" placeholder="5.00" value="5" step="0.01" min="0">
+          <span class="input-group-text bg-light text-muted">$</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Instalación -->
+    <div class="card bg-white border p-3 rounded-3 mb-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirInstalacion">
+        <label class="form-check-label fw-semibold small text-dark" for="incluirInstalacion">
+          Agregar Costo de Instalación
+        </label>
+      </div>
+      <div id="seccionInstalacion" style="display: none;">
+        <label for="costoInstalacion" class="form-label fw-semibold small text-secondary">Costo Total de Instalación ($)</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="costoInstalacion" placeholder="15.00" value="15" step="0.01" min="0">
+          <span class="input-group-text bg-light text-muted">$</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Cantidad de Piezas (NUEVO) -->
+    <div class="mb-3">
+      <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
+      <div class="input-group input-group-sm">
+        <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
+        <span class="input-group-text bg-light text-muted">pz</span>
+      </div>
+    </div>
+
+    <!-- Resultado Final -->
+    <div class="card bg-primary-subtle border border-primary-subtle rounded-3 p-3 text-center mt-3">
+      <div class="text-primary text-uppercase fw-bold small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Precio Total de la Pieza / Lote</div>
+      <div class="display-6 fw-bold text-primary m-0" id="resultado">$0.00</div>
+    </div>
+
+    <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
+      Fórmula: <code class="text-dark">[(Área de Pieza × Precio Vinil) + Opcionales] × Cantidad</code>
+    </div>
+  </div>
+
+  <!-- Script Lógica JavaScript -->
+  <script src="script.js">
+
+  </script>
+</body>
+</html>

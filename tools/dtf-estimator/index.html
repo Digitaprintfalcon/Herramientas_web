@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Precio Unitario - DTF</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center min-vh-100 p-3">
+
+  <div class="card shadow-sm border-0 p-4 w-100" style="max-width: 480px;">
+    <h2 class="h5 fw-bold text-dark mb-1">Calculadora de Precio - DTF</h2>
+    <p class="text-muted small mb-4">Cálculo proporcional por área para impresión DTF</p>
+
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label for="anchoDiseno" class="form-label fw-semibold small text-secondary">Ancho Diseño</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="anchoDiseno" placeholder="10" value="10" step="0.1" min="0">
+          <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <label for="altoDiseno" class="form-label fw-semibold small text-secondary">Alto Diseño</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="altoDiseno" placeholder="10" value="10" step="0.1" min="0">
+          <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label for="anchoImprimible" class="form-label fw-semibold small text-secondary">Ancho Imprimible</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="anchoImprimible" placeholder="57" value="57" step="0.1" min="0">
+          <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <label for="altoImprimible" class="form-label fw-semibold small text-secondary">Alto Imprimible</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control bg-light text-muted" id="altoImprimible" value="100" readonly>
+          <span class="input-group-text bg-light text-muted">cm (1m)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label for="precioImpresion" class="form-label fw-semibold small text-secondary">Precio Metro Lineal ($)</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="precioImpresion" placeholder="25.00" value="25" step="0.01" min="0">
+          <span class="input-group-text bg-light text-muted">$</span>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
+          <span class="input-group-text bg-light text-muted">un.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nueva Sección: Costo de Planchado / Aplicación -->
+    <div class="card bg-white border rounded-3 p-3 mb-3 shadow-sm">
+      <div class="form-check form-switch mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirPlanchado">
+        <label class="form-check-label fw-semibold small text-secondary" for="incluirPlanchado">Incluir Servicio de Planchado</label>
+      </div>
+
+      <div id="seccionPlanchado" class="row g-2" style="display: none;">
+        <div class="col-7">
+          <label for="costoPlanchado" class="form-label text-muted" style="font-size: 0.75rem;">Costo de Planchado ($)</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" id="costoPlanchado" placeholder="1.50" value="1.50" step="0.01" min="0">
+            <span class="input-group-text bg-light text-muted">$</span>
+          </div>
+        </div>
+        <div class="col-5">
+          <label for="tipoPlanchado" class="form-label text-muted" style="font-size: 0.75rem;">Cobrar por:</label>
+          <select class="form-select form-select-sm" id="tipoPlanchado">
+            <option value="pieza">Por pieza</option>
+            <option value="lote">Lote único</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-primary-subtle border border-primary-subtle rounded-3 p-3 text-center mt-2">
+      <div class="text-primary text-uppercase fw-bold small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Precio Unitario (Diseño)</div>
+      <div class="h5 fw-bold text-primary m-0" id="resultadoUnitario">$0.00</div>
+    </div>
+
+    <div class="card bg-success-subtle border border-success-subtle rounded-3 p-3 text-center mt-2">
+      <div class="text-success text-uppercase fw-bold small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Precio Total (Con Planchado)</div>
+      <div class="display-6 fw-bold text-success m-0" id="resultadoTotal">$0.00</div>
+    </div>
+
+    <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
+      Fórmula aplicada: <code class="text-dark">(Ancho Diseño × Alto Diseño) ÷ (Ancho Imprimible × 100 cm) × Precio Metro</code>
+    </div>
+  </div>
+
+  <!-- Script Lógica JavaScript -->
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const anchoDiseno = document.getElementById('anchoDiseno');
+  const altoDiseno = document.getElementById('altoDiseno');
+  const anchoImprimible = document.getElementById('anchoImprimible');
+  const altoImprimible = document.getElementById('altoImprimible');
+  const precioImpresion = document.getElementById('precioImpresion');
+  const cantidadPiezas = document.getElementById('cantidadPiezas');
+  
+  // Nuevos elementos de planchado
+  const incluirPlanchado = document.getElementById('incluirPlanchado');
+  const seccionPlanchado = document.getElementById('seccionPlanchado');
+  const costoPlanchado = document.getElementById('costoPlanchado');
+  const tipoPlanchado = document.getElementById('tipoPlanchado');
+  
+  const resultadoUnitario = document.getElementById('resultadoUnitario');
+  const resultadoTotal = document.getElementById('resultadoTotal');
+
+  // Mostrar u ocultar la configuración de planchado al activar el switch
+  incluirPlanchado.addEventListener('change', () => {
+    seccionPlanchado.style.display = incluirPlanchado.checked ? 'flex' : 'none';
+    calcularPrecios();
+  });
+
+  function calcularPrecios() {
+    const aDiseño = parseFloat(anchoDiseno.value) || 0;
+    const hDiseño = parseFloat(altoDiseno.value) || 0;
+    const aImp = parseFloat(anchoImprimible.value) || 0;
+    const hImp = parseFloat(altoImprimible.value) || 100;
+    const precio = parseFloat(precioImpresion.value) || 0;
+    const piezas = parseInt(cantidadPiezas.value) || 1;
+
+    if (aImp <= 0 || hImp <= 0) {
+      resultadoUnitario.textContent = "$0.00";
+      resultadoTotal.textContent = "$0.00";
+      return;
+    }
+
+    const areaDiseno = aDiseño * hDiseño;
+    const areaTotalImprimible = aImp * hImp;
+
+    const precioUnitario = (areaDiseno / areaTotalImprimible) * precio;
+    let precioTotalLote = precioUnitario * piezas;
+
+    // Calcular costos de planchado si está habilitado
+    if (incluirPlanchado.checked) {
+      const valorPlanchado = parseFloat(costoPlanchado.value) || 0;
+      if (tipoPlanchado.value === 'pieza') {
+        precioTotalLote += valorPlanchado * piezas;
+      } else {
+        precioTotalLote += valorPlanchado; // Cobro único por lote
+      }
+    }
+
+    resultadoUnitario.textContent = `$${precioUnitario.toFixed(2)}`;
+    resultadoTotal.textContent = `$${precioTotalLote.toFixed(2)}`;
+  }
+
+  // Escuchar eventos en todos los inputs relevantes
+  [anchoDiseno, altoDiseno, anchoImprimible, precioImpresion, cantidadPiezas, costoPlanchado, tipoPlanchado].forEach(element => {
+    if (element) {
+      element.addEventListener('input', calcularPrecios);
+      element.addEventListener('change', calcularPrecios);
+    }
+  });
+
+  calcularPrecios();
+});
+  </script>
+</body>
+</html>
