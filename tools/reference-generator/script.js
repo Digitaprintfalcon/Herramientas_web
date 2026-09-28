@@ -65,10 +65,53 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Escalar la hoja A4 a la altura disponible (layout paralelo)
+  if (window.HW && HW.initPaperFit) HW.initPaperFit();
 });
+
+// Campos obligatorios del formulario
+function validarFormulario() {
+  const requeridos = [
+    { id: 'inputEmisorNombre', label: 'nombre del emisor' },
+    { id: 'inputEmisorCedula', label: 'cédula del emisor' },
+    { id: 'inputRefNombre', label: 'nombre del referenciado' },
+    { id: 'inputRefCedula', label: 'cédula del referenciado' },
+    { id: 'inputTiempoConocer', label: 'tiempo de conocerlo(a)' },
+    { id: 'inputCiudad', label: 'ciudad / municipio' },
+    { id: 'inputDia', label: 'día de expedición' },
+    { id: 'inputMes', label: 'mes de expedición' },
+    { id: 'inputAno', label: 'año de expedición' }
+  ];
+  const faltan = [];
+  requeridos.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (!el || !el.value.trim()) faltan.push(item.label);
+  });
+  return faltan;
+}
+
+function validarYReportar() {
+  const faltan = validarFormulario();
+  const alerta = document.getElementById('refAlert');
+  if (!alerta) return faltan.length === 0;
+  if (faltan.length > 0) {
+    alerta.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i><strong>Completa:</strong> ' + faltan.join(', ') + '.';
+    alerta.classList.remove('d-none');
+    alerta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return false;
+  }
+  alerta.classList.add('d-none');
+  return true;
+}
+
+function restaurarEscala(element, previo) {
+  element.style.transform = previo;
+}
 
 // Descargar el documento vista previa en PDF usando html2pdf
 function descargarPDF() {
+  if (!validarYReportar()) return;
   const element = document.getElementById('documento-pdf');
   const refNombre = document.getElementById('inputRefNombre')?.value || 'Referencia';
 
@@ -80,10 +123,24 @@ function descargarPDF() {
     jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(element).save();
+  const escalaPrevia = element.style.transform || '';
+  element.style.transform = 'none';
+  try {
+    const worker = html2pdf().set(opt).from(element).save();
+    const restaurar = () => restaurarEscala(element, escalaPrevia);
+    if (worker && typeof worker.then === 'function') {
+      worker.then(restaurar).catch(restaurar);
+    } else {
+      setTimeout(restaurar, 800);
+    }
+  } catch (e) {
+    restaurarEscala(element, escalaPrevia);
+    throw e;
+  }
 }
 
 // Imprimir directamente el documento
 function imprimirDocumento() {
+  if (!validarYReportar()) return;
   window.print();
 }

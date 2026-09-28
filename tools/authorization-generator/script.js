@@ -1,3 +1,5 @@
+const guias = [];
+
 document.addEventListener('DOMContentLoaded', () => {
   // Mapeo de elementos de entrada con sus respectivos nodos en la vista previa
   const bindings = [
@@ -33,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupImageUpload('inputApoderadoFoto', 'boxFotoApoderado');
 
   // ---- Guías / tracking: soporta una o varias ----
-  const guias = [];
   const inputNuevaGuia = document.getElementById('inputNuevaGuia');
   const btnAgregarGuia = document.getElementById('btnAgregarGuia');
   const trackingList = document.getElementById('trackingList');
@@ -122,6 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializar nombres y cédulas en el bloque de firmas
   updateSigNames();
   updateSigCedulas();
+
+  // Escalar la hoja A4 a la altura disponible (layout paralelo)
+  if (window.HW && HW.initPaperFit) HW.initPaperFit();
 });
 
 // Función para actualizar los nombres debajo de la línea de firma (sin inyección de HTML)
@@ -164,8 +168,47 @@ function setupImageUpload(inputId, containerId) {
   });
 }
 
+// Campos obligatorios del formulario
+function validarFormulario() {
+  const requeridos = [
+    { id: 'inputLugarFecha', label: 'Lugar y fecha' },
+    { id: 'inputEmpresa', label: 'empresa' },
+    { id: 'inputOtorganteNombre', label: 'nombre del otorgante' },
+    { id: 'inputOtorganteCedula', label: 'cédula del otorgante' },
+    { id: 'inputApoderadoNombre', label: 'nombre del apoderado' },
+    { id: 'inputApoderadoCedula', label: 'cédula del apoderado' },
+    { id: 'inputOficina', label: 'oficina de entrega' }
+  ];
+  const faltan = [];
+  requeridos.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (!el || !el.value.trim()) faltan.push(item.label);
+  });
+  if (guias.length === 0) faltan.push('al menos un número de guía');
+  return faltan;
+}
+
+function validarYReportar() {
+  const faltan = validarFormulario();
+  const alerta = document.getElementById('authAlert');
+  if (!alerta) return faltan.length === 0;
+  if (faltan.length > 0) {
+    alerta.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i><strong>Completa:</strong> ' + faltan.join(', ') + '.';
+    alerta.classList.remove('d-none');
+    alerta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return false;
+  }
+  alerta.classList.add('d-none');
+  return true;
+}
+
+function restaurarEscala(element, previo) {
+  element.style.transform = previo;
+}
+
 // Exportar documento a PDF usando html2pdf
 function descargarPDF() {
+  if (!validarYReportar()) return;
   const element = document.getElementById('documento-pdf');
   const otorgante = document.getElementById('inputOtorganteNombre')?.value || 'Autorizacion';
 
@@ -177,10 +220,24 @@ function descargarPDF() {
     jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(element).save();
+  const escalaPrevia = element.style.transform || '';
+  element.style.transform = 'none';
+  try {
+    const worker = html2pdf().set(opt).from(element).save();
+    const restaurar = () => restaurarEscala(element, escalaPrevia);
+    if (worker && typeof worker.then === 'function') {
+      worker.then(restaurar).catch(restaurar);
+    } else {
+      setTimeout(restaurar, 800);
+    }
+  } catch (e) {
+    restaurarEscala(element, escalaPrevia);
+    throw e;
+  }
 }
 
 // Imprimir directamente el documento
 function imprimirDocumento() {
+  if (!validarYReportar()) return;
   window.print();
 }

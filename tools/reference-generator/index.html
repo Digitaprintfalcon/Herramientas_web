@@ -90,11 +90,11 @@
   </div>
 
   <div class="container my-auto py-4">
-    <div class="row g-4">
+    <div class="row g-4 doc-layout">
       
       <!-- FORMULARIO -->
-      <div class="col-lg-5 col-xl-5">
-        <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto" style="max-height: 85vh;">
+      <div class="col-lg-5 col-xl-5 doc-col-form">
+        <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto">
           
           <h5 class="hw-section-title">1. Emisor (Quien Emite la Referencia)</h5>
           <div class="row g-2 mb-3">
@@ -176,6 +176,8 @@
             </div>
           </div>
 
+          <div id="refAlert" class="alert alert-warning d-none mb-3" role="alert"></div>
+
           <div class="d-flex gap-2 btn-container">
             <button class="btn btn-primary w-50 fw-semibold" onclick="descargarPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
             <button class="btn btn-success w-50 fw-semibold" onclick="imprimirDocumento()"><i class="bi bi-printer me-1"></i>Imprimir</button>
@@ -185,7 +187,7 @@
       </div>
 
       <!-- VISTA PREVIA (HOJA A4 / CARTA) -->
-      <div class="col-lg-7 col-xl-7 d-flex justify-content-center">
+      <div class="col-lg-7 col-xl-7 paper-wrap">
         <div class="paper shadow-lg rounded-1" id="documento-pdf">
           <div class="doc-title">REFERENCIA PERSONAL</div>
 
@@ -223,6 +225,9 @@
 
     </div>
   </div>
+
+  <!-- Utilidades compartidas del panel -->
+  <script src="../common.js"></script>
 
   <!-- Script Lógica JavaScript -->
   <script src="script.js"></script>
