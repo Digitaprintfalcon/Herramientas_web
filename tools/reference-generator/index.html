@@ -72,6 +72,14 @@
       margin: 0 auto;
     }
 
+    /* Línea para completar a mano en la plantilla en blanco */
+    .blank-line {
+      display: inline-block;
+      border-bottom: 1.2px solid #000;
+      line-height: 1.2;
+      vertical-align: baseline;
+    }
+
     @media print {
       body { background: none !important; }
       header, .form-panel, .btn-container { display: none !important; }
@@ -95,7 +103,21 @@
       <!-- FORMULARIO -->
       <div class="col-lg-5 col-xl-5 doc-col-form">
         <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto">
-          
+
+          <h5 class="hw-section-title">Modo de captura</h5>
+          <div class="btn-group d-flex mb-4" role="group" aria-label="Modo de captura">
+            <button type="button" class="btn btn-primary flex-fill" data-modo="manual">Manual</button>
+            <button type="button" class="btn btn-outline-primary flex-fill" data-modo="precargado">Precargadas</button>
+            <button type="button" class="btn btn-outline-primary flex-fill" data-modo="vacia">Vacía</button>
+          </div>
+
+          <div id="bloqueVacioInfo" class="d-none">
+            <div class="alert alert-secondary small mb-2">
+              <i class="bi bi-pencil me-1"></i>Plantilla en blanco: la hoja se imprime con líneas para completar a mano.
+            </div>
+          </div>
+
+          <section id="bloqueEmisorManual">
           <h5 class="hw-section-title">1. Emisor (Quien Emite la Referencia)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
@@ -120,7 +142,18 @@
               <input type="text" class="form-control form-control-sm" id="inputEmisorTelefono" placeholder="0414-0000000" value="">
             </div>
           </div>
+          </section>
 
+          <section id="bloqueEmisorPrecargado" class="d-none mb-3">
+            <h5 class="hw-section-title">1. Emisor (Precargado)</h5>
+            <div>
+              <label for="selectReferente" class="form-label form-label-sm fw-semibold text-secondary">Quien emite la referencia:</label>
+              <select class="form-select form-select-sm" id="selectReferente"></select>
+              <div class="small text-muted mt-2" id="referentePreview"></div>
+            </div>
+          </section>
+
+          <section id="bloqueReferenciado">
           <h5 class="hw-section-title">2. Referenciado (Persona Recomendada)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
@@ -145,8 +178,10 @@
               <input type="text" class="form-control form-control-sm" id="inputTiempoConocer" placeholder="Ejm: dos (02) años aproximadamente" value="">
             </div>
           </div>
+          </section>
 
           <!-- SECCIÓN: CARGAR CÉDULA -->
+          <section id="bloqueFoto">
           <h5 class="hw-section-title">3. Adjuntar Foto de Cédula de Identidad</h5>
           <div class="mb-3">
             <label class="form-label form-label-sm fw-semibold text-secondary">Foto de la Cédula (Opcional):</label>
@@ -155,7 +190,9 @@
               <input type="file" id="inputCedulaImg" accept="image/*" class="d-none">
             </div>
           </div>
+          </section>
 
+          <section id="bloqueFecha">
           <h5 class="hw-section-title">4. Fecha y Lugar de Expedición</h5>
           <div class="row g-2 mb-4">
             <div class="col-md-6">
@@ -175,6 +212,7 @@
               <input type="text" class="form-control form-control-sm" id="inputAno" placeholder="2025" value="">
             </div>
           </div>
+          </section>
 
           <div id="refAlert" class="alert alert-warning d-none mb-3" role="alert"></div>
 
@@ -189,6 +227,7 @@
       <!-- VISTA PREVIA (HOJA A4 / CARTA) -->
       <div class="col-lg-7 col-xl-7 paper-wrap">
         <div class="paper shadow-lg rounded-1" id="documento-pdf">
+          <div id="contenidoLleno">
           <div class="doc-title">REFERENCIA PERSONAL</div>
 
           <div class="doc-salutation">A Quién Pueda Interesar:</div>
@@ -217,6 +256,23 @@
             <div class="cedula-title">Anexo: Cédula de Identidad</div>
             <div class="cedula-img-container">
               <img id="docCedulaImg" src="" alt="Cédula de Identidad">
+            </div>
+          </div>
+          </div><!-- /contenidoLleno -->
+
+          <div id="contenidoVacio" class="d-none">
+            <div class="doc-title">REFERENCIA PERSONAL</div>
+            <div class="doc-salutation">A Quién Pueda Interesar:</div>
+            <div class="doc-body">
+              Yo, <span class="blank-line" style="width: 80mm;"></span>, <span class="blank-line" style="width: 38mm;"></span>, titular de la cédula de identidad Nº <span class="blank-line" style="width: 34mm;"></span>, hago constar, que conozco de vista, trato y comunicación desde hace <span class="blank-line" style="width: 50mm;"></span>, al ciudadano: <span class="blank-line" style="width: 80mm;"></span>, <span class="blank-line" style="width: 38mm;"></span>, titular de la cédula de identidad Nº <span class="blank-line" style="width: 34mm;"></span>. Quién ha demostrado una conducta intachable, moral y buenas costumbres, por lo tanto, le concedo la presente referencia personal.
+            </div>
+            <div class="doc-expedition">
+              Referencia que se expide a petición de la parte interesada, en <span class="blank-line" style="width: 35mm;"></span> a los <span class="blank-line" style="width: 15mm;"></span> días del mes de <span class="blank-line" style="width: 38mm;"></span> de <span class="blank-line" style="width: 20mm;"></span>.
+            </div>
+            <div class="doc-closing">Atentamente,</div>
+            <div class="signature-wrapper">
+              <div class="sig-line"></div>
+              <div class="sig-details">C.I Nro. <span class="blank-line" style="width: 35mm;"></span><br>Tlf: <span class="blank-line" style="width: 35mm;"></span></div>
             </div>
           </div>
 

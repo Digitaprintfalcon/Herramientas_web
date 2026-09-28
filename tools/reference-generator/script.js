@@ -1,3 +1,13 @@
+// Personas predefinidas que emiten la referencia (modo Precargadas).
+// Reemplaza estos placeholders con los datos reales de tus 3 referentes.
+const REFERENTES = [
+  { nombre: 'Nombre Referente 1', nacionalidad: 'Venezolano', cedula: 'V-00.000.000', telefono: '0414-0000000' },
+  { nombre: 'Nombre Referente 2', nacionalidad: 'Venezolano', cedula: 'V-00.000.000', telefono: '0414-0000000' },
+  { nombre: 'Nombre Referente 3', nacionalidad: 'Venezolano', cedula: 'V-00.000.000', telefono: '0414-0000000' }
+];
+
+let modoActual = 'manual';
+
 document.addEventListener('DOMContentLoaded', () => {
   // Configuración de los enlaces dinamicos entre inputs y nodos HTML del documento
   const bindings = [
@@ -66,15 +76,93 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Modos de captura (Manual / Precargadas / Vacía) ----
+  const selReferente = document.getElementById('selectReferente');
+  if (selReferente) {
+    REFERENTES.forEach(function (p, i) {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = p.nombre || ('Referente ' + (i + 1));
+      selReferente.appendChild(opt);
+    });
+    selReferente.addEventListener('change', function () {
+      applyReferente(REFERENTES[Number(this.value)]);
+    });
+  }
+
+  document.querySelectorAll('[data-modo]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      cambiarModo(btn.dataset.modo);
+    });
+  });
+
+  cambiarModo('manual');
+
   // Escalar la hoja A4 a la altura disponible (layout paralelo)
   if (window.HW && HW.initPaperFit) HW.initPaperFit();
 });
 
-// Campos obligatorios del formulario
+function aplicarEmisorEnDocumento(datos) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = val;
+  };
+  set('docEmisorNombre', datos.nombre);
+  set('docEmisorNacionalidad', datos.nacionalidad);
+  set('docEmisorCedula', datos.cedula);
+  set('docSigEmisorNombre', datos.nombre);
+  set('docSigEmisorCedula', datos.cedula);
+  set('docSigEmisorTelefono', datos.telefono);
+}
+
+function applyReferente(ref) {
+  if (!ref) return;
+  aplicarEmisorEnDocumento(ref);
+  const prev = document.getElementById('referentePreview');
+  if (prev) prev.textContent = 'Se usará: ' + (ref.nombre || 'Referente') + ' · C.I ' + (ref.cedula || '');
+}
+
+function cambiarModo(m) {
+  modoActual = m;
+
+  const bloques = {
+    manual: ['bloqueEmisorManual', 'bloqueReferenciado', 'bloqueFoto', 'bloqueFecha'],
+    precargado: ['bloqueEmisorPrecargado', 'bloqueReferenciado', 'bloqueFoto', 'bloqueFecha'],
+    vacia: []
+  };
+  const visibles = bloques[m] || [];
+  ['bloqueEmisorManual', 'bloqueEmisorPrecargado', 'bloqueReferenciado', 'bloqueFoto', 'bloqueFecha'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('d-none', !visibles.includes(id));
+  });
+
+  const info = document.getElementById('bloqueVacioInfo');
+  if (info) info.classList.toggle('d-none', m !== 'vacia');
+
+  document.querySelectorAll('[data-modo]').forEach(function (b) {
+    b.classList.toggle('btn-primary', b.dataset.modo === m);
+    b.classList.toggle('btn-outline-primary', b.dataset.modo !== m);
+  });
+
+  const lleno = document.getElementById('contenidoLleno');
+  const vacio = document.getElementById('contenidoVacio');
+  if (lleno) lleno.classList.toggle('d-none', m === 'vacia');
+  if (vacio) vacio.classList.toggle('d-none', m !== 'vacia');
+
+  const alerta = document.getElementById('refAlert');
+  if (alerta) alerta.classList.add('d-none');
+
+  if (m === 'precargado') {
+    const sel = document.getElementById('selectReferente');
+    if (sel) applyReferente(REFERENTES[Number(sel.value)] || REFERENTES[0]);
+  }
+}
+
+// Campos obligatorios del formulario según el modo activo
 function validarFormulario() {
+  if (modoActual === 'vacia') return [];
+
   const requeridos = [
-    { id: 'inputEmisorNombre', label: 'nombre del emisor' },
-    { id: 'inputEmisorCedula', label: 'cédula del emisor' },
     { id: 'inputRefNombre', label: 'nombre del referenciado' },
     { id: 'inputRefCedula', label: 'cédula del referenciado' },
     { id: 'inputTiempoConocer', label: 'tiempo de conocerlo(a)' },
@@ -88,6 +176,20 @@ function validarFormulario() {
     const el = document.getElementById(item.id);
     if (!el || !el.value.trim()) faltan.push(item.label);
   });
+
+  if (modoActual === 'manual') {
+    const emisorNombre = document.getElementById('inputEmisorNombre')?.value.trim();
+    const emisorCedula = document.getElementById('inputEmisorCedula')?.value.trim();
+    if (!emisorNombre) faltan.push('nombre del emisor');
+    if (!emisorCedula) faltan.push('cédula del emisor');
+  }
+
+  if (modoActual === 'precargado') {
+    const sel = document.getElementById('selectReferente');
+    const ref = sel ? REFERENTES[Number(sel.value)] : null;
+    if (!ref || !ref.nombre || !ref.cedula) faltan.push('datos del emisor precargado (nombre y cédula)');
+  }
+
   return faltan;
 }
 
@@ -113,11 +215,16 @@ function restaurarEscala(element, previo) {
 function descargarPDF() {
   if (!validarYReportar()) return;
   const element = document.getElementById('documento-pdf');
-  const refNombre = document.getElementById('inputRefNombre')?.value || 'Referencia';
+  let baseNombre = 'Referencia';
+  if (modoActual === 'vacia') {
+    baseNombre = 'En_Blanco';
+  } else {
+    baseNombre = (document.getElementById('inputRefNombre')?.value || 'Referencia').trim().replace(/\s+/g, '_');
+  }
 
   const opt = {
     margin: 0,
-    filename: `Referencia_Personal_${refNombre.trim().replace(/\s+/g, '_')}.pdf`,
+    filename: `Referencia_Personal_${baseNombre}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
