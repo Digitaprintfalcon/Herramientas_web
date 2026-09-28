@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const costoUnitarioTotal = costoVinilUnitario + costoLamUnitario + costoDisUnitario + costoCorUnitario + costoInstUnitario;
     const precioFinal = costoUnitarioTotal * (cantidad > 0 ? cantidad : 1);
 
-    resultado.textContent = `$${precioFinal.toFixed(2)}`;
+    resultado.textContent = HW.fmtCurrency(precioFinal);
   }
 
   const inputsMonitoreados = [

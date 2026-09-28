@@ -8,6 +8,11 @@
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Estilos comunes del panel -->
+  <link rel="stylesheet" href="../common.css">
+  
   <!-- Librería externa para convertir HTML a PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -52,28 +57,32 @@
     }
   </style>
 </head>
-<body class="bg-light">
+<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
 
-  <header class="bg-dark text-white py-3 px-4 mb-4 shadow-sm">
-    <h1 class="h4 m-0">Generador de Cartas de Autorización de Encomiendas</h1>
-  </header>
+  <div class="tool-nav">
+    <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+    <div class="tool-nav-titles">
+      <h1 class="tool-nav-title">Generador de Autorizaciones</h1>
+      <p class="tool-nav-sub">Cartas de autorización para retiro de encomiendas con imagen de Cédula</p>
+    </div>
+  </div>
 
-  <div class="container-fluid px-4 mb-5">
+  <div class="container my-auto py-4">
     <div class="row g-4">
       
       <!-- 1. FORMULARIO -->
       <div class="col-lg-5 col-xl-5">
         <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto" style="max-height: 85vh;">
           
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">1. Encabezado</h5>
+          <h5 class="hw-section-title">1. Encabezado</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
               <label for="inputLugarFecha" class="form-label form-label-sm fw-semibold">Lugar y Fecha:</label>
-              <input type="text" class="form-control form-control-sm" id="inputLugarFecha" value="Santa Ana de Coro; 27 de agosto del 2025.">
+              <input type="text" class="form-control form-control-sm" id="inputLugarFecha" placeholder="Ejm: Santa Ana de Coro; 27 de agosto del 2025." value="">
             </div>
             <div class="col-md-6">
               <label for="inputEmpresa" class="form-label form-label-sm fw-semibold">Empresa:</label>
-              <input type="text" class="form-control form-control-sm" id="inputEmpresa" value="Sres. MRW;">
+              <input type="text" class="form-control form-control-sm" id="inputEmpresa" placeholder="Ejm: Sres. MRW" value="">
             </div>
             <div class="col-md-6">
               <label for="inputPresente" class="form-label form-label-sm fw-semibold">Presente:</label>
@@ -81,11 +90,11 @@
             </div>
           </div>
 
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">2. Otorgante (Quien Autoriza)</h5>
+          <h5 class="hw-section-title">2. Otorgante (Quien Autoriza)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
               <label for="inputOtorganteNombre" class="form-label form-label-sm fw-semibold">Nombre Completo:</label>
-              <input type="text" class="form-control form-control-sm" id="inputOtorganteNombre" value="ANDRINETH ADRIANZA REYES">
+              <input type="text" class="form-control form-control-sm" id="inputOtorganteNombre" placeholder="Nombre y apellido" value="">
             </div>
             <div class="col-md-6">
               <label for="inputOtorganteGenero" class="form-label form-label-sm fw-semibold">Nacionalidad/Género:</label>
@@ -96,7 +105,7 @@
             </div>
             <div class="col-md-6">
               <label for="inputOtorganteCedula" class="form-label form-label-sm fw-semibold">Nro. Cédula:</label>
-              <input type="text" class="form-control form-control-sm" id="inputOtorganteCedula" value="V-16.709.137">
+              <input type="text" class="form-control form-control-sm" id="inputOtorganteCedula" placeholder="V-00.000.000" value="">
             </div>
             <div class="col-12">
               <label for="inputOtorganteFoto" class="form-label form-label-sm fw-semibold">Imagen Cédula (Otorgante):</label>
@@ -104,11 +113,11 @@
             </div>
           </div>
 
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">3. Apoderado (Quien Retira)</h5>
+          <h5 class="hw-section-title">3. Apoderado (Quien Retira)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
               <label for="inputApoderadoNombre" class="form-label form-label-sm fw-semibold">Nombre Completo:</label>
-              <input type="text" class="form-control form-control-sm" id="inputApoderadoNombre" value="RAUMER EMIRO ROJAS">
+              <input type="text" class="form-control form-control-sm" id="inputApoderadoNombre" placeholder="Nombre y apellido" value="">
             </div>
             <div class="col-md-6">
               <label for="inputApoderadoGenero" class="form-label form-label-sm fw-semibold">Nacionalidad/Género:</label>
@@ -119,7 +128,7 @@
             </div>
             <div class="col-md-6">
               <label for="inputApoderadoCedula" class="form-label form-label-sm fw-semibold">Nro. Cédula:</label>
-              <input type="text" class="form-control form-control-sm" id="inputApoderadoCedula" value="V-12.733.576">
+              <input type="text" class="form-control form-control-sm" id="inputApoderadoCedula" placeholder="V-00.000.000" value="">
             </div>
             <div class="col-12">
               <label for="inputApoderadoFoto" class="form-label form-label-sm fw-semibold">Imagen Cédula (Apoderado):</label>
@@ -127,21 +136,21 @@
             </div>
           </div>
 
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">4. Encomienda</h5>
+          <h5 class="hw-section-title">4. Encomienda</h5>
           <div class="row g-2 mb-4">
             <div class="col-12">
               <label for="inputTracking" class="form-label form-label-sm fw-semibold">Número de Tracking / Guía:</label>
-              <input type="text" class="form-control form-control-sm" id="inputTracking" value="014401105000517">
+              <input type="text" class="form-control form-control-sm" id="inputTracking" placeholder="Número de guía" value="">
             </div>
             <div class="col-12">
               <label for="inputOficina" class="form-label form-label-sm fw-semibold">Ubicación Oficina de Entrega:</label>
-              <input type="text" class="form-control form-control-sm" id="inputOficina" value="Centro Comercial el Castillo Don Leoncio, planta baja.">
+              <input type="text" class="form-control form-control-sm" id="inputOficina" placeholder="Dirección de la oficina" value="">
             </div>
           </div>
 
           <div class="d-flex gap-2 btn-container">
-            <button class="btn btn-primary w-50 fw-semibold" onclick="descargarPDF()">📄 Descargar PDF</button>
-            <button class="btn btn-success w-50 fw-semibold" onclick="imprimirDocumento()">🖨️ Imprimir</button>
+            <button class="btn btn-primary w-50 fw-semibold" onclick="descargarPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
+            <button class="btn btn-success w-50 fw-semibold" onclick="imprimirDocumento()"><i class="bi bi-printer me-1"></i>Imprimir</button>
           </div>
 
         </div>
@@ -150,17 +159,17 @@
       <!-- 2. VISTA PREVIA (HOJA A4) -->
       <div class="col-lg-7 col-xl-7 d-flex justify-content-center">
         <div class="paper shadow-lg rounded-1" id="documento-pdf">
-          <div class="doc-date" id="docLugarFecha">Santa Ana de Coro; 27 de agosto del 2025.</div>
+          <div class="doc-date" id="docLugarFecha"></div>
 
           <div class="doc-addressee">
-            <div id="docEmpresa">Sres. MRW;</div>
+            <div id="docEmpresa"></div>
             <div id="docPresente">Presente. -</div>
           </div>
 
           <div class="doc-title">AUTORIZACION</div>
 
           <div class="doc-body">
-            Yo, <strong id="docOtorganteNombre">ANDRINETH ADRIANZA REYES</strong>, <span id="docOtorganteGenero">venezolana</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docOtorganteCedula">V-16.709.137</span></strong>, en pleno uso de mis facultades legales e intelectuales, por este medio autorizo a <strong id="docApoderadoNombre">RAUMER EMIRO ROJAS</strong>, <span id="docApoderadoGenero">venezolano</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docApoderadoCedula">V-12.733.576</span></strong>, para que retire una encomienda en mi representación, el número de tracking de dicha encomienda es: <strong id="docTracking">014401105000517</strong> en la oficina de MRW ubicada en el <strong id="docOficina">Centro Comercial el Castillo Don Leoncio, planta baja.</strong>
+            Yo, <strong id="docOtorganteNombre"></strong>, <span id="docOtorganteGenero">venezolana</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docOtorganteCedula"></span></strong>, en pleno uso de mis facultades legales e intelectuales, por este medio autorizo a <strong id="docApoderadoNombre"></strong>, <span id="docApoderadoGenero">venezolano</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docApoderadoCedula"></span></strong>, para que retire una encomienda en mi representación, el número de tracking de dicha encomienda es: <strong id="docTracking"></strong> en la oficina de MRW ubicada en el <strong id="docOficina"></strong>.
           </div>
 
           <div class="doc-closing">
@@ -171,7 +180,7 @@
           <div class="row text-center mt-auto">
             <div class="col-6 px-3">
               <div class="sig-line"></div>
-              <div class="sig-name" id="docSigOtorganteNombre">ANDRINETH<br>ADRIANZA REYES</div>
+              <div class="sig-name" id="docSigOtorganteNombre"></div>
               <div class="cedula-img-container" id="boxFotoOtorgante">
                 <span class="text-muted small">[ Cédula Otorgante ]</span>
               </div>
@@ -179,7 +188,7 @@
 
             <div class="col-6 px-3">
               <div class="sig-line"></div>
-              <div class="sig-name" id="docSigApoderadoNombre">RAUMER<br>EMIRO ROJAS</div>
+              <div class="sig-name" id="docSigApoderadoNombre"></div>
               <div class="cedula-img-container" id="boxFotoApoderado">
                 <span class="text-muted small">[ Cédula Apoderado ]</span>
               </div>

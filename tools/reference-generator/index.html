@@ -8,6 +8,11 @@
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Estilos comunes del panel -->
+  <link rel="stylesheet" href="../common.css">
+  
   <!-- html2pdf.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -74,25 +79,28 @@
     }
   </style>
 </head>
-<body class="bg-light">
+<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
 
-  <header class="bg-dark text-white py-3 px-4 mb-4 shadow-sm">
-    <h1 class="h4 m-0 fw-bold">Generador de Referencias Personales</h1>
-    <p class="text-secondary small m-0">Crea, edita e imprime referencias personales con imagen de Cédula</p>
-  </header>
+  <div class="tool-nav">
+    <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+    <div class="tool-nav-titles">
+      <h1 class="tool-nav-title">Generador de Referencias</h1>
+      <p class="tool-nav-sub">Crea, edita e imprime referencias personales con imagen de Cédula</p>
+    </div>
+  </div>
 
-  <div class="container-fluid px-4 mb-5">
+  <div class="container my-auto py-4">
     <div class="row g-4">
       
       <!-- FORMULARIO -->
       <div class="col-lg-5 col-xl-5">
         <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto" style="max-height: 85vh;">
           
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">1. Emisor (Quien Emite la Referencia)</h5>
+          <h5 class="hw-section-title">1. Emisor (Quien Emite la Referencia)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
               <label for="inputEmisorNombre" class="form-label form-label-sm fw-semibold text-secondary">Nombre Completo:</label>
-              <input type="text" class="form-control form-control-sm" id="inputEmisorNombre" value="Diego José Oropeza Diaz">
+              <input type="text" class="form-control form-control-sm" id="inputEmisorNombre" placeholder="Nombre y apellido" value="">
             </div>
             <div class="col-md-6">
               <label for="inputEmisorNacionalidad" class="form-label form-label-sm fw-semibold text-secondary">Nacionalidad / Género:</label>
@@ -105,19 +113,19 @@
             </div>
             <div class="col-md-6">
               <label for="inputEmisorCedula" class="form-label form-label-sm fw-semibold text-secondary">Cédula de Identidad:</label>
-              <input type="text" class="form-control form-control-sm" id="inputEmisorCedula" value="V-30.893.191">
+              <input type="text" class="form-control form-control-sm" id="inputEmisorCedula" placeholder="V-00.000.000" value="">
             </div>
             <div class="col-12">
               <label for="inputEmisorTelefono" class="form-label form-label-sm fw-semibold text-secondary">Teléfono de Contacto:</label>
-              <input type="text" class="form-control form-control-sm" id="inputEmisorTelefono" value="0424-123326">
+              <input type="text" class="form-control form-control-sm" id="inputEmisorTelefono" placeholder="0414-0000000" value="">
             </div>
           </div>
 
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">2. Referenciado (Persona Recomendada)</h5>
+          <h5 class="hw-section-title">2. Referenciado (Persona Recomendada)</h5>
           <div class="row g-2 mb-3">
             <div class="col-12">
               <label for="inputRefNombre" class="form-label form-label-sm fw-semibold text-secondary">Nombre Completo:</label>
-              <input type="text" class="form-control form-control-sm" id="inputRefNombre" value="Anthony Manuel Barrios Vergoso">
+              <input type="text" class="form-control form-control-sm" id="inputRefNombre" placeholder="Nombre y apellido" value="">
             </div>
             <div class="col-md-6">
               <label for="inputRefNacionalidad" class="form-label form-label-sm fw-semibold text-secondary">Nacionalidad / Género:</label>
@@ -130,47 +138,47 @@
             </div>
             <div class="col-md-6">
               <label for="inputRefCedula" class="form-label form-label-sm fw-semibold text-secondary">Cédula de Identidad:</label>
-              <input type="text" class="form-control form-control-sm" id="inputRefCedula" value="V-15.187.356">
+              <input type="text" class="form-control form-control-sm" id="inputRefCedula" placeholder="V-00.000.000" value="">
             </div>
             <div class="col-12">
               <label for="inputTiempoConocer" class="form-label form-label-sm fw-semibold text-secondary">Tiempo de Conocerlo(a):</label>
-              <input type="text" class="form-control form-control-sm" id="inputTiempoConocer" value="tres (03) años aproximadamente">
+              <input type="text" class="form-control form-control-sm" id="inputTiempoConocer" placeholder="Ejm: dos (02) años aproximadamente" value="">
             </div>
           </div>
 
           <!-- SECCIÓN: CARGAR CÉDULA -->
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">3. Adjuntar Foto de Cédula de Identidad</h5>
+          <h5 class="hw-section-title">3. Adjuntar Foto de Cédula de Identidad</h5>
           <div class="mb-3">
             <label class="form-label form-label-sm fw-semibold text-secondary">Foto de la Cédula (Opcional):</label>
             <div class="border border-primary-subtle bg-primary-subtle rounded p-3 text-center cursor-pointer" onclick="document.getElementById('inputCedulaImg').click()" style="cursor: pointer;">
-              <span id="fileLabel" class="text-primary fw-semibold small">📁 Clic aquí para seleccionar/tomar foto de la Cédula</span>
+              <span id="fileLabel" class="text-primary fw-semibold small"><i class="bi bi-image me-1"></i>Clic aquí para seleccionar/tomar foto de la Cédula</span>
               <input type="file" id="inputCedulaImg" accept="image/*" class="d-none">
             </div>
           </div>
 
-          <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">4. Fecha y Lugar de Expedición</h5>
+          <h5 class="hw-section-title">4. Fecha y Lugar de Expedición</h5>
           <div class="row g-2 mb-4">
             <div class="col-md-6">
               <label for="inputCiudad" class="form-label form-label-sm fw-semibold text-secondary">Ciudad / Municipio:</label>
-              <input type="text" class="form-control form-control-sm" id="inputCiudad" value="Coro">
+              <input type="text" class="form-control form-control-sm" id="inputCiudad" placeholder="Ciudad" value="">
             </div>
             <div class="col-md-6">
               <label for="inputDia" class="form-label form-label-sm fw-semibold text-secondary">Día (números):</label>
-              <input type="text" class="form-control form-control-sm" id="inputDia" value="01">
+              <input type="text" class="form-control form-control-sm" id="inputDia" placeholder="01" value="">
             </div>
             <div class="col-md-6">
               <label for="inputMes" class="form-label form-label-sm fw-semibold text-secondary">Mes:</label>
-              <input type="text" class="form-control form-control-sm" id="inputMes" value="Noviembre">
+              <input type="text" class="form-control form-control-sm" id="inputMes" placeholder="Enero" value="">
             </div>
             <div class="col-md-6">
               <label for="inputAno" class="form-label form-label-sm fw-semibold text-secondary">Año:</label>
-              <input type="text" class="form-control form-control-sm" id="inputAno" value="2025">
+              <input type="text" class="form-control form-control-sm" id="inputAno" placeholder="2025" value="">
             </div>
           </div>
 
           <div class="d-flex gap-2 btn-container">
-            <button class="btn btn-primary w-50 fw-semibold" onclick="descargarPDF()">📄 Descargar PDF</button>
-            <button class="btn btn-success w-50 fw-semibold" onclick="imprimirDocumento()">🖨️ Imprimir</button>
+            <button class="btn btn-primary w-50 fw-semibold" onclick="descargarPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
+            <button class="btn btn-success w-50 fw-semibold" onclick="imprimirDocumento()"><i class="bi bi-printer me-1"></i>Imprimir</button>
           </div>
 
         </div>
@@ -184,21 +192,21 @@
           <div class="doc-salutation">A Quién Pueda Interesar:</div>
 
           <div class="doc-body">
-            Yo, <strong id="docEmisorNombre">Diego José Oropeza Diaz</strong>, <span id="docEmisorNacionalidad">Venezolano</span>, titular de la cédula de identidad <strong>Nº <span id="docEmisorCedula">V-30.893.191</span></strong>, hago constar, que conozco de vista, trato y comunicación desde hace <span id="docTiempoConocer">tres (03) años aproximadamente</span>, al ciudadano: <strong id="docRefNombre">Anthony Manuel Barrios Vergoso</strong>, <span id="docRefNacionalidad">Venezolano</span>, titular de la cédula de identidad <strong>Nº <span id="docRefCedula">V-15.187.356</span></strong>. Quién ha demostrado una conducta intachable, moral y buenas costumbres, por lo tanto, le concedo la presente referencia personal.
+            Yo, <strong id="docEmisorNombre"></strong>, <span id="docEmisorNacionalidad">Venezolano</span>, titular de la cédula de identidad <strong>Nº <span id="docEmisorCedula"></span></strong>, hago constar, que conozco de vista, trato y comunicación desde hace <span id="docTiempoConocer"></span>, al ciudadano: <strong id="docRefNombre"></strong>, <span id="docRefNacionalidad">Venezolano</span>, titular de la cédula de identidad <strong>Nº <span id="docRefCedula"></span></strong>. Quién ha demostrado una conducta intachable, moral y buenas costumbres, por lo tanto, le concedo la presente referencia personal.
           </div>
 
           <div class="doc-expedition">
-            Referencia que se expide a petición de la parte interesada, en <span id="docCiudad">Coro</span> a los <span id="docDia">01</span> días del mes de <span id="docMes">Noviembre</span> de <span id="docAno">2025</span>.
+            Referencia que se expide a petición de la parte interesada, en <span id="docCiudad"></span> a los <span id="docDia"></span> días del mes de <span id="docMes"></span> de <span id="docAno"></span>.
           </div>
 
           <div class="doc-closing">Atentamente,</div>
 
           <div class="signature-wrapper">
             <div class="sig-line"></div>
-            <div class="sig-name" id="docSigEmisorNombre">Diego José Oropeza Diaz</div>
+            <div class="sig-name" id="docSigEmisorNombre"></div>
             <div class="sig-details">
-              C.I Nro. <span id="docSigEmisorCedula">V-30.893.191</span><br>
-              Tlf: <span id="docSigEmisorTelefono">0424-123326</span>
+              C.I Nro. <span id="docSigEmisorCedula"></span><br>
+              Tlf: <span id="docSigEmisorTelefono"></span>
             </div>
           </div>
 

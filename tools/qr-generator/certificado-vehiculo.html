@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado de Registro de Vehículo - INTT</title>
+    <!-- CSS de Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Estilos comunes del panel -->
+    <link rel="stylesheet" href="../common.css">
+    <style>
+        #qrcode img, #qrcode canvas {
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .preview-text {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.8rem;
+            background: var(--hw-bg-soft);
+            border: 1px solid var(--hw-border);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
+
+    <div class="tool-nav">
+        <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+        <div class="tool-nav-titles">
+            <h1 class="tool-nav-title">Certificado Vehicular INTT</h1>
+            <p class="tool-nav-sub">Genera el texto oficial del certificado y su código QR</p>
+        </div>
+    </div>
+
+    <div class="container my-auto py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7">
+
+                <div class="card shadow border-0 rounded-4">
+                    <div class="card-body p-4">
+
+                        <h2 class="hw-card-title h4 mb-1"><i class="bi bi-car-front text-primary me-2"></i>Certificado de Registro de Vehículo</h2>
+                        <p class="hw-card-subtitle mb-4">Completa los datos para generar el texto y el código QR</p>
+
+                        <p class="hw-section-title">Datos del Certificado</p>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="tramite" class="form-label fw-semibold small text-secondary">Nº de Trámite</label>
+                                <input type="text" class="form-control form-control-sm" id="tramite" placeholder="Ej: 220108129965" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="fechaProcesoDia" class="form-label fw-semibold small text-secondary">Fecha de Proceso</label>
+                                <div class="input-group">
+                                    <select class="form-select form-select-sm" id="fechaProcesoDia">
+                                        <option value="">Día</option>
+                                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                                        <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                                        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                        <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                                        <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+                                        <option value="19">19</option><option value="20">20</option><option value="21">21</option>
+                                        <option value="22">22</option><option value="23">23</option><option value="24">24</option>
+                                        <option value="25">25</option><option value="26">26</option><option value="27">27</option>
+                                        <option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                                        <option value="31">31</option>
+                                    </select>
+                                    <select class="form-select form-select-sm" id="fechaProcesoMes">
+                                        <option value="">Mes</option>
+                                        <option value="ENERO">ENERO</option><option value="FEBRERO">FEBRERO</option>
+                                        <option value="MARZO">MARZO</option><option value="ABRIL">ABRIL</option>
+                                        <option value="MAYO">MAYO</option><option value="JUNIO">JUNIO</option>
+                                        <option value="JULIO">JULIO</option><option value="AGOSTO">AGOSTO</option>
+                                        <option value="SEPTIEMBRE">SEPTIEMBRE</option><option value="OCTUBRE">OCTUBRE</option>
+                                        <option value="NOVIEMBRE">NOVIEMBRE</option><option value="DICIEMBRE">DICIEMBRE</option>
+                                    </select>
+                                    <select class="form-select form-select-sm" id="fechaProcesoAnio">
+                                        <option value="">Año</option>
+                                        <option value="2000">2000</option><option value="2001">2001</option><option value="2002">2002</option>
+                                        <option value="2003">2003</option><option value="2004">2004</option><option value="2005">2005</option>
+                                        <option value="2006">2006</option><option value="2007">2007</option><option value="2008">2008</option>
+                                        <option value="2009">2009</option><option value="2010">2010</option><option value="2011">2011</option>
+                                        <option value="2012">2012</option><option value="2013">2013</option><option value="2014">2014</option>
+                                        <option value="2015">2015</option><option value="2016">2016</option><option value="2017">2017</option>
+                                        <option value="2018">2018</option><option value="2019">2019</option><option value="2020">2020</option>
+                                        <option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option>
+                                        <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                                        <option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option>
+                                        <option value="2030">2030</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="titular" class="form-label fw-semibold small text-secondary">Titular</label>
+                                <input type="text" class="form-control form-control-sm" id="titular" placeholder="Nombre y apellido del titular" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="cedula" class="form-label fw-semibold small text-secondary">Cédula</label>
+                                <input type="text" class="form-control form-control-sm" id="cedula" placeholder="Ej: V11279668" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="placa" class="form-label fw-semibold small text-secondary">Placa</label>
+                                <input type="text" class="form-control form-control-sm" id="placa" placeholder="Ej: A33DE5G" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="marca" class="form-label fw-semibold small text-secondary">Marca</label>
+                                <input type="text" class="form-control form-control-sm" id="marca" placeholder="Ej: CHEVROLET" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="modelo" class="form-label fw-semibold small text-secondary">Modelo</label>
+                                <input type="text" class="form-control form-control-sm" id="modelo" placeholder="Ej: SILVERADO" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="anioVehiculo" class="form-label fw-semibold small text-secondary">Año del Vehículo</label>
+                                <input type="number" class="form-control form-control-sm" id="anioVehiculo" placeholder="Ej: 2008" min="1900" max="2030" step="1" autocomplete="off">
+                            </div>
+                            <div class="col-6">
+                                <label for="intt" class="form-label fw-semibold small text-secondary">Nº INTT</label>
+                                <input type="text" class="form-control form-control-sm" id="intt" placeholder="Ej: 22yoiswt1U7a2" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mb-4">
+                            <button class="btn btn-primary btn-lg fw-bold flex-grow-1" id="btn-generar" type="button">
+                                <i class="bi bi-qr-code-scan me-2"></i>Generar QR
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" id="btn-reiniciar" type="button" title="Reiniciar los campos del formulario">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Reiniciar
+                            </button>
+                        </div>
+
+                        <!-- Texto generado + Código QR -->
+                        <div id="texto-block" class="d-none">
+                            <p class="hw-section-title">Texto Generado</p>
+                            <div class="mb-3">
+                                <textarea id="textoGenerado" class="form-control preview-text" rows="10" readonly></textarea>
+                            </div>
+                            <div class="text-center mb-3">
+                                <div id="qrcode" class="mb-3"></div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary flex-grow-1" id="btn-copiar" type="button">
+                                    <i class="bi bi-clipboard me-1"></i>Copiar texto
+                                </button>
+                                <a id="download-btn" class="btn btn-success flex-grow-1" download="certificado-vehiculo.png" href="#">
+                                    <i class="bi bi-download me-1"></i>Descargar Imagen
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Librería QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Script de JavaScript personalizado -->
+    <script>
+        const btnGenerar = document.getElementById('btn-generar');
+        const btnReiniciar = document.getElementById('btn-reiniciar');
+        const btnCopiar = document.getElementById('btn-copiar');
+        const textoGenerado = document.getElementById('textoGenerado');
+        const textoBlock = document.getElementById('texto-block');
+        const qrcodeDiv = document.getElementById('qrcode');
+        const downloadBtn = document.getElementById('download-btn');
+
+        function valor(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim().toUpperCase() : '';
+        }
+
+        function construirTexto() {
+            const tramite = valor('tramite');
+            const titular = valor('titular');
+            const cedula = valor('cedula');
+            const placa = valor('placa');
+            const marca = valor('marca');
+            const modelo = valor('modelo');
+            const anioVehiculo = valor('anioVehiculo');
+            const intt = valor('intt');
+
+            const dia = document.getElementById('fechaProcesoDia').value;
+            const mes = document.getElementById('fechaProcesoMes').value;
+            const anio = document.getElementById('fechaProcesoAnio').value;
+            const fecha = [dia, mes, anio].filter(Boolean).join('/');
+
+            return [
+                'CERTIFICADO DE REGISTRO DE VEHÍCULO - INTT',
+                'TRÁMITE NRO.:' + tramite,
+                'TITULAR:' + titular,
+                'CÉDULA:' + cedula,
+                'PLACA:' + placa,
+                'MARCA:' + marca,
+                'MODELO:' + modelo,
+                'AÑO:' + anioVehiculo,
+                'INTT NRO.:' + intt,
+                'FECHA PROCESO:' + fecha
+            ].join('\n');
+        }
+
+        function reiniciarFormulario() {
+            ['tramite', 'titular', 'cedula', 'placa', 'marca', 'modelo', 'anioVehiculo', 'intt'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('fechaProcesoDia').value = '';
+            document.getElementById('fechaProcesoMes').value = '';
+            document.getElementById('fechaProcesoAnio').value = '';
+
+            textoBlock.classList.add('d-none');
+            textoGenerado.value = '';
+            qrcodeDiv.innerHTML = '';
+            downloadBtn.href = '#';
+
+            document.getElementById('tramite').focus();
+        }
+
+        function generarQR() {
+            const texto = construirTexto();
+            textoGenerado.value = texto;
+            textoBlock.classList.remove('d-none');
+
+            qrcodeDiv.innerHTML = '';
+            new QRCode(qrcodeDiv, {
+                text: texto,
+                width: 220,
+                height: 220,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            setTimeout(() => {
+                const img = qrcodeDiv.querySelector('img');
+                const canvas = qrcodeDiv.querySelector('canvas');
+                if (img && img.src) {
+                    downloadBtn.href = img.src;
+                } else if (canvas) {
+                    downloadBtn.href = canvas.toDataURL('image/png');
+                }
+            }, 50);
+        }
+
+        function copiarTexto() {
+            const texto = textoGenerado.value;
+            if (!texto) return;
+            const done = function () {
+                btnCopiar.classList.remove('btn-outline-primary');
+                btnCopiar.classList.add('btn-success');
+                btnCopiar.innerHTML = '<i class="bi bi-check-lg me-1"></i>Texto copiado';
+                setTimeout(() => {
+                    btnCopiar.classList.add('btn-outline-primary');
+                    btnCopiar.classList.remove('btn-success');
+                    btnCopiar.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copiar texto';
+                }, 2000);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto).then(done).catch(fallback);
+            } else {
+                fallback();
+            }
+            function fallback() {
+                textoGenerado.select();
+                textoGenerado.setSelectionRange(0, texto.length);
+                document.execCommand('copy');
+                done();
+            }
+        }
+
+        btnGenerar.addEventListener('click', generarQR);
+        btnReiniciar.addEventListener('click', reiniciarFormulario);
+        btnCopiar.addEventListener('click', copiarTexto);
+
+        // Generar también con la tecla Enter en los campos del formulario
+        document.getElementById('tramite').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); generarQR(); }
+        });
+    </script>
+</body>
+</html>

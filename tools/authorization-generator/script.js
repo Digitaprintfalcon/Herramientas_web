@@ -37,16 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSigNames();
 });
 
-// Función para actualizar los nombres debajo de la línea de firma
+// Función para actualizar los nombres debajo de la línea de firma (sin inyección de HTML)
 function updateSigNames() {
   const otorgante = document.getElementById('inputOtorganteNombre')?.value || '';
   const apoderado = document.getElementById('inputApoderadoNombre')?.value || '';
 
-  const docSigOtorgante = document.getElementById('docSigOtorganteNombre');
-  const docSigApoderado = document.getElementById('docSigApoderadoNombre');
+  setSafeMultiLine(document.getElementById('docSigOtorganteNombre'), otorgante);
+  setSafeMultiLine(document.getElementById('docSigApoderadoNombre'), apoderado);
+}
 
-  if (docSigOtorgante) docSigOtorgante.innerHTML = otorgante.replace(/\s+/g, '<br>');
-  if (docSigApoderado) docSigApoderado.innerHTML = apoderado.replace(/\s+/g, '<br>');
+// Rellena el elemento con una palabra por línea usando únicamente textContent
+function setSafeMultiLine(el, value) {
+  if (!el) return;
+  el.textContent = '';
+  const words = value.split(/\s+/).filter(Boolean);
+  words.forEach((word, i) => {
+    el.appendChild(document.createTextNode(word));
+    if (i < words.length - 1) el.appendChild(document.createElement('br'));
+  });
 }
 
 // Cargar imagen seleccionada en su contenedor

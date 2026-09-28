@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Costo Total Unitario
     const costoFinal = costoImpresionUnitario + logisticaUnitario;
 
-    if (costoImpresionEl) costoImpresionEl.textContent = `$${costoImpresionUnitario.toFixed(2)}`;
-    if (costoTotalUnitarioEl) costoTotalUnitarioEl.textContent = `$${costoFinal.toFixed(2)}`;
+    if (costoImpresionEl) costoImpresionEl.textContent = HW.fmtCurrency(costoImpresionUnitario);
+    if (costoTotalUnitarioEl) costoTotalUnitarioEl.textContent = HW.fmtCurrency(costoFinal);
   }
 
   [anchoDiseno, altoDiseno, precioMetroCuadrado, costoLogistica, cantidadPiezas].forEach(el => {

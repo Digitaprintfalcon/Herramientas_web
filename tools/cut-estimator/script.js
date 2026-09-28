@@ -71,8 +71,8 @@ function cambiarMetodo() {
             const precioTotalVenta = precioUnitarioVenta * cantidad;
 
             // Actualizar interfaz
-            document.getElementById('resPrecioUnitario').innerText = `$${precioUnitarioVenta.toFixed(2)}`;
-            document.getElementById('resPrecioTotal').innerText = `$${precioTotalVenta.toFixed(2)}`;
+            document.getElementById('resPrecioUnitario').innerText = HW.fmtCurrency(precioUnitarioVenta);
+            document.getElementById('resPrecioTotal').innerText = HW.fmtCurrency(precioTotalVenta);
             document.getElementById('textoFormula').innerText = formulaStr;
         }
 
