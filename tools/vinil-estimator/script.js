@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const cantidadPiezas = document.getElementById('cantidadPiezas');
   const resultado = document.getElementById('resultado');
 
+  const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+
   // Eventos para mostrar/ocultar secciones opcionales
   incluirLaminado.addEventListener('change', () => {
     seccionLaminado.style.display = incluirLaminado.checked ? 'flex' : 'none';
@@ -54,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (aRollo <= 0) {
       resultado.textContent = "$0.00";
+      if (bcv) bcv.setUsd(0);
       return;
     }
 
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const precioFinal = costoUnitarioTotal * (cantidad > 0 ? cantidad : 1);
 
     resultado.textContent = HW.fmtCurrency(precioFinal);
+    if (bcv) bcv.setUsd(precioFinal);
   }
 
   const inputsMonitoreados = [

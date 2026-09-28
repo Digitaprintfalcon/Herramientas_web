@@ -125,6 +125,8 @@
       </div>
     </div>
 
+    <div id="bcvBox"></div>
+
     <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
       Fórmula aplicada: <code class="text-dark">(Ancho Diseño × Alto Diseño) ÷ (Ancho Imprimible × 100 cm) × Precio Metro</code>
     </div>
@@ -152,6 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultadoUnitario = document.getElementById('resultadoUnitario');
   const resultadoTotal = document.getElementById('resultadoTotal');
 
+  const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+
   // Mostrar u ocultar la configuración de planchado al activar el switch
   incluirPlanchado.addEventListener('change', () => {
     seccionPlanchado.style.display = incluirPlanchado.checked ? 'flex' : 'none';
@@ -169,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aImp <= 0 || hImp <= 0) {
       resultadoUnitario.textContent = HW.fmtCurrency(0);
       resultadoTotal.textContent = HW.fmtCurrency(0);
+      if (bcv) bcv.setUsd(0);
       return;
     }
 
@@ -190,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resultadoUnitario.textContent = HW.fmtCurrency(precioUnitario);
     resultadoTotal.textContent = HW.fmtCurrency(precioTotalLote);
+    if (bcv) bcv.setUsd(precioTotalLote);
   }
 
   // Escuchar eventos en todos los inputs relevantes

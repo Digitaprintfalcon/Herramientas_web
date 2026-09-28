@@ -6,11 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { input: 'inputPresente', doc: 'docPresente' },
     { input: 'inputOtorganteNombre', doc: 'docOtorganteNombre', callback: updateSigNames },
     { input: 'inputOtorganteGenero', doc: 'docOtorganteGenero' },
-    { input: 'inputOtorganteCedula', doc: 'docOtorganteCedula' },
+    { input: 'inputOtorganteCedula', doc: 'docOtorganteCedula', callback: updateSigCedulas },
     { input: 'inputApoderadoNombre', doc: 'docApoderadoNombre', callback: updateSigNames },
     { input: 'inputApoderadoGenero', doc: 'docApoderadoGenero' },
-    { input: 'inputApoderadoCedula', doc: 'docApoderadoCedula' },
-    { input: 'inputTracking', doc: 'docTracking' },
+    { input: 'inputApoderadoCedula', doc: 'docApoderadoCedula', callback: updateSigCedulas },
     { input: 'inputOficina', doc: 'docOficina' },
   ];
 
@@ -33,28 +32,116 @@ document.addEventListener('DOMContentLoaded', () => {
   setupImageUpload('inputOtorganteFoto', 'boxFotoOtorgante');
   setupImageUpload('inputApoderadoFoto', 'boxFotoApoderado');
 
-  // Inicializar nombres en el bloque de firmas
+  // ---- Guías / tracking: soporta una o varias ----
+  const guias = [];
+  const inputNuevaGuia = document.getElementById('inputNuevaGuia');
+  const btnAgregarGuia = document.getElementById('btnAgregarGuia');
+  const trackingList = document.getElementById('trackingList');
+
+  function agregarGuia() {
+    const valor = inputNuevaGuia.value.trim();
+    if (valor === '') {
+      inputNuevaGuia.focus();
+      return;
+    }
+    guias.push(valor);
+    inputNuevaGuia.value = '';
+    renderGuiaList();
+    inputNuevaGuia.focus();
+  }
+
+  function renderGuiaList() {
+    trackingList.innerHTML = '';
+    if (guias.length === 0) {
+      const hint = document.createElement('span');
+      hint.className = 'small text-muted';
+      hint.textContent = 'Sin guías agregadas.';
+      trackingList.appendChild(hint);
+      actualizarDocTracking();
+      return;
+    }
+    guias.forEach((guia, i) => {
+      const item = document.createElement('div');
+      item.className = 'd-inline-flex align-items-center gap-2 border rounded-pill px-2 py-1 bg-white';
+
+      const lbl = document.createElement('span');
+      lbl.className = 'fw-semibold small';
+      lbl.textContent = guia;
+
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn btn-sm btn-outline-danger py-0 px-1';
+      del.style.fontSize = '0.7rem';
+      del.style.lineHeight = '1';
+      del.textContent = '\u00D7';
+      del.title = 'Eliminar guía';
+      del.setAttribute('aria-label', 'Eliminar guía ' + guia);
+      del.addEventListener('click', () => {
+        guias.splice(i, 1);
+        renderGuiaList();
+      });
+
+      item.appendChild(lbl);
+      item.appendChild(del);
+      trackingList.appendChild(item);
+    });
+    actualizarDocTracking();
+  }
+
+  function actualizarDocTracking() {
+    const limpias = guias.map(g => g.trim()).filter(Boolean);
+    const prefixEl = document.getElementById('docTrackingPrefix');
+    const docEl = document.getElementById('docTracking');
+
+    if (prefixEl) {
+      prefixEl.textContent = limpias.length === 1
+        ? 'el número de tracking de dicha encomienda es: '
+        : 'los números de tracking de dichas encomiendas son: ';
+    }
+    if (docEl) {
+      docEl.textContent = '';
+      limpias.forEach((guia, i) => {
+        if (i > 0) docEl.appendChild(document.createTextNode(i === limpias.length - 1 ? ' y ' : ', '));
+        docEl.appendChild(document.createTextNode(guia));
+      });
+    }
+  }
+
+  if (inputNuevaGuia) {
+    inputNuevaGuia.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        agregarGuia();
+      }
+    });
+  }
+  if (btnAgregarGuia) btnAgregarGuia.addEventListener('click', agregarGuia);
+
+  renderGuiaList();
+
+  // Inicializar nombres y cédulas en el bloque de firmas
   updateSigNames();
+  updateSigCedulas();
 });
 
 // Función para actualizar los nombres debajo de la línea de firma (sin inyección de HTML)
 function updateSigNames() {
-  const otorgante = document.getElementById('inputOtorganteNombre')?.value || '';
-  const apoderado = document.getElementById('inputApoderadoNombre')?.value || '';
-
-  setSafeMultiLine(document.getElementById('docSigOtorganteNombre'), otorgante);
-  setSafeMultiLine(document.getElementById('docSigApoderadoNombre'), apoderado);
+  setNombreCompleto(document.getElementById('docSigOtorganteNombre'), document.getElementById('inputOtorganteNombre')?.value || '');
+  setNombreCompleto(document.getElementById('docSigApoderadoNombre'), document.getElementById('inputApoderadoNombre')?.value || '');
 }
 
-// Rellena el elemento con una palabra por línea usando únicamente textContent
-function setSafeMultiLine(el, value) {
+// Muestra el nombre completo en una sola línea continua usando únicamente textContent
+function setNombreCompleto(el, value) {
   if (!el) return;
-  el.textContent = '';
-  const words = value.split(/\s+/).filter(Boolean);
-  words.forEach((word, i) => {
-    el.appendChild(document.createTextNode(word));
-    if (i < words.length - 1) el.appendChild(document.createElement('br'));
-  });
+  el.textContent = value.replace(/\s+/g, ' ').trim();
+}
+
+// Actualiza el número de cédula mostrado junto a cada firma
+function updateSigCedulas() {
+  const o = document.getElementById('docSigOtorganteCedula');
+  if (o) o.textContent = document.getElementById('inputOtorganteCedula')?.value || '';
+  const a = document.getElementById('docSigApoderadoCedula');
+  if (a) a.textContent = document.getElementById('inputApoderadoCedula')?.value || '';
 }
 
 // Cargar imagen seleccionada en su contenedor

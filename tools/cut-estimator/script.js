@@ -74,7 +74,13 @@ function cambiarMetodo() {
             document.getElementById('resPrecioUnitario').innerText = HW.fmtCurrency(precioUnitarioVenta);
             document.getElementById('resPrecioTotal').innerText = HW.fmtCurrency(precioTotalVenta);
             document.getElementById('textoFormula').innerText = formulaStr;
+            if (bcvWidget) bcvWidget.setUsd(precioTotalVenta);
         }
 
+        let bcvWidget = null;
+
         // Ejecutar cálculo inicial al cargar
-        window.onload = calcularCosto;
+        window.onload = function () {
+            bcvWidget = HW.bcv.mount(document.getElementById('bcvBox'));
+            calcularCosto();
+        };

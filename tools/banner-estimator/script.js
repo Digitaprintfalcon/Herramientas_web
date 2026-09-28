@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const costoImpresionEl = document.getElementById('costoImpresion');
   const costoTotalUnitarioEl = document.getElementById('costoTotalUnitario');
 
+  const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+
   function calcular() {
     const aDiseñoCm = parseFloat(anchoDiseno.value) || 0;
     const hDiseñoCm = parseFloat(altoDiseno.value) || 0;
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (costoImpresionEl) costoImpresionEl.textContent = HW.fmtCurrency(costoImpresionUnitario);
     if (costoTotalUnitarioEl) costoTotalUnitarioEl.textContent = HW.fmtCurrency(costoFinal);
+    if (bcv) bcv.setUsd(costoFinal);
   }
 
   [anchoDiseno, altoDiseno, precioMetroCuadrado, costoLogistica, cantidadPiezas].forEach(el => {

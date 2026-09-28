@@ -138,6 +138,26 @@ body {
   font-size: 0.85rem;
 }
 
+/* ===== Widget de tasa BCV ===== */
+.bcv-widget {
+  background: var(--hw-bg-soft);
+  border: 1px solid var(--hw-border);
+  border-left: 4px solid #198754;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-top: 1.25rem;
+}
+
+.hw-bcv-spin {
+  animation: hw-bcv-spin 1s linear infinite;
+}
+
+@keyframes hw-bcv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media print {
   .tool-nav {
     display: none !important;

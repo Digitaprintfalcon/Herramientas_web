@@ -85,7 +85,7 @@
         <div class="col-6">
           <label for="precioLaminado" class="form-label fw-semibold small text-secondary">Precio Metro Laminado ($)</label>
           <div class="input-group input-group-sm">
-            <input type="number" class="form-control" id="precioLaminado" value="7" step="0.01" min="0">
+            <input type="number" class="form-control" id="precioLaminado" value="12" step="0.01" min="0">
             <span class="input-group-text bg-light text-muted">$</span>
           </div>
         </div>
@@ -103,7 +103,7 @@
       <div id="seccionDiseno" style="display: none;">
         <label for="costoDiseno" class="form-label fw-semibold small text-secondary">Costo Total de Diseño ($)</label>
         <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="costoDiseno" placeholder="10.00" value="10" step="0.01" min="0">
+          <input type="number" class="form-control" id="costoDiseno" placeholder="5.00" value="5" step="0.01" min="0">
           <span class="input-group-text bg-light text-muted">$</span>
         </div>
       </div>
@@ -137,7 +137,7 @@
       <div id="seccionInstalacion" style="display: none;">
         <label for="costoInstalacion" class="form-label fw-semibold small text-secondary">Costo Total de Instalación ($)</label>
         <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="costoInstalacion" placeholder="15.00" value="15" step="0.01" min="0">
+          <input type="number" class="form-control" id="costoInstalacion" placeholder="10.00" value="10" step="0.01" min="0">
           <span class="input-group-text bg-light text-muted">$</span>
         </div>
       </div>
@@ -158,6 +158,8 @@
       <span class="hw-result-label">Precio Total de la Pieza / Lote</span>
       <span class="hw-result-value" id="resultado">$0.00</span>
     </div>
+
+    <div id="bcvBox"></div>
 
     <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
       Fórmula: <code class="text-dark">[(Área de Pieza × Precio Vinil) + Opcionales] × Cantidad</code>
