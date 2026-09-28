@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora BCV - Conversión USD / VES</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Estilos comunes del panel -->
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    #rateValue {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--hw-text-main);
+    }
+
+    #rateInput {
+      width: 6rem;
+      text-align: right;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
+
+  <div class="tool-nav">
+    <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+    <div class="tool-nav-titles">
+      <h1 class="tool-nav-title">Calculadora BCV</h1>
+      <p class="tool-nav-sub">Conversión directa USD ↔ VES con la tasa BCV en tiempo real</p>
+    </div>
+  </div>
+
+  <div class="container my-auto py-4">
+    <div class="row justify-content-center">
+      <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+        <div class="card p-4 d-flex flex-column gap-4" style="border-radius: 1.5rem;">
+
+          <!-- Encabezado -->
+          <div class="d-flex align-items-center justify-content-between border-bottom pb-4" style="border-color: var(--hw-border) !important;">
+            <div class="d-flex align-items-center gap-3">
+              <div class="hw-brand-icon"><i class="bi bi-calculator"></i></div>
+              <div>
+                <h1 class="fs-5 fw-bold mb-0" style="color: var(--hw-text-main);">Calculadora BCV</h1>
+                <p class="mb-0 fw-medium" style="font-size: 0.78rem; color: var(--hw-text-muted);">Conversión directa USD ↔ VES</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasa oficial -->
+          <div class="hw-box p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+              <span class="hw-uppercase-label">Tasa Oficial BCV</span>
+              <span id="statusTag" class="hw-status-pill hw-status-live"><i class="bi bi-wifi"></i> En vivo</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+              <div class="d-flex align-items-baseline gap-1">
+                <span id="rateValue">--.--</span>
+                <span class="small fw-semibold" style="color: var(--hw-text-muted);">Bs/$</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input type="number" id="rateInput" placeholder="Tasa" step="any" min="0.01"
+                  oninput="onManualRateChange(this.value)"
+                  class="form-control form-control-sm">
+                <button id="syncBtn" class="hw-sync-btn" type="button" title="Sincronizar BCV" onclick="fetchBcvRate()">
+                  <i id="syncIcon" class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campos de conversión -->
+          <div class="d-flex flex-column gap-1">
+            <div id="usdBox">
+              <label for="usdInput" class="hw-field-label hw-field-label-emerald mb-2"><i class="bi bi-currency-dollar"></i> Dólares (USD)</label>
+              <div class="hw-field-wrap">
+                <span class="hw-field-prefix">$</span>
+                <input type="number" id="usdInput" placeholder="0.00" min="0" step="any"
+                  oninput="convertUsdToVes(this.value)"
+                  class="form-control hw-field-input">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center" style="margin: -0.85rem 0 -0.5rem;">
+              <button onclick="swapFields()" title="Intercambiar campos" class="hw-swap-btn" type="button">
+                <i class="bi bi-arrow-down-up"></i>
+              </button>
+            </div>
+
+            <div id="vesBox">
+              <label for="vesInput" class="hw-field-label hw-field-label-blue mb-2"><i class="bi bi-bank"></i> Bolívares (VES)</label>
+              <div class="hw-field-wrap">
+                <span class="hw-field-prefix">Bs</span>
+                <input type="number" id="vesInput" placeholder="0.00" min="0" step="any"
+                  oninput="convertVesToUsd(this.value)"
+                  class="form-control hw-field-input">
+              </div>
+            </div>
+          </div>
+
+          <!-- Montos rápidos -->
+          <div>
+            <span class="hw-uppercase-label d-block mb-2">Montos Rápidos USD</span>
+            <div class="row g-2">
+              <div class="col"><button onclick="setQuickAmount(5)" class="hw-chip hw-chip-emerald w-100">$5</button></div>
+              <div class="col"><button onclick="setQuickAmount(10)" class="hw-chip hw-chip-emerald w-100">$10</button></div>
+              <div class="col"><button onclick="setQuickAmount(20)" class="hw-chip hw-chip-emerald w-100">$20</button></div>
+              <div class="col"><button onclick="setQuickAmount(50)" class="hw-chip hw-chip-emerald w-100">$50</button></div>
+              <div class="col"><button onclick="setQuickAmount(100)" class="hw-chip hw-chip-emerald w-100">$100</button></div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="row g-3 pt-1">
+            <div class="col-6">
+              <button onclick="copyResult()" class="btn btn-primary hw-btn-lg w-100">
+                <i class="bi bi-copy me-1"></i>Copiar Resultado
+              </button>
+            </div>
+            <div class="col-6">
+              <button onclick="clearInputs()" class="btn hw-btn-lg hw-btn-ghost w-100">
+                <i class="bi bi-eraser me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de notificación -->
+  <div id="toast" class="hw-toast">
+    <i id="toastIcon" class="bi bi-check-circle-fill"></i>
+    <span id="toastMsg">Mensaje</span>
+  </div>
+
+  <!-- Utilidades compartidas del panel -->
+  <script src="../common.js"></script>
+
+  <script>
+    var currentRate = 857.01; // Tasa base fallback
+
+    window.onload = function () {
+      // Intentar cargar tasa previa de localStorage
+      var saved = null;
+      try { saved = localStorage.getItem('simple_bcv_rate'); } catch (e) { /* sin almacenamiento */ }
+      if (saved && !isNaN(parseFloat(saved))) {
+        currentRate = parseFloat(saved);
+      }
+      updateRateUI();
+      fetchBcvRate();
+    };
+
+    function showToast(msg, isError) {
+      var toast = document.getElementById('toast');
+      var toastMsg = document.getElementById('toastMsg');
+      var toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      toastIcon.className = isError ? 'bi bi-exclamation-circle-fill' : 'bi bi-check-circle-fill';
+
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    function updateRateUI() {
+      document.getElementById('rateValue').textContent = currentRate.toFixed(2);
+      document.getElementById('rateInput').placeholder = currentRate.toFixed(2);
+
+      // Recalcular el valor que esté activo
+      var usdVal = document.getElementById('usdInput').value;
+      if (usdVal) {
+        convertUsdToVes(usdVal);
+      } else {
+        var vesVal = document.getElementById('vesInput').value;
+        if (vesVal) convertVesToUsd(vesVal);
+      }
+    }
+
+    function onManualRateChange(val) {
+      var num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        currentRate = num;
+        try { localStorage.setItem('simple_bcv_rate', currentRate.toString()); } catch (e) { /* sin almacenamiento */ }
+        document.getElementById('rateValue').textContent = currentRate.toFixed(2);
+
+        var statusTag = document.getElementById('statusTag');
+        statusTag.className = 'hw-status-pill hw-status-manual';
+        statusTag.innerHTML = '<i class="bi bi-pencil"></i> Manual';
+
+        updateRateUI();
+      }
+    }
+
+    async function fetchBcvRate() {
+      var syncIcon = document.getElementById('syncIcon');
+      var statusTag = document.getElementById('statusTag');
+
+      syncIcon.classList.add('hw-bcv-spin');
+      var fetchedRate = null;
+
+      // Intento 1: dolarvzla (precio BCV oficial)
+      try {
+        var res = await fetch('https://rates.dolarvzla.com/bcv/current.json', { cache: 'no-cache' });
+        if (res.ok) {
+          var data = await res.json();
+          var tasaDolarvzla = data && data.current && parseFloat(data.current.usd);
+          if (!(tasaDolarvzla > 0)) tasaDolarvzla = data && parseFloat(data.usd);
+          if (tasaDolarvzla > 0) fetchedRate = tasaDolarvzla;
+        }
+      } catch (e) {
+        console.warn('Fallo API dolarvzla, usando backup...');
+      }
+
+      // Intento 2: pydolarve
+      if (!fetchedRate) {
+        try {
+          var res2 = await fetch('https://pydolarve.org/api/v1/dollar?page=bcv', { cache: 'no-cache' });
+          if (res2.ok) {
+            var data2 = await res2.json();
+            if (data2 && data2.monedas && data2.monedas.usd && data2.monedas.usd.promedio) {
+              fetchedRate = parseFloat(data2.monedas.usd.promedio);
+            } else if (data2 && data2.promedio) {
+              fetchedRate = parseFloat(data2.promedio);
+            }
+          }
+        } catch (e) {
+          console.warn('Fallo API 2, usando backup...');
+        }
+      }
+
+      // Intento 3: ve.dolarapi.com
+      if (!fetchedRate) {
+        try {
+          var resBackup = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { cache: 'no-cache' });
+          if (resBackup.ok) {
+            var dataBackup = await resBackup.json();
+            if (dataBackup && dataBackup.promedio) {
+              fetchedRate = parseFloat(dataBackup.promedio);
+            }
+          }
+        } catch (e) {
+          console.warn('Fallo API backup.');
+        }
+      }
+
+      syncIcon.classList.remove('hw-bcv-spin');
+
+      if (fetchedRate && !isNaN(fetchedRate) && fetchedRate > 0) {
+        currentRate = fetchedRate;
+        try { localStorage.setItem('simple_bcv_rate', currentRate.toString()); } catch (e) { /* sin almacenamiento */ }
+        document.getElementById('rateInput').value = '';
+
+        statusTag.className = 'hw-status-pill hw-status-live';
+        statusTag.innerHTML = '<i class="bi bi-wifi"></i> En vivo';
+
+        updateRateUI();
+        showToast('Tasa BCV sincronizada');
+      } else {
+        showToast('Usando última tasa guardada', true);
+      }
+    }
+
+    // Conversión USD -> VES
+    function convertUsdToVes(val) {
+      var vesInput = document.getElementById('vesInput');
+      var usd = parseFloat(val);
+      if (isNaN(usd) || usd < 0) {
+        vesInput.value = '';
+        return;
+      }
+      vesInput.value = (usd * currentRate).toFixed(2);
+    }
+
+    // Conversión VES -> USD
+    function convertVesToUsd(val) {
+      var usdInput = document.getElementById('usdInput');
+      var ves = parseFloat(val);
+      if (isNaN(ves) || ves < 0) {
+        usdInput.value = '';
+        return;
+      }
+      usdInput.value = (ves / currentRate).toFixed(2);
+    }
+
+    // Botones rápidos
+    function setQuickAmount(usd) {
+      var usdInput = document.getElementById('usdInput');
+      usdInput.value = usd;
+      convertUsdToVes(usd);
+    }
+
+    // Invertir orden de campos en pantalla
+    function swapFields() {
+      var container = document.getElementById('usdBox').parentNode;
+      var usdBox = document.getElementById('usdBox');
+      var vesBox = document.getElementById('vesBox');
+
+      if (container.firstElementChild === usdBox) {
+        container.appendChild(usdBox);
+      } else {
+        container.prepend(usdBox);
+      }
+    }
+
+    // Limpiar inputs
+    function clearInputs() {
+      document.getElementById('usdInput').value = '';
+      document.getElementById('vesInput').value = '';
+      showToast('Campos vaciados');
+    }
+
+    // Copiar resultado al portapapeles
+    function copyResult() {
+      var usdVal = parseFloat(document.getElementById('usdInput').value) || 0;
+      var vesVal = parseFloat(document.getElementById('vesInput').value) || 0;
+
+      if (usdVal === 0 && vesVal === 0) {
+        showToast('Ingresa un monto para copiar', true);
+        return;
+      }
+
+      var textToCopy = '$' + usdVal.toFixed(2) + ' USD = Bs. ' + vesVal.toFixed(2) + ' VES (Tasa BCV: ' + currentRate.toFixed(2) + ')';
+
+      // Método seguro con textarea (funciona dentro de iFrames)
+      var el = document.createElement('textarea');
+      el.value = textToCopy;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      showToast('¡Copiado al portapapeles!');
+    }
+  </script>
+</body>
+</html>
