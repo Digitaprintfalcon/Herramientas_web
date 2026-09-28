@@ -1,19 +1,52 @@
-/* ===== Panel de Herramientas — Tema compartido ===== */
+/* ===== Panel de Herramientas — Tema compartido =====
+   Referencia estética: Calculadora BCV (Inter, paleta slate, esmeralda/azul, radios grandes, modo oscuro). */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Overrides de Bootstrap para usar el accent del panel en todo */
-  --bs-primary: #3b82f6;
-  --bs-primary-rgb: 59, 130, 246;
-  --bs-primary-dark: #2563eb;
+  /* Overrides de Bootstrap: acento esmeralda + radios grandes */
+  --bs-primary: #059669;
+  --bs-primary-rgb: 5, 150, 105;
+  --bs-primary-dark: #047857;
+  --bs-border-radius: 0.9rem;
+  --bs-btn-border-radius: 0.9rem;
+  --bs-tertiary-bg: #f1f5f9;
 
-  /* Tokens del panel */
-  --hw-bg-dark: #0f172a;
+  /* Tokens del panel (modo claro) */
+  --hw-bg: #f1f5f9;               /* slate-100 */
   --hw-bg-soft: #f1f5f9;
-  --hw-border: #e2e8f0;
-  --hw-text-main: #0f172a;
-  --hw-text-muted: #64748b;
-  --hw-accent: #3b82f6;
-  --hw-accent-dark: #2563eb;
+  --hw-card: #ffffff;
+  --hw-card-soft: #f8fafc;        /* slate-50 */
+  --hw-border: #e2e8f0;           /* slate-200 */
+  --hw-border-strong: #cbd5e1;    /* slate-300 */
+  --hw-text-main: #1e293b;        /* slate-800 */
+  --hw-text-muted: #64748b;       /* slate-500 */
+  --hw-accent: #059669;           /* emerald-600 */
+  --hw-accent-bright: #10b981;    /* emerald-500 */
+  --hw-accent-dark: #047857;      /* emerald-700 */
+  --hw-accent-soft: rgba(5, 150, 105, 0.12);
+  --hw-blue: #1e40af;             /* blue-800 */
+  --hw-blue-hover: #1d4ed8;       /* blue-700 */
+}
+
+html.dark {
+  color-scheme: dark;
+  --bs-body-bg: #0b1120;
+  --bs-body-color: #e2e8f0;
+  --bs-tertiary-bg: #0b1120;
+  --bs-secondary-color: #94a3b8;
+  --bs-border-color: #334155;
+
+  --hw-bg: #0b1120;               /* azul medianoche profundo */
+  --hw-bg-soft: #1e293b;          /* slate-800 */
+  --hw-card: #1e293b;             /* slate-800 */
+  --hw-card-soft: #0b1120;        /* azul medianoche profundo */
+  --hw-border: #334155;           /* slate-700 */
+  --hw-border-strong: #475569;    /* slate-600 */
+  --hw-text-main: #e2e8f0;        /* slate-200 */
+  --hw-text-muted: #94a3b8;       /* slate-400 */
+  --hw-accent: #10b981;
+  --hw-accent-dark: #059669;
 }
 
 * {
@@ -21,7 +54,10 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background-color: var(--hw-bg);
+  color: var(--hw-text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ===== Barra superior: Volver + título de la herramienta ===== */
@@ -33,13 +69,15 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: var(--hw-bg-dark);
+  background: var(--hw-card);
+  border-bottom: 1px solid var(--hw-border);
   padding: 0.75rem 1.25rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .tool-nav-back {
-  color: #cbd5e1;
+  color: var(--hw-text-muted);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.85rem;
@@ -47,10 +85,16 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  background: var(--hw-bg);
+  border: 1px solid var(--hw-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  transition: all 0.2s ease;
 }
 
 .tool-nav-back:hover {
-  color: #ffffff;
+  color: var(--hw-accent);
+  border-color: var(--hw-accent);
 }
 
 .tool-nav-titles {
@@ -60,7 +104,7 @@ body {
 }
 
 .tool-nav-title {
-  color: #ffffff;
+  color: var(--hw-text-main);
   font-weight: 700;
   font-size: 1rem;
   line-height: 1.2;
@@ -71,7 +115,7 @@ body {
 }
 
 .tool-nav-sub {
-  color: #94a3b8;
+  color: var(--hw-text-muted);
   font-size: 0.75rem;
   margin: 0.1rem 0 0;
   overflow: hidden;
@@ -79,10 +123,32 @@ body {
   white-space: nowrap;
 }
 
+/* Botón de tema (inyectado por common.js o presente en el HTML) */
+.hw-theme-toggle {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--hw-border);
+  border-radius: 0.75rem;
+  background: var(--hw-bg);
+  color: var(--hw-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hw-theme-toggle:hover {
+  color: var(--hw-accent);
+  border-color: var(--hw-accent);
+}
+
 /* ===== Títulos de sección ===== */
 .hw-section-title {
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   font-weight: 700;
   font-size: 0.75rem;
   color: var(--hw-accent);
@@ -91,24 +157,109 @@ body {
   margin-bottom: 0.9rem;
 }
 
+/* ===== Tarjetas Bootstrap ===== */
+.card {
+  border-radius: 1.5rem;
+  border: 1px solid var(--hw-border);
+  background: var(--hw-card);
+  color: var(--hw-text-main);
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.card-header {
+  border-radius: calc(1.5rem - 1px) calc(1.5rem - 1px) 0 0 !important;
+  border-bottom: 1px solid var(--hw-border);
+}
+
+.card-header.bg-primary {
+  background: var(--hw-accent);
+  border-color: var(--hw-accent);
+}
+
+.card-body {
+  color: var(--hw-text-main);
+}
+
+/* ===== Formularios ===== */
+.form-control,
+.form-select,
+.input-group-text {
+  border-radius: 0.9rem;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--hw-card-soft);
+  border-color: var(--hw-border-strong);
+  color: var(--hw-text-main);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--hw-accent);
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.15);
+}
+
+.form-control::placeholder {
+  color: var(--hw-text-muted);
+  opacity: 1;
+}
+
+.form-select {
+  color-scheme: light;
+}
+
+html.dark .form-select {
+  color-scheme: dark;
+}
+
+.input-group-text {
+  background-color: var(--hw-bg);
+  border-color: var(--hw-border-strong);
+  color: var(--hw-text-muted);
+}
+
+.input-group-text.bg-white {
+  background: var(--hw-card-soft) !important;
+}
+
+.form-label {
+  color: var(--hw-text-main);
+}
+
+/* ===== Botones ===== */
+.btn {
+  border-radius: 0.9rem;
+  font-weight: 600;
+}
+
+/* ===== Alertas ===== */
+.alert {
+  border-radius: 1rem;
+}
+
 /* ===== Tarjetas de resultados ===== */
 .hw-result {
-  border-radius: 10px;
-  padding: 1.1rem 0.75rem;
+  border-radius: 1.25rem;
+  padding: 1.2rem 0.9rem;
   text-align: center;
   border: 1px solid var(--hw-border);
-  background: #ffffff;
+  background: var(--hw-card);
   color: var(--hw-text-main);
+  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.3s ease;
 }
 
 .hw-result.neutral:hover {
   border-color: var(--hw-accent);
+  transform: translateY(-1px);
 }
 
 .hw-result.accent {
   background: var(--hw-accent);
   border-color: var(--hw-accent);
   color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.25);
 }
 
 .hw-result-label {
@@ -123,7 +274,7 @@ body {
 .hw-result-value {
   display: block;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-top: 0.15rem;
 }
 
@@ -140,10 +291,10 @@ body {
 
 /* ===== Widget de tasa BCV ===== */
 .bcv-widget {
-  background: var(--hw-bg-soft);
+  background: var(--hw-card-soft);
   border: 1px solid var(--hw-border);
-  border-left: 4px solid #198754;
-  border-radius: 12px;
+  border-left: 4px solid var(--hw-accent);
+  border-radius: 1rem;
   padding: 0.9rem 1rem;
   margin-top: 1.25rem;
 }
@@ -158,8 +309,346 @@ body {
   }
 }
 
+/* ===== Lenguaje visual compartido (guía: Calculadora BCV) ===== */
+
+/* Icono de marca cuadrado (esmeralda) */
+.hw-brand-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 1rem;
+  background: var(--hw-accent);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.25);
+  flex-shrink: 0;
+}
+
+/* Caja de tarjeta suave */
+.hw-box {
+  background: var(--hw-card-soft);
+  border: 1px solid var(--hw-border);
+  border-radius: 1rem;
+}
+
+/* Etiqueta de sección en mayúsculas */
+.hw-uppercase-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--hw-text-muted);
+}
+
+/* Píldora de estado (En vivo / Manual) */
+.hw-status-pill {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hw-status-live {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.hw-status-manual {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+html.dark .hw-status-live {
+  color: #34d399;
+}
+
+html.dark .hw-status-manual {
+  color: #fbbf24;
+}
+
+/* Paridad de modo oscuro para utilidades Bootstrap con colores fijos */
+html.dark .bg-white {
+  background-color: var(--hw-card) !important;
+}
+
+html.dark .text-dark {
+  color: var(--hw-text-main) !important;
+}
+
+html.dark .bg-light {
+  background-color: var(--hw-card-soft) !important;
+  color: var(--hw-text-muted) !important;
+}
+
+html.dark .bg-primary-subtle {
+  background-color: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html.dark .cedula-img-container {
+  background-color: var(--hw-card-soft) !important;
+  border-color: var(--hw-border) !important;
+}
+
+/* ===== Generadores de documentos: layout paralelo con vista previa A4 ===== */
+.doc-layout {
+  height: calc(100vh - 5.5rem);
+  min-height: 480px;
+}
+
+.doc-col-form {
+  display: flex;
+}
+
+.doc-col-form .form-panel {
+  width: 100%;
+  height: 100%;
+}
+
+.paper-wrap {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.paper {
+  transform-origin: top center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 991.98px) {
+  .doc-layout {
+    height: auto;
+    min-height: 0;
+  }
+
+  .doc-col-form .form-panel {
+    height: auto;
+  }
+
+  .paper-wrap {
+    height: auto;
+    overflow: visible;
+  }
+
+  .paper {
+    transform: none !important;
+  }
+}
+
+/* Campos grandes estilo calculadora (USD/VES) */
+.hw-field-wrap {
+  position: relative;
+}
+
+.hw-field-prefix {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--hw-text-muted);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hw-field-input.form-control {
+  padding-left: 2.7rem;
+  padding-right: 1rem;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  background-color: var(--hw-card-soft);
+  border-color: var(--hw-border-strong);
+  color: var(--hw-text-main);
+  border-radius: 1rem;
+}
+
+.hw-field-input.form-control:focus {
+  border-color: var(--hw-accent);
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.15);
+}
+
+/* Etiquetas de campo con color de llamada */
+.hw-field-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hw-field-label-emerald {
+  color: #059669;
+}
+
+.hw-field-label-blue {
+  color: var(--hw-blue);
+}
+
+html.dark .hw-field-label-emerald {
+  color: #34d399;
+}
+
+html.dark .hw-field-label-blue {
+  color: #818cf8;
+}
+
+/* Botón de intercambio (swap) */
+.hw-swap-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #ffffff;
+  border: 2px solid var(--hw-card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, background-color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.hw-swap-btn:hover {
+  transform: scale(1.06);
+}
+
+.hw-swap-btn:active {
+  transform: scale(0.9);
+}
+
+html.dark .hw-swap-btn {
+  background: #334155;
+  border-color: #0f172a;
+}
+
+/* Botón de sincronización de tasa */
+.hw-sync-btn.btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hw-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+}
+
+.hw-sync-btn.btn:hover {
+  background: var(--hw-blue-hover);
+  color: #ffffff;
+}
+
+/* Chip seleccionable */
+.hw-chip {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 0.9rem;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hw-chip-emerald {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.hw-chip-emerald:hover {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.hw-chip-emerald:active {
+  transform: scale(0.95);
+}
+
+html.dark .hw-chip-emerald {
+  color: #34d399;
+}
+
+/* Botones de acción grandes */
+.hw-btn-lg {
+  padding: 0.85rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 1rem;
+}
+
+.hw-btn-ghost {
+  background: var(--hw-bg-soft);
+  color: var(--hw-text-main);
+  border: 1px solid var(--hw-border);
+}
+
+.hw-btn-ghost:hover {
+  background: var(--hw-border);
+  color: var(--hw-text-main);
+}
+
+/* Toast de notificación */
+.hw-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translate(-50%, 120%);
+  background: var(--hw-text-main);
+  color: var(--hw-card);
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2000;
+}
+
+.hw-toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
 @media print {
-  .tool-nav {
+  .tool-nav,
+  .hw-theme-toggle {
     display: none !important;
+  }
+
+  .doc-layout {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .paper-wrap {
+    height: auto !important;
+    overflow: visible !important;
+    align-items: stretch !important;
+  }
+
+  .paper {
+    transform: none !important;
   }
 }

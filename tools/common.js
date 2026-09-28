@@ -54,7 +54,10 @@
       const r = await fetch('https://rates.dolarvzla.com/bcv/current.json');
       if (r.ok) {
         const d = await r.json();
-        if (d && Number(d.usd) > 0) return Number(d.usd);
+        const usd = d && d.current && Number(d.current.usd) > 0
+          ? Number(d.current.usd)
+          : d && Number(d.usd) > 0 ? Number(d.usd) : 0;
+        if (usd > 0) return usd;
       }
       const r2 = await fetch('https://bcv-api.rafnixg.dev/v1/exchange-rates/latest/USD');
       if (r2.ok) {
@@ -137,15 +140,113 @@
     };
   }
 
+  function hwThemeIcons(btn, dark) {
+    const moon = btn.querySelector('.bi-moon-stars');
+    const sun = btn.querySelector('.bi-sun');
+    if (moon) moon.style.display = dark ? 'none' : '';
+    if (sun) sun.style.display = dark ? '' : 'none';
+  }
+
+  function hwSavedTheme() {
+    try {
+      return global.localStorage.getItem('hw_theme');
+    } catch (e) { /* sin almacenamiento: sin preferencia manual */ }
+    return null;
+  }
+
+  function hwSystemPrefersDark() {
+    return !!(global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  function hwThemeInit() {
+    const html = document.documentElement;
+    const saved = hwSavedTheme();
+    const dark = saved !== null ? (saved === 'dark') : hwSystemPrefersDark();
+    html.classList.toggle('dark', dark);
+
+    let btn = global.document.querySelector('.hw-theme-toggle');
+    if (!btn) {
+      const nav = global.document.querySelector('.tool-nav');
+      if (!nav) return;
+      btn = global.document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'hw-theme-toggle';
+      btn.title = 'Cambiar tema';
+      btn.setAttribute('aria-label', 'Cambiar tema');
+      btn.innerHTML = '<i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>';
+      nav.appendChild(btn);
+    }
+
+    hwThemeIcons(btn, dark);
+    btn.addEventListener('click', function () {
+      const next = html.classList.toggle('dark');
+      hwThemeIcons(btn, next);
+      try {
+        global.localStorage.setItem('hw_theme', next ? 'dark' : 'light');
+      } catch (e) { /* sin almacenamiento */ }
+    });
+
+    // Seguir al dispositivo solo mientras no haya preferencia manual guardada
+    if (global.matchMedia) {
+      const mq = global.matchMedia('(prefers-color-scheme: dark)');
+      const onSystemChange = function (e) {
+        if (hwSavedTheme() !== null) return;
+        html.classList.toggle('dark', e.matches);
+        const b = global.document.querySelector('.hw-theme-toggle');
+        if (b) hwThemeIcons(b, e.matches);
+      };
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onSystemChange);
+      else if (typeof mq.addListener === 'function') mq.addListener(onSystemChange);
+    }
+  }
+
+  function hwThemeBoot() {
+    if (global.document.readyState === 'loading') {
+      global.document.addEventListener('DOMContentLoaded', hwThemeInit);
+    } else {
+      hwThemeInit();
+    }
+  }
+
+  // Ajusta la hoja A4 (.paper) a la altura de su contenedor (layout paralelo)
+  function initPaperFit() {
+    const paper = global.document && global.document.getElementById('documento-pdf');
+    if (!paper) return null;
+    const wrap = paper.parentElement;
+
+    const fit = function () {
+      const w = paper.offsetWidth;
+      const h = paper.offsetHeight;
+      if (!w || !h) return;
+      const wrapW = wrap ? wrap.clientWidth : global.innerWidth - 48;
+      const wrapH = wrap ? wrap.clientHeight : global.innerHeight - 160;
+      const scale = Math.min(1, wrapW / w, wrapH / h);
+      paper.style.transform = scale >= 1 ? '' : 'scale(' + scale + ')';
+    };
+
+    fit();
+    global.addEventListener('resize', fit);
+    if (global.ResizeObserver) {
+      try {
+        new ResizeObserver(fit).observe(paper);
+      } catch (e) { /* sin ResizeObserver */ }
+    }
+    return fit;
+  }
+
   global.HW = {
     fmtCurrency: fmtCurrency,
     fmtBs: fmtBs,
     safeParseJSON: safeParseJSON,
     safeGetJSON: safeGetJSON,
     escapeHtml: escapeHtml,
+    initTheme: hwThemeInit,
+    initPaperFit: initPaperFit,
     bcv: {
       mount: bcvMount,
       fetchTasa: bcvFetchTasa
     }
   };
+
+  hwThemeBoot();
 })(window);

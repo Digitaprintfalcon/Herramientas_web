@@ -4,27 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Herramientas Web</title>
+  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Estilos comunes del panel (tokens, fuentes y tema) -->
+  <link rel="stylesheet" href="tools/common.css">
   <style>
-    :root {
-      --bg-primary: #0f172a;
-      --bg-card: #1e293b;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --color-accent: #3b82f6;
-      --color-border: #334155;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-main);
       min-height: 100vh;
       padding: 2rem 1rem;
     }
@@ -34,19 +19,15 @@
       margin: 0 auto;
     }
 
-    .header-section {
-      margin-bottom: 2.5rem;
-      text-align: center;
-    }
-
     .header-title {
-      font-size: 2.25rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
     .header-subtitle {
-      color: var(--text-muted);
+      color: var(--hw-text-muted);
+      font-size: 0.95rem;
     }
 
     .search-wrapper {
@@ -57,40 +38,48 @@
 
     .search-input {
       width: 100%;
-      max-width: 500px;
+      max-width: 480px;
       padding: 0.8rem 1.2rem;
-      border-radius: 8px;
-      border: 1px solid var(--color-border);
-      background: var(--bg-card);
-      color: var(--text-main);
-      font-size: 1rem;
+      border-radius: 1rem;
+      border: 1px solid var(--hw-border-strong);
+      background: var(--hw-card-soft);
+      color: var(--hw-text-main);
+      font-size: 0.95rem;
       outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
     }
 
     .search-input:focus {
-      border-color: var(--color-accent);
+      border-color: var(--hw-accent);
+      box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.15);
+    }
+
+    .search-input::placeholder {
+      color: var(--hw-text-muted);
+      opacity: 1;
     }
 
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
       gap: 1.5rem;
     }
 
     .tool-card {
-      background: var(--bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
+      background: var(--hw-card);
+      border: 1px solid var(--hw-border);
+      border-radius: 1.5rem;
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.2s, border-color 0.2s;
+      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
+      transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.3s ease;
     }
 
     .tool-card:hover {
       transform: translateY(-4px);
-      border-color: var(--color-accent);
+      border-color: var(--hw-accent);
     }
 
     .card-meta {
@@ -101,59 +90,92 @@
     }
 
     .category-badge {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 20px;
-      background: rgba(59, 130, 246, 0.15);
-      color: var(--color-accent);
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-weight: 700;
       text-transform: uppercase;
-      font-weight: 600;
+      letter-spacing: 0.04em;
     }
 
+    .badge-finanzas    { background: rgba(16, 185, 129, 0.12); color: #047857; }
+    .badge-produccion  { background: rgba(30, 64, 175, 0.12); color: #1e40af; }
+    .badge-consultas   { background: rgba(2, 132, 199, 0.12); color: #0369a1; }
+    .badge-utilidades  { background: rgba(100, 116, 139, 0.15); color: #475569; }
+    .badge-documentos  { background: rgba(217, 119, 6, 0.13); color: #b45309; }
+
+    html.dark .badge-finanzas   { color: #34d399; }
+    html.dark .badge-produccion { color: #818cf8; }
+    html.dark .badge-consultas  { color: #38bdf8; }
+    html.dark .badge-utilidades { color: #94a3b8; }
+    html.dark .badge-documentos { color: #fbbf24; }
+
     .tool-title {
-      font-size: 1.25rem;
-      color: var(--text-main);
-      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--hw-text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    /* Icono de cada tarjeta: ancho fijo, centrado y separación uniforme */
+    .tool-title i {
+      display: inline-block;
+      width: 1.25rem;
+      text-align: center;
+      margin-right: 0.6rem;
+      vertical-align: -0.08em;
+      color: var(--hw-accent);
     }
 
     .tool-description {
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      color: var(--hw-text-muted);
+      font-size: 0.88rem;
       margin-bottom: 1.5rem;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .action-button {
-      display: inline-block;
+      display: block;
       text-align: center;
-      background: var(--color-accent);
+      background: var(--hw-accent);
       color: #ffffff;
       text-decoration: none;
       padding: 0.7rem 1rem;
-      border-radius: 6px;
+      border-radius: 0.9rem;
       font-weight: 600;
-      transition: background 0.2s;
+      transition: background 0.2s ease, transform 0.15s ease;
     }
 
     .action-button:hover {
-      background: #2563eb;
+      background: var(--hw-accent-dark);
+      color: #ffffff;
+      transform: translateY(-1px);
     }
   </style>
 </head>
 <body>
 
   <div class="main-container">
-    <header class="header-section">
-      <h1 class="header-title">Centro de Herramientas</h1>
-      <p class="header-subtitle">Selecciona la utilidad que necesitas ejecutar</p>
+
+    <header class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-5">
+      <div class="d-flex align-items-center gap-3">
+        <div class="hw-brand-icon"><i class="bi bi-grid-1x2-fill"></i></div>
+        <div>
+          <h1 class="header-title mb-0">Centro de Herramientas</h1>
+          <p class="header-subtitle mb-0">Selecciona la utilidad que necesitas ejecutar</p>
+        </div>
+      </div>
+      <button class="hw-theme-toggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
+        <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
+      </button>
     </header>
 
     <div class="search-wrapper">
-      <input 
-        type="text" 
-        id="searchInput" 
-        class="search-input" 
-        placeholder="Buscar herramienta..." 
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Buscar herramienta..."
         onkeyup="filterTools()"
       >
     </div>
@@ -164,21 +186,33 @@
       <article class="tool-card" data-keywords="consulta rif seniat datos fiscales comprobante" data-category="Consultas">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Consultas</span>
+            <span class="category-badge badge-consultas">Consultas</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-person-badge me-2"></i>Consulta de RIF</h2>
+          <h2 class="tool-title"><i class="bi bi-person-badge"></i>Consulta de RIF</h2>
           <p class="tool-description">Herramienta rápida para verificar datos de Registro de Información Fiscal.</p>
         </div>
         <a href="tools/rif-checker/index.html" class="action-button">Abrir Herramienta</a>
+      </article>
+
+      <!-- Calculadora BCV -->
+      <article class="tool-card" data-keywords="calculadora bcv dolares bolivares tasa conversion usd ves" data-category="Finanzas">
+        <div>
+          <div class="card-meta">
+            <span class="category-badge badge-finanzas">Finanzas</span>
+          </div>
+          <h2 class="tool-title"><i class="bi bi-calculator"></i>Calculadora BCV</h2>
+          <p class="tool-description">Conversión inmediata USD ↔ VES con la tasa BCV en tiempo real.</p>
+        </div>
+        <a href="tools/calculadora-bcv/index.html" class="action-button">Abrir Herramienta</a>
       </article>
 
       <!-- Cotizador de Pendones -->
       <article class="tool-card" data-keywords="cotizador pendones lona gran formato impresion" data-category="Producción">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Producción</span>
+            <span class="category-badge badge-produccion">Producción</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-flag me-2"></i>Cotizador de Pendones</h2>
+          <h2 class="tool-title"><i class="bi bi-flag"></i>Cotizador de Pendones</h2>
           <p class="tool-description">Cálculo de costos y medidas en metros cuadrados para pendones y pancartas.</p>
         </div>
         <a href="tools/banner-estimator/index.html" class="action-button">Abrir Herramienta</a>
@@ -188,9 +222,9 @@
       <article class="tool-card" data-keywords="cotizador dtf metros textil impresion" data-category="Producción">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Producción</span>
+            <span class="category-badge badge-produccion">Producción</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-printer-fill me-2"></i>Cotizador DTF</h2>
+          <h2 class="tool-title"><i class="bi bi-printer-fill"></i>Cotizador DTF</h2>
           <p class="tool-description">Cálculo de metros lineales y costos para impresiones textiles DTF.</p>
         </div>
         <a href="tools/dtf-estimator/index.html" class="action-button">Abrir Herramienta</a>
@@ -200,9 +234,9 @@
       <article class="tool-card" data-keywords="cotizador vinil vinilo metros adhesivo corte" data-category="Producción">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Producción</span>
+            <span class="category-badge badge-produccion">Producción</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-layers me-2"></i>Cotizador de Vinil</h2>
+          <h2 class="tool-title"><i class="bi bi-layers"></i>Cotizador de Vinil</h2>
           <p class="tool-description">Cálculo de metros cuadrados y lineales para trabajos en vinil adhesivo.</p>
         </div>
         <a href="tools/vinil-estimator/index.html" class="action-button">Abrir Herramienta</a>
@@ -212,9 +246,9 @@
       <article class="tool-card" data-keywords="cotizador corte vinil textil troquelado planchado instalacion" data-category="Producción">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Producción</span>
+            <span class="category-badge badge-produccion">Producción</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-scissors me-2"></i>Cotizador de Corte de Vinil</h2>
+          <h2 class="tool-title"><i class="bi bi-scissors"></i>Cotizador de Corte de Vinil</h2>
           <p class="tool-description">Cálculo de precio por metro lineal o metro cuadrado para corte en vinil y vinil textil.</p>
         </div>
         <a href="tools/cut-estimator/index.html" class="action-button">Abrir Herramienta</a>
@@ -224,9 +258,9 @@
       <article class="tool-card" data-keywords="calculadora pvc vinil laminado costos cotizador bcv conversion" data-category="Producción">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Producción</span>
+            <span class="category-badge badge-produccion">Producción</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-calculator me-2"></i>Calculadora PVC · Vinil · Laminado</h2>
+          <h2 class="tool-title"><i class="bi bi-calculator"></i>Calculadora PVC · Vinil · Laminado</h2>
           <p class="tool-description">Cotizador profesional de PVC, Vinil y Laminado con conversión BCV en tiempo real.</p>
         </div>
         <a href="tools/calculadora-pvc/index.html" class="action-button">Abrir Herramienta</a>
@@ -236,9 +270,9 @@
       <article class="tool-card" data-keywords="generador codigos qr enlaces wifi pagos" data-category="Utilidades">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Utilidades</span>
+            <span class="category-badge badge-utilidades">Utilidades</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-qr-code me-2"></i>Generador QR</h2>
+          <h2 class="tool-title"><i class="bi bi-qr-code"></i>Generador QR</h2>
           <p class="tool-description">Creación instantánea de códigos QR para enlaces, pagos y redes Wi-Fi.</p>
         </div>
         <a href="tools/qr-generator/index.html" class="action-button">Abrir Herramienta</a>
@@ -248,9 +282,9 @@
       <article class="tool-card" data-keywords="generador referencias personales comerciales cartas formato" data-category="Documentos">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Documentos</span>
+            <span class="category-badge badge-documentos">Documentos</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-file-earmark-text me-2"></i>Generador de Referencias</h2>
+          <h2 class="tool-title"><i class="bi bi-file-earmark-text"></i>Generador de Referencias</h2>
           <p class="tool-description">Plantilla dinámica para redactor e imprimir referencias personales o comerciales.</p>
         </div>
         <a href="tools/reference-generator/index.html" class="action-button">Abrir Herramienta</a>
@@ -260,9 +294,9 @@
       <article class="tool-card" data-keywords="generador autorizaciones cartas permisos tramites" data-category="Documentos">
         <div>
           <div class="card-meta">
-            <span class="category-badge">Documentos</span>
+            <span class="category-badge badge-documentos">Documentos</span>
           </div>
-          <h2 class="tool-title"><i class="bi bi-file-earmark-check me-2"></i>Generador de Autorizaciones</h2>
+          <h2 class="tool-title"><i class="bi bi-file-earmark-check"></i>Generador de Autorizaciones</h2>
           <p class="tool-description">Creación rápida de documentos de autorización legal o simple para trámites.</p>
         </div>
         <a href="tools/authorization-generator/index.html" class="action-button">Abrir Herramienta</a>
@@ -270,6 +304,9 @@
 
     </main>
   </div>
+
+  <!-- Utilidades compartidas del panel (tema) -->
+  <script src="tools/common.js"></script>
 
   <script>
     function filterTools() {
