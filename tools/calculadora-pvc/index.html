@@ -17,25 +17,25 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            background-color: var(--hw-bg);
+            color: var(--hw-text-main);
         }
         .card-custom {
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--hw-border);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
             transition: all 0.2s ease;
         }
         .form-control:focus, .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: var(--hw-accent);
+            box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.15);
         }
         .section-disabled {
             opacity: 0.65;
-            background-color: #f1f5f9;
+            background-color: var(--hw-bg-soft);
         }
         .readonly-inputs input {
-            background-color: #f8fafc !important;
+            background-color: var(--hw-card-soft) !important;
             pointer-events: none;
         }
     </style>
@@ -395,7 +395,9 @@
                 const response = await fetch('https://rates.dolarvzla.com/bcv/current.json');
                 if (response.ok) {
                     const data = await response.json();
-                    if (data && data.usd) {
+                    if (data && data.current && data.current.usd) {
+                        tasaBCVOficial = parseFloat(data.current.usd);
+                    } else if (data && data.usd) {
                         tasaBCVOficial = parseFloat(data.usd);
                     }
                 } else {
@@ -549,5 +551,8 @@
             fetchTasaBCV();
         };
     </script>
+
+    <!-- Utilidades compartidas del panel -->
+    <script src="../common.js"></script>
 </body>
 </html>
