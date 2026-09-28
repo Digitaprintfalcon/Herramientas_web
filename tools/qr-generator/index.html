@@ -100,8 +100,8 @@
         </div>
     </div>
 
-    <!-- Librería QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Librería qrcode (node-qrcode): soporta textos largos y UTF-8 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.js"></script>
 
     <!-- Script de JavaScript personalizado -->
     <script>
@@ -121,7 +121,6 @@
         const downloadBtn = document.getElementById('download-btn');
 
         let currentMode = 'texto';
-        let qrCodeObj = null;
 
         // Cambiar de modo
         function setMode(mode) {
@@ -187,30 +186,35 @@
             // Limpiar el contenedor de QR previo
             qrcodeDiv.innerHTML = "";
 
-            // Generar nuevo QR usando la librería QRCode.js
-            qrCodeObj = new QRCode(qrcodeDiv, {
-                text: text,
-                width: 200,
-                height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            // Mostrar la sección del QR
-            qrContainer.classList.remove('d-none');
-
-            // Preparar el botón de descarga (espera un pequeño instante a que el Canvas/Image se procese)
-            setTimeout(() => {
-                const img = qrcodeDiv.querySelector('img');
-                const canvas = qrcodeDiv.querySelector('canvas');
-                
-                if (img && img.src) {
-                    downloadBtn.href = img.src;
-                } else if (canvas) {
-                    downloadBtn.href = canvas.toDataURL("image/png");
+            // Generar nuevo QR usando la librería qrcode (node-qrcode)
+            const niveles = ['H', 'M', 'L'];
+            let intento = 0;
+            const generar = () => {
+                if (intento >= niveles.length) {
+                    alert("El texto es demasiado largo para generar un código QR escaneable.");
+                    return;
                 }
-            }, 50);
+                QRCode.toDataURL(text, {
+                    width: 300,
+                    margin: 2,
+                    errorCorrectionLevel: niveles[intento],
+                    color: { dark: '#000000', light: '#ffffff' }
+                }).then(url => {
+                    qrcodeDiv.innerHTML = "";
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Código QR';
+                    qrcodeDiv.appendChild(img);
+
+                    // Mostrar la sección del QR y preparar la descarga
+                    qrContainer.classList.remove('d-none');
+                    downloadBtn.href = url;
+                }).catch(() => {
+                    intento += 1;
+                    generar();
+                });
+            };
+            generar();
         }
 
         // Event listener para el botón
@@ -231,5 +235,8 @@
             }
         });
     </script>
+
+    <!-- Utilidades compartidas del panel -->
+    <script src="../common.js"></script>
 </body>
 </html>
