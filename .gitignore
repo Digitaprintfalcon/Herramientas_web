@@ -1,0 +1,10 @@
+# Credenciales locales de las herramientas
+tools/dni-checker/config.local.js
+
+# Credenciales del proxy de Cloudflare Workers
+worker/.dev.vars
+worker/.env*
+
+# Estado local de wrangler (incluye trazas con credenciales)
+worker/.wrangler/
+worker/node_modules/

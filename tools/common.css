@@ -289,6 +289,53 @@ html.dark .form-select {
   font-size: 0.85rem;
 }
 
+/* ===== Ficha de datos (consultas de cédula) ===== */
+.hw-data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.hw-data-cell {
+  background: var(--hw-card-soft);
+  border: 1px solid var(--hw-border);
+  border-radius: 1rem;
+  padding: 0.7rem 0.85rem;
+  min-width: 0;
+}
+
+.hw-data-cell.full {
+  grid-column: 1 / -1;
+}
+
+.hw-data-label {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--hw-text-muted);
+}
+
+.hw-data-value {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--hw-text-main);
+  margin-top: 0.15rem;
+  overflow-wrap: anywhere;
+}
+
+.hw-data-name {
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--hw-text-main);
+  overflow-wrap: anywhere;
+}
+
 /* ===== Widget de tasa BCV ===== */
 .bcv-widget {
   background: var(--hw-card-soft);
