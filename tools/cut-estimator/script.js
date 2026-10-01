@@ -13,6 +13,18 @@ function cambiarMetodo() {
             calcularCosto();
         }
 
+        function toggleEditSection(boxId, switchId) {
+            const boxEl = document.getElementById(boxId);
+            const isChecked = document.getElementById(switchId).checked;
+
+            if (isChecked) {
+                boxEl.classList.remove('readonly-inputs');
+            } else {
+                boxEl.classList.add('readonly-inputs');
+            }
+            calcularCosto();
+        }
+
         function calcularCosto() {
             const metodo = document.getElementById('metodo').value;
             const anchoDiseno = parseFloat(document.getElementById('anchoDiseno').value) || 0;
@@ -75,6 +87,37 @@ function cambiarMetodo() {
             document.getElementById('resPrecioTotal').innerText = HW.fmtCurrency(precioTotalVenta);
             document.getElementById('textoFormula').innerText = formulaStr;
             if (bcvWidget) bcvWidget.setUsd(precioTotalVenta);
+        }
+
+        const DEFAULTS = {
+            metodo: 'lineal',
+            anchoDiseno: 20,
+            altoDiseno: 15,
+            anchoRollo: 50,
+            precioMaterial: 3.50,
+            cantidadPiezas: 1,
+            margenGanancia: 40,
+            costoPlanchado: 0.50,
+            costoInstalacion: 1.00
+        };
+
+        function limpiarFormulario() {
+            document.getElementById('metodo').value = DEFAULTS.metodo;
+            document.getElementById('anchoDiseno').value = DEFAULTS.anchoDiseno;
+            document.getElementById('altoDiseno').value = DEFAULTS.altoDiseno;
+            document.getElementById('anchoRollo').value = DEFAULTS.anchoRollo;
+            document.getElementById('precioMaterial').value = DEFAULTS.precioMaterial;
+            document.getElementById('cantidadPiezas').value = DEFAULTS.cantidadPiezas;
+            document.getElementById('margenGanancia').value = DEFAULTS.margenGanancia;
+            document.getElementById('costoPlanchado').value = DEFAULTS.costoPlanchado;
+            document.getElementById('costoInstalacion').value = DEFAULTS.costoInstalacion;
+
+            document.getElementById('incluirPlanchado').checked = false;
+            document.getElementById('incluirInstalacion').checked = false;
+            document.getElementById('checkEditRollo').checked = false;
+            toggleEditSection('rolloParamsBox', 'checkEditRollo');
+
+            cambiarMetodo();
         }
 
         let bcvWidget = null;
