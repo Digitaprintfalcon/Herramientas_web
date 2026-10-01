@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const costoInstalacion = document.getElementById('costoInstalacion');
 
   const cantidadPiezas = document.getElementById('cantidadPiezas');
+  const resultadoUnitario = document.getElementById('resultadoUnitario');
   const resultado = document.getElementById('resultado');
 
   const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cantidad = parseInt(cantidadPiezas.value) || 1;
 
     if (aRollo <= 0) {
+      resultadoUnitario.textContent = "$0.00";
       resultado.textContent = "$0.00";
       if (bcv) bcv.setUsd(0);
       return;
@@ -95,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const costoUnitarioTotal = costoVinilUnitario + costoLamUnitario + costoDisUnitario + costoCorUnitario + costoInstUnitario;
     const precioFinal = costoUnitarioTotal * (cantidad > 0 ? cantidad : 1);
 
+    resultadoUnitario.textContent = HW.fmtCurrency(costoUnitarioTotal);
     resultado.textContent = HW.fmtCurrency(precioFinal);
     if (bcv) bcv.setUsd(precioFinal);
   }

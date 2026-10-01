@@ -29,7 +29,7 @@
 
     <!-- Medidas de la Pieza de Vinil -->
     <div class="row g-2 mb-3">
-      <div class="col-6">
+      <div class="col-4">
         <label for="anchoPieza" class="form-label fw-semibold small text-secondary">Ancho de Pieza</label>
         <div class="input-group input-group-sm">
           <input type="number" class="form-control" id="anchoPieza" placeholder="100" value="100" step="0.1" min="0">
@@ -37,11 +37,19 @@
         </div>
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <label for="altoPieza" class="form-label fw-semibold small text-secondary">Alto / Largo de Pieza</label>
         <div class="input-group input-group-sm">
           <input type="number" class="form-control" id="altoPieza" placeholder="135" value="135" step="0.1" min="0">
           <span class="input-group-text bg-light text-muted">cm</span>
+        </div>
+      </div>
+
+      <div class="col-4">
+        <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
+        <div class="input-group input-group-sm">
+          <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
+          <span class="input-group-text bg-light text-muted">pz</span>
         </div>
       </div>
     </div>
@@ -143,20 +151,20 @@
       </div>
     </div>
 
-    <!-- Sección de Cantidad de Piezas (NUEVO) -->
-    <p class="hw-section-title">Cantidad</p>
-    <div class="mb-3">
-      <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
-      <div class="input-group input-group-sm">
-        <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
-        <span class="input-group-text bg-light text-muted">pz</span>
+    <!-- Resultados: Unitario y Total -->
+    <div class="row g-2 mt-3">
+      <div class="col-6">
+        <div class="hw-result neutral h-100">
+          <span class="hw-result-label">Precio Unitario</span>
+          <span class="hw-result-value" id="resultadoUnitario">$0.00</span>
+        </div>
       </div>
-    </div>
-
-    <!-- Resultado Final -->
-    <div class="hw-result accent mt-3">
-      <span class="hw-result-label">Precio Total de la Pieza / Lote</span>
-      <span class="hw-result-value" id="resultado">$0.00</span>
+      <div class="col-6">
+        <div class="hw-result accent h-100">
+          <span class="hw-result-label">Precio Total</span>
+          <span class="hw-result-value" id="resultado">$0.00</span>
+        </div>
+      </div>
     </div>
 
     <div id="bcvBox"></div>
