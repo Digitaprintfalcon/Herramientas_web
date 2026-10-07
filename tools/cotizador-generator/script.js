@@ -511,8 +511,9 @@
 
   function pdfCotizacion() {
     if (!validarYReportar()) return;
-    togglePreview(true);
-    var element = document.getElementById('documento-pdf');
+    abrirPreview();
+    var element = document.getElementById('documento-pdf-modal');
+    if (!element) element = document.getElementById('documento-pdf');
     var baseNombre = (document.getElementById('inputNro').value || 'Cotizacion').trim().replace(/[\/\\]/g, '_');
 
     var opt = {
@@ -539,46 +540,35 @@
     }
   }
 
-  function togglePreview(forceShow) {
-    var wrap = document.getElementById('previewWrap');
-    var formCol = document.getElementById('formCol');
-    var btn1 = document.getElementById('btnTogglePreview');
-    var btn2 = document.getElementById('btnTogglePreviewFooter');
-    if (!wrap || !formCol) return;
+  function abrirPreview() {
+    var src = document.getElementById('documento-pdf');
+    var dst = document.getElementById('documento-pdf-modal');
+    if (!dst) return;
 
-    var show = wrap.classList.contains('d-none');
-    if (typeof forceShow === 'boolean') show = forceShow;
+    if (src && src.innerHTML) {
+      dst.innerHTML = src.innerHTML;
+    }
 
-    wrap.classList.toggle('d-none', !show);
-    formCol.classList.toggle('col-lg-8', !show);
-    formCol.classList.toggle('col-xl-7', !show);
-    formCol.classList.toggle('col-lg-4', show);
-    formCol.classList.toggle('col-xl-5', show);
-    formCol.classList.toggle('col-lg-7', show);
+    aplicarBindings();
+    recalcular();
 
-    if (show) {
-      aplicarBindings();
-      recalcular();
+    var modalEl = document.getElementById('previewModal');
+    if (modalEl && window.bootstrap && bootstrap.Modal) {
+      var m = bootstrap.Modal.getOrCreateInstance(modalEl);
+      m.show();
       if (Hw() && Hw().initPaperFit) {
         setTimeout(function () { Hw().initPaperFit(); }, 50);
         setTimeout(function () { Hw().initPaperFit(); }, 250);
+        setTimeout(function () { Hw().initPaperFit(); }, 500);
       }
-    }
-
-    var texto = show ? 'Editar formulario' : 'Previsualizar cotización';
-    if (btn1) {
-      btn1.innerHTML = show ? '<i class="bi bi-pencil-square me-1"></i>Editar formulario' : '<i class="bi bi-eye me-1"></i>Previsualizar cotización';
-      btn1.title = show ? 'Ocultar vista previa y volver al formulario' : 'Mostrar vista previa de la cotización';
-    }
-    if (btn2) {
-      btn2.innerHTML = show ? '<i class="bi bi-pencil-square me-1"></i>Editar' : '<i class="bi bi-eye me-1"></i>Previsualizar';
-      btn2.title = show ? 'Ocultar vista previa y volver al formulario' : 'Mostrar vista previa de la cotización';
+    } else if (Hw() && Hw().initPaperFit) {
+      setTimeout(function () { Hw().initPaperFit(); }, 50);
     }
   }
 
   function imprimirCotizacion() {
     if (!validarYReportar()) return;
-    togglePreview(true);
+    abrirPreview();
     window.print();
   }
 
@@ -643,7 +633,8 @@
     init();
   }
 
-  window.togglePreview = togglePreview;
+  window.abrirPreview = abrirPreview;
+  window.togglePreview = abrirPreview;
   window.agregarLinea = agregarLinea;
   window.sincronizarTasa = sincronizarTasa;
   window.guardarCotizacion = guardarCotizacion;

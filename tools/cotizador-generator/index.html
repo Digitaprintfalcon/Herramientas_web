@@ -134,12 +134,12 @@
     <div class="row g-4 doc-layout">
 
       <!-- FORMULARIO -->
-      <div class="col-lg-8 col-xl-7 doc-col-form" id="formCol">
+      <div class="col-lg-10 col-xl-9 mx-auto doc-col-form" id="formCol">
         <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto">
 
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <h5 class="hw-section-title mb-0">Datos de la cotización</h5>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnTogglePreview" onclick="togglePreview()">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="abrirPreview()">
               <i class="bi bi-eye me-1"></i>Previsualizar cotización
             </button>
           </div>
@@ -264,7 +264,7 @@
             <button class="btn btn-success flex-fill" onclick="imprimirCotizacion()" title="Imprimir cotización"><i class="bi bi-printer me-1"></i>Imprimir</button>
             <button class="btn btn-outline-primary flex-fill" onclick="guardarCotizacion()" title="Guardar en el historial"><i class="bi bi-save me-1"></i>Guardar</button>
             <button class="btn btn-outline-success flex-fill" onclick="copiarCotizacion()" title="Copiar resumen para WhatsApp"><i class="bi bi-clipboard-check me-1"></i>Copiar</button>
-            <button class="btn btn-outline-secondary flex-fill" onclick="togglePreview()" title="Mostrar / ocultar la vista previa de la cotización" id="btnTogglePreviewFooter"><i class="bi bi-eye me-1"></i>Previsualizar</button>
+            <button class="btn btn-outline-secondary flex-fill" onclick="abrirPreview()" title="Mostrar vista previa de la cotización"><i class="bi bi-eye me-1"></i>Previsualizar</button>
             <button class="btn btn-outline-danger flex-fill" onclick="nuevaCotizacion()" title="Empezar una nueva cotización"><i class="bi bi-file-earmark-plus me-1"></i>Nueva</button>
           </div>
 
@@ -279,104 +279,31 @@
           </div>
 
         </div>
-      </div>
+  </div>
 
-      <!-- VISTA PREVIA (HOJA A4) -->
-      <div class="col-lg-4 col-xl-5 paper-wrap d-none" id="previewWrap">
-        <div class="paper shadow-lg rounded-1" id="documento-pdf">
 
-          <div class="doc-encabezado">
-            <div>
-              <div class="doc-empresa-nombre" id="docEmpresaNombre"></div>
-              <div class="doc-empresa-datos" id="docEmpresaDatos"></div>
+      <!-- VISTA PREVIA EN MODAL -->
+      <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 92vw">
+          <div class="modal-content">
+            <div class="modal-header py-2">
+              <h5 class="modal-title">Vista previa de la cotización</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="doc-sello">
-              <div class="doc-titulo">COTIZACIÓN</div>
-              <div class="doc-nro">Nº <span id="docNro"></span></div>
+            <div class="modal-body bg-light d-flex justify-content-center overflow-auto py-3">
+              <div class="paper shadow-sm" id="documento-pdf-modal"></div>
+            </div>
+            <div class="modal-footer py-2 flex-wrap gap-2">
+              <button class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+              <button class="btn btn-outline-success" onclick="copiarCotizacion()"><i class="bi bi-clipboard-check me-1"></i>Copiar</button>
+              <button class="btn btn-success" onclick="imprimirCotizacion()"><i class="bi bi-printer me-1"></i>Imprimir</button>
+              <button class="btn btn-primary" onclick="pdfCotizacion()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
             </div>
           </div>
-
-          <div class="doc-meta">
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Fecha</span>
-              <span id="docFecha"></span>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Vigencia</span>
-              <span id="docVigencia"></span>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Vendedor</span>
-              <span id="docVendedor"></span>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Cliente</span>
-              <strong id="docClienteNombre"></strong>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">RIF / C.I</span>
-              <span id="docClienteRif"></span>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Teléfono</span>
-              <span id="docClienteTelefono"></span>
-            </div>
-            <div class="doc-meta-item">
-              <span class="doc-meta-label">Email</span>
-              <span id="docClienteEmail"></span>
-            </div>
-          </div>
-
-          <table class="doc-tabla">
-            <thead>
-              <tr>
-                <th style="width:30px">Nº</th>
-                <th>Descripción</th>
-                <th class="text-center" style="width:50px">Cant.</th>
-                <th class="text-center" style="width:60px">Unid.</th>
-                <th class="text-end" style="width:78px">P. Unit USDT</th>
-                <th class="text-end" style="width:88px">Importe USDT</th>
-                <th class="text-end" style="width:96px">Importe Bs</th>
-              </tr>
-            </thead>
-            <tbody id="docTableBody"></tbody>
-          </table>
-
-          <div class="doc-totales">
-            <div class="doc-total-fila">
-              <span>Subtotal (USDT)</span>
-              <span id="docSubtotalUsd"></span>
-            </div>
-            <div class="doc-total-fila">
-              <span>Descuento (USDT)</span>
-              <span id="docDescuento"></span>
-            </div>
-            <div class="doc-total-fila doc-total-gde">
-              <span>Total USDT</span>
-              <span id="docTotalUsd"></span>
-            </div>
-            <div class="doc-total-fila doc-total-gde doc-total-bs">
-              <span>Total Bolívares</span>
-              <span id="docTotalBs"></span>
-            </div>
-            <div class="doc-tasa">Tasa del día: <strong id="docTasa"></strong></div>
-          </div>
-
-          <div class="doc-notas" id="docNotas"></div>
-
-          <div class="doc-firmas">
-            <div class="doc-firma">
-              <div class="sig-line"></div>
-              <div class="doc-firma-titulo">Recibí conforme</div>
-            </div>
-            <div class="doc-firma">
-              <div class="sig-line"></div>
-              <div class="doc-firma-titulo">Autorizado por</div>
-            </div>
-          </div>
-
         </div>
       </div>
+
+        </div>
 
     </div>
   </div>
