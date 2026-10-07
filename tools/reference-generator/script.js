@@ -1,3 +1,24 @@
+
+function abrirPreview() {
+  const src = document.getElementById('documento-pdf');
+  const dst = document.getElementById('documento-pdf-modal');
+  if (dst && src && src.innerHTML) {
+    dst.innerHTML = src.innerHTML;
+  }
+  const modalEl = document.getElementById('previewModal');
+  if (modalEl && window.bootstrap && bootstrap.Modal) {
+    const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+    m.show();
+    if (window.HW && HW.initPaperFit) {
+      setTimeout(function () { HW.initPaperFit(); }, 50);
+      setTimeout(function () { HW.initPaperFit(); }, 250);
+      setTimeout(function () { HW.initPaperFit(); }, 500);
+    }
+  } else if (window.HW && HW.initPaperFit) {
+    setTimeout(function () { HW.initPaperFit(); }, 50);
+  }
+}
+
 // Personas predefinidas que emiten la referencia (modo Precargadas).
 // Reemplaza estos placeholders con los datos reales de tus 3 referentes.
 const REFERENTES = [
@@ -214,7 +235,9 @@ function restaurarEscala(element, previo) {
 // Descargar el documento vista previa en PDF usando html2pdf
 function descargarPDF() {
   if (!validarYReportar()) return;
-  const element = document.getElementById('documento-pdf');
+  abrirPreview();
+  let element = document.getElementById('documento-pdf-modal');
+  if (!element) element = document.getElementById('documento-pdf');
   let baseNombre = 'Referencia';
   if (modoActual === 'vacia') {
     baseNombre = 'En_Blanco';
@@ -249,5 +272,8 @@ function descargarPDF() {
 // Imprimir directamente el documento
 function imprimirDocumento() {
   if (!validarYReportar()) return;
+  abrirPreview();
   window.print();
 }
+window.abrirPreview = abrirPreview;
+window.togglePreview = abrirPreview;
