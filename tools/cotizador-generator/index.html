@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Cotizaciones</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Estilos comunes del panel -->
+  <link rel="stylesheet" href="../common.css">
+  <!-- html2pdf.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* Vista previa: hoja A4 de la cotización */
+    .paper {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      padding: 22mm 22mm 18mm 22mm;
+      font-family: Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.5;
+      color: #000;
+    }
+
+    .doc-encabezado {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2.5px solid #111;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      gap: 16px;
+    }
+    .doc-empresa-nombre { font-size: 14pt; font-weight: 800; }
+    .doc-empresa-datos { font-size: 8pt; color: #555; margin-top: 4px; line-height: 1.45; }
+    .doc-sello { text-align: right; }
+    .doc-titulo { font-size: 20pt; font-weight: 900; letter-spacing: 4px; }
+    .doc-nro { font-size: 10pt; font-weight: 600; margin-top: 3px; }
+
+    .doc-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px 16px;
+      margin-bottom: 18px;
+      font-size: 9.5pt;
+    }
+    .doc-meta-item { display: flex; flex-direction: column; }
+    .doc-meta-label {
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #777;
+      margin-bottom: 1px;
+    }
+
+    table.doc-tabla { width: 100%; border-collapse: collapse; font-size: 9pt; }
+    .doc-tabla th {
+      border-top: 1.5px solid #111;
+      border-bottom: 1.5px solid #111;
+      padding: 5px 6px;
+      text-align: left;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .doc-tabla td { border-bottom: 1px dotted #bbb; padding: 5px 6px; vertical-align: middle; }
+    .doc-tabla .text-end { text-align: right; }
+    .doc-tabla .text-center { text-align: center; }
+
+    .doc-totales { width: 58%; margin: 16px 0 6px auto; font-size: 10pt; }
+    .doc-total-fila { display: flex; justify-content: space-between; padding: 2px 0; }
+    .doc-total-gde { font-weight: 800; border-top: 1.5px solid #111; padding-top: 6px; font-size: 12pt; }
+    .doc-total-bs { color: #059669; font-size: 13pt; }
+    .doc-tasa { font-size: 8pt; color: #555; margin-top: 8px; }
+
+    .doc-notas {
+      margin-top: 18px;
+      font-size: 8.5pt;
+      color: #333;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+
+    .doc-firmas { display: flex; gap: 40px; margin-top: 72px; }
+    .doc-firma { flex: 1; text-align: center; }
+    .sig-line { border-top: 1.5px solid #000; margin-bottom: 6px; }
+    .doc-firma-titulo { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.06em; color: #555; }
+
+    /* Formulario: tabla de líneas */
+    .cot-form-tabla th {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .cot-form-tabla td { vertical-align: middle; }
+
+    .hist-item {
+      width: 100%;
+      border: 1px solid var(--hw-border);
+      background: none;
+      border-radius: 0.55rem;
+      padding: 0.5rem 0.65rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--hw-text-main);
+      transition: border-color 0.2s ease;
+    }
+    .hist-item:hover { border-color: var(--hw-accent); }
+
+    @media print {
+      body { background: none !important; }
+      header, .form-panel, .btn-container { display: none !important; }
+      .paper { box-shadow: none !important; padding: 15mm 18mm; width: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
+
+  <div class="tool-nav">
+    <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
+    <div class="tool-nav-titles">
+      <h1 class="tool-nav-title">Generador de Cotizaciones</h1>
+      <p class="tool-nav-sub">Cotizaciones profesionales en Bs y USDT a la tasa del día</p>
+    </div>
+  </div>
+
+  <div class="container my-auto py-4">
+    <div class="row g-4 doc-layout">
+
+      <!-- FORMULARIO -->
+      <div class="col-lg-5 col-xl-5 doc-col-form">
+        <div class="bg-white p-4 rounded-3 shadow-sm form-panel overflow-y-auto">
+
+          <h5 class="hw-section-title">1. Datos de la cotización</h5>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4 col-lg-12 col-xl-4">
+              <label for="inputNro" class="form-label form-label-sm fw-semibold text-secondary">Nº de cotización:</label>
+              <input type="text" class="form-control form-control-sm" id="inputNro" placeholder="COT-2026-001">
+            </div>
+            <div class="col-md-4 col-lg-6 col-xl-4">
+              <label for="inputFecha" class="form-label form-label-sm fw-semibold text-secondary">Fecha:</label>
+              <input type="date" class="form-control form-control-sm" id="inputFecha">
+            </div>
+            <div class="col-md-4 col-lg-6 col-xl-4">
+              <label for="inputVigencia" class="form-label form-label-sm fw-semibold text-secondary">Vigencia (días):</label>
+              <input type="number" class="form-control form-control-sm" id="inputVigencia" value="15" min="1" step="1">
+            </div>
+            <div class="col-12">
+              <label for="inputVendedor" class="form-label form-label-sm fw-semibold text-secondary">Vendedor / Atención:</label>
+              <input type="text" class="form-control form-control-sm" id="inputVendedor" placeholder="Nombre del vendedor">
+            </div>
+          </div>
+
+          <h5 class="hw-section-title">2. Datos del cliente</h5>
+          <div class="row g-2 mb-3">
+            <div class="col-12">
+              <label for="inputClienteNombre" class="form-label form-label-sm fw-semibold text-secondary">Nombre o razón social:</label>
+              <input type="text" class="form-control form-control-sm" id="inputClienteNombre" placeholder="Nombre del cliente">
+            </div>
+            <div class="col-md-6">
+              <label for="inputClienteRif" class="form-label form-label-sm fw-semibold text-secondary">RIF / C.I:</label>
+              <input type="text" class="form-control form-control-sm" id="inputClienteRif" placeholder="J-00000000-0">
+            </div>
+            <div class="col-md-6">
+              <label for="inputClienteTelefono" class="form-label form-label-sm fw-semibold text-secondary">Teléfono:</label>
+              <input type="text" class="form-control form-control-sm" id="inputClienteTelefono" placeholder="0414-0000000">
+            </div>
+            <div class="col-12">
+              <label for="inputClienteEmail" class="form-label form-label-sm fw-semibold text-secondary">Email:</label>
+              <input type="email" class="form-control form-control-sm" id="inputClienteEmail" placeholder="cliente@correo.com">
+            </div>
+          </div>
+
+          <h5 class="hw-section-title">3. Tasa del día (Bs / USDT)</h5>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label for="tasaInput" class="form-label form-label-sm fw-semibold text-secondary">Tasa USDT/VES:</label>
+              <div class="input-group input-group-sm mb-1">
+                <input type="number" id="tasaInput" class="form-control text-success fw-bold" step="0.01" min="0" title="Tasa USDT/VES (editable)">
+                <button class="btn btn-outline-primary" type="button" id="tasaSync" title="Sincronizar tasa BCV">
+                  <i class="bi bi-arrow-repeat" id="tasaSyncIcon"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-6">
+              <label for="tasaSpread" class="form-label form-label-sm fw-semibold text-secondary">Spread USDT (%):</label>
+              <div class="input-group input-group-sm mb-1">
+                <input type="number" id="tasaSpread" class="form-control" value="0" step="0.1" min="0" title="Sobreprecio sobre la tasa BCV para aproximar el P2P">
+                <span class="input-group-text">%</span>
+              </div>
+            </div>
+            <div class="col-12">
+              <small id="tasaInfo" class="text-muted">Tasa BCV: --</small>
+            </div>
+            <div class="col-12">
+              <small class="text-muted">El botón sincroniza la tasa BCV oficial. Si trabajás con USDT, sumá un spread para aproximar el precio P2P del día.</small>
+            </div>
+          </div>
+
+          <h5 class="hw-section-title">4. Líneas de la cotización</h5>
+          <div class="mb-2">
+            <table class="table table-sm table-bordered align-middle mb-2 cot-form-tabla">
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Descripción</th>
+                  <th style="width:64px">Cant.</th>
+                  <th style="width:78px">Unidad</th>
+                  <th style="width:92px">P. USDT</th>
+                  <th style="width:100px">Imp. USDT</th>
+                  <th style="width:100px">Bs</th>
+                  <th style="width:38px"></th>
+                </tr>
+              </thead>
+              <tbody id="lineasTbody"></tbody>
+            </table>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarLinea()">
+              <i class="bi bi-plus-lg me-1"></i>Agregar línea
+            </button>
+          </div>
+
+          <h5 class="hw-section-title">5. Totales</h5>
+          <div class="bg-light border rounded-3 p-3 mb-3">
+            <div class="row g-2 small mb-2">
+              <div class="col-6">
+                <span class="text-secondary">Subtotal (USDT):</span>
+              </div>
+              <div class="col-6 text-end fw-semibold" id="totalSubtotalUsd">0,00</div>
+              <div class="col-6">
+                <label for="inputDescuento" class="form-label form-label-sm text-secondary mb-0">Descuento (USDT):</label>
+              </div>
+              <div class="col-6">
+                <input type="number" class="form-control form-control-sm text-end" id="inputDescuento" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <span class="fw-bold">Total USDT</span>
+              <strong class="fs-5" id="totalUsd">0,00</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Total Bolívares</span>
+              <strong class="fs-5 text-success" id="totalBs">Bs. 0,00</strong>
+            </div>
+          </div>
+
+          <h5 class="hw-section-title">6. Notas y condiciones</h5>
+          <textarea id="inputNotas" class="form-control form-control-sm mb-3" rows="3" placeholder="Condiciones de pago, tiempo de entrega, garantía, anticipo..."></textarea>
+
+          <div id="cotAlert" class="alert alert-warning d-none my-3" role="alert"></div>
+
+          <div class="d-flex gap-2 flex-wrap btn-container">
+            <button class="btn btn-primary flex-fill" onclick="pdfCotizacion()" title="Descargar PDF de la cotización"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+            <button class="btn btn-success flex-fill" onclick="imprimirCotizacion()" title="Imprimir cotización"><i class="bi bi-printer me-1"></i>Imprimir</button>
+            <button class="btn btn-outline-primary flex-fill" onclick="guardarCotizacion()" title="Guardar en el historial"><i class="bi bi-save me-1"></i>Guardar</button>
+            <button class="btn btn-outline-secondary flex-fill" onclick="copiarCotizacion()" title="Copiar resumen para WhatsApp"><i class="bi bi-clipboard-check me-1"></i>Copiar</button>
+            <button class="btn btn-outline-danger flex-fill" onclick="nuevaCotizacion()" title="Empezar una nueva cotización"><i class="bi bi-file-earmark-plus me-1"></i>Nueva</button>
+          </div>
+
+          <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="hw-uppercase-label"><i class="bi bi-clock-history me-1"></i> Historial de cotizaciones</span>
+              <button type="button" class="btn btn-sm hw-btn-ghost" id="btnClearHistorial">
+                <i class="bi bi-trash me-1"></i>Limpiar
+              </button>
+            </div>
+            <div id="historialList" class="hw-box"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- VISTA PREVIA (HOJA A4) -->
+      <div class="col-lg-7 col-xl-7 paper-wrap">
+        <div class="paper shadow-lg rounded-1" id="documento-pdf">
+
+          <div class="doc-encabezado">
+            <div>
+              <div class="doc-empresa-nombre" id="docEmpresaNombre"></div>
+              <div class="doc-empresa-datos" id="docEmpresaDatos"></div>
+            </div>
+            <div class="doc-sello">
+              <div class="doc-titulo">COTIZACIÓN</div>
+              <div class="doc-nro">Nº <span id="docNro"></span></div>
+            </div>
+          </div>
+
+          <div class="doc-meta">
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Fecha</span>
+              <span id="docFecha"></span>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Vigencia</span>
+              <span id="docVigencia"></span>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Vendedor</span>
+              <span id="docVendedor"></span>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Cliente</span>
+              <strong id="docClienteNombre"></strong>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">RIF / C.I</span>
+              <span id="docClienteRif"></span>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Teléfono</span>
+              <span id="docClienteTelefono"></span>
+            </div>
+            <div class="doc-meta-item">
+              <span class="doc-meta-label">Email</span>
+              <span id="docClienteEmail"></span>
+            </div>
+          </div>
+
+          <table class="doc-tabla">
+            <thead>
+              <tr>
+                <th style="width:30px">Nº</th>
+                <th>Descripción</th>
+                <th class="text-center" style="width:50px">Cant.</th>
+                <th class="text-center" style="width:60px">Unid.</th>
+                <th class="text-end" style="width:78px">P. Unit USDT</th>
+                <th class="text-end" style="width:88px">Importe USDT</th>
+                <th class="text-end" style="width:96px">Importe Bs</th>
+              </tr>
+            </thead>
+            <tbody id="docTableBody"></tbody>
+          </table>
+
+          <div class="doc-totales">
+            <div class="doc-total-fila">
+              <span>Subtotal (USDT)</span>
+              <span id="docSubtotalUsd"></span>
+            </div>
+            <div class="doc-total-fila">
+              <span>Descuento (USDT)</span>
+              <span id="docDescuento"></span>
+            </div>
+            <div class="doc-total-fila doc-total-gde">
+              <span>Total USDT</span>
+              <span id="docTotalUsd"></span>
+            </div>
+            <div class="doc-total-fila doc-total-gde doc-total-bs">
+              <span>Total Bolívares</span>
+              <span id="docTotalBs"></span>
+            </div>
+            <div class="doc-tasa">Tasa del día: <strong id="docTasa"></strong></div>
+          </div>
+
+          <div class="doc-notas" id="docNotas"></div>
+
+          <div class="doc-firmas">
+            <div class="doc-firma">
+              <div class="sig-line"></div>
+              <div class="doc-firma-titulo">Recibí conforme</div>
+            </div>
+            <div class="doc-firma">
+              <div class="sig-line"></div>
+              <div class="doc-firma-titulo">Autorizado por</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Datos de empresa (lugar común: sobreescribir con empresa.local.js) -->
+  <script src="empresa.js"></script>
+  <script src="empresa.local.js"></script>
+
+  <!-- Utilidades compartidas del panel (tema, nav, helpers, tasa BCV) -->
+  <script src="../common.js"></script>
+
+  <!-- Lógica del generador de cotizaciones -->
+  <script src="script.js"></script>
+</body>
+</html>

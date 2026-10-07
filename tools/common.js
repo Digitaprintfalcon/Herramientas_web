@@ -328,6 +328,13 @@
           href: '../authorization-generator/index.html',
           desc: 'Creación rápida de documentos de autorización legal o simple para trámites.',
           keywords: 'generador autorizaciones cartas permisos tramites'
+        },
+        {
+          nombre: 'Generador de Cotizaciones',
+          icon: 'receipt',
+          href: '../cotizador-generator/index.html',
+          desc: 'Cotizaciones profesionales imprimibles con precios en Bs y USDT a la tasa del día.',
+          keywords: 'generador cotizaciones presupuesto precios usdt bolivares bcv tasa'
         }
       ]
     }

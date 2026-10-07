@@ -1,6 +1,9 @@
 # Credenciales locales de las herramientas
 tools/dni-checker/config.local.js
 
+# Datos reales de empresa (no se publican)
+tools/cotizador-generator/empresa.local.js
+
 # Credenciales del proxy de Cloudflare Workers
 worker/.dev.vars
 worker/.env*
