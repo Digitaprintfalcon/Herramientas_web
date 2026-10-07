@@ -4,6 +4,8 @@
 
             var CONFIG = window.HW_DNI_CONFIG || {};
             var TIEMPO_LIMITE_MS = 12000;
+            var HIST_KEY = 'hw_dni_history';
+            var HIST_MAX = 20;
 
             var el = {
                 form: document.getElementById('searchForm'),
@@ -173,6 +175,74 @@
                 HW.toast(mensaje, esError);
             }
 
+            // ---- Historial de consultas recientes (localStorage) ----
+            function guardarHistoria(entrada) {
+                var historial = HW.persist.get(HIST_KEY, []);
+                if (!Array.isArray(historial)) historial = [];
+                historial = historial.filter(function (e) { return e && e.cedula !== entrada.cedula; });
+                historial.unshift(entrada);
+                historial = historial.slice(0, HIST_MAX);
+                HW.persist.set(HIST_KEY, historial);
+                return historial;
+            }
+
+            function formatearHora(ts) {
+                var d = new Date(ts);
+                if (isNaN(d.getTime())) return '';
+                var h = d.getHours();
+                var h12 = h % 12 === 0 ? 12 : h % 12;
+                return dosDigitos(d.getDate()) + '/' + dosDigitos(d.getMonth() + 1) + '/' + d.getFullYear() +
+                    ' ' + (h12 < 10 ? '0' + h12 : h12) + ':' + dosDigitos(d.getMinutes()) +
+                    (h < 12 ? ' a. m.' : ' p. m.');
+            }
+
+            function renderHistoria() {
+                var lista = document.getElementById('historyList');
+                if (!lista) return;
+                var historial = HW.persist.get(HIST_KEY, []);
+                if (!Array.isArray(historial)) historial = [];
+
+                lista.innerHTML = '';
+
+                if (historial.length === 0) {
+                    var vacio = document.createElement('div');
+                    vacio.className = 'text-center small py-3 text-muted';
+                    vacio.id = 'historyEmpty';
+                    vacio.textContent = 'Sin consultas todavía.';
+                    lista.appendChild(vacio);
+                    return;
+                }
+
+                historial.forEach(function (e) {
+                    var celda = document.createElement('button');
+                    celda.type = 'button';
+                    celda.className = 'd-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start px-3 py-2';
+                    celda.style.cursor = 'pointer';
+
+                    var info = document.createElement('span');
+                    info.className = 'small';
+                    var nac = (e.nac || 'v').toUpperCase();
+                    info.innerHTML =
+                        '<span class="fw-bold" style="color: var(--hw-accent);">' + nac + '-' + e.cedula + '</span> · ' +
+                        HW.escapeHtml(e.nombre || '') +
+                        '<br><span class="text-muted">' + formatearHora(e.ts) + '</span>';
+
+                    var ico = document.createElement('i');
+                    ico.className = 'bi bi-search';
+
+                    celda.appendChild(info);
+                    celda.appendChild(ico);
+
+                    celda.addEventListener('click', function () {
+                        el.cedula.value = e.cedula || '';
+                        if (e.nac) el.selNacionalidad.value = e.nac;
+                        consultar();
+                    });
+
+                    lista.appendChild(celda);
+                });
+            }
+
             function setCargando(activo) {
                 el.btn.disabled = activo;
                 el.spinner.classList.toggle('d-none', !activo);
@@ -197,6 +267,17 @@
                 el.consulta.textContent = consulta ? 'Consultado: ' + consulta : '';
 
                 ultimo = { nombre: nombre, cedula: cedula, rif: datos.rif || '', fecha: el.fecha.textContent, edad: edad };
+
+                guardarHistoria({
+                    cedula: cedula,
+                    nombre: nombre,
+                    rif: datos.rif || '',
+                    fecha: el.fecha.textContent,
+                    edad: edad,
+                    nac: el.selNacionalidad.value,
+                    ts: Date.now()
+                });
+                renderHistoria();
 
                 el.resultBox.classList.remove('d-none');
                 mostrarToast('Datos encontrados', false);
@@ -293,6 +374,15 @@
             window.consultar = consultar;
             window.copiarDatos = copiarDatos;
             window.limpiar = limpiar;
+
+            var btnClearHistory = document.getElementById('btnClearHistory');
+            if (btnClearHistory) {
+                btnClearHistory.addEventListener('click', function () {
+                    HW.persist.remove(HIST_KEY);
+                    renderHistoria();
+                });
+            }
+            renderHistoria();
 
             if (configFalta()) sinConfig();
             el.cedula.focus();
