@@ -234,6 +234,118 @@
     return fit;
   }
 
+  // ===== Barra de navegación: menú compartido de herramientas =====
+  var HW_TOOLS = [
+    {
+      categoria: 'Consultas',
+      items: [
+        { nombre: 'Consulta de Cédula (DNI)', icon: 'person-vcard', href: '../dni-checker/index.html' }
+      ]
+    },
+    {
+      categoria: 'Finanzas',
+      items: [
+        { nombre: 'Calculadora BCV', icon: 'calculator', href: '../calculadora-bcv/index.html' }
+      ]
+    },
+    {
+      categoria: 'Producción',
+      items: [
+        { nombre: 'Cotizador de Pendones', icon: 'flag', href: '../banner-estimator/index.html' },
+        { nombre: 'Cotizador DTF', icon: 'printer-fill', href: '../dtf-estimator/index.html' },
+        { nombre: 'Cotizador de Vinil', icon: 'layers', href: '../vinil-estimator/index.html' },
+        { nombre: 'Cotizador de Corte de Vinil', icon: 'scissors', href: '../cut-estimator/index.html' },
+        { nombre: 'Calculadora PVC · Vinil · Laminado', icon: 'calculator', href: '../calculadora-pvc/index.html' }
+      ]
+    },
+    {
+      categoria: 'Utilidades',
+      items: [
+        { nombre: 'Generador QR', icon: 'qr-code', href: '../qr-generator/index.html' }
+      ]
+    },
+    {
+      categoria: 'Documentos',
+      items: [
+        { nombre: 'Generador de Referencias', icon: 'file-earmark-text', href: '../reference-generator/index.html' },
+        { nombre: 'Generador de Autorizaciones', icon: 'file-earmark-check', href: '../authorization-generator/index.html' }
+      ]
+    }
+  ];
+
+  // Inyecta el botón "Herramientas" + desplegable en la barra .tool-nav existente
+  function hwNavBarMount() {
+    if (!global.document) return;
+    const nav = global.document.querySelector('.tool-nav');
+    if (!nav) return;
+
+    const btn = global.document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hw-nav-menu-btn';
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML =
+      '<i class="bi bi-grid-fill"></i>' +
+      '<span class="hw-nav-txt">Herramientas</span>' +
+      '<i class="bi bi-chevron-down hw-nav-caret"></i>';
+
+    const panel = global.document.createElement('div');
+    panel.className = 'hw-nav-menu';
+    panel.hidden = true;
+
+    const path = global.location
+      ? global.location.pathname.replace(/\/+$/, '')
+      : '';
+
+    HW_TOOLS.forEach(function (grupo) {
+      const sec = global.document.createElement('div');
+      sec.className = 'hw-nav-group';
+
+      const cab = global.document.createElement('div');
+      cab.className = 'hw-nav-group-title';
+      cab.textContent = grupo.categoria;
+      sec.appendChild(cab);
+
+      grupo.items.forEach(function (tool) {
+        const a = global.document.createElement('a');
+        a.className = 'hw-nav-link';
+        a.href = tool.href;
+        a.innerHTML = '<i class="bi bi-' + tool.icon + '"></i><span>' + tool.nombre + '</span>';
+
+        const candidato = '/tools/' + tool.href.replace(/^\.\.\//, '');
+        if (path.endsWith(candidato)) {
+          a.classList.add('current');
+          a.setAttribute('aria-current', 'page');
+          a.innerHTML += '<i class="bi bi-check2 hw-nav-check"></i>';
+        }
+        sec.appendChild(a);
+      });
+
+      panel.appendChild(sec);
+    });
+
+    function setOpen(open) {
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setOpen(panel.hidden);
+    });
+
+    global.document.addEventListener('click', function () {
+      if (!panel.hidden) setOpen(false);
+    });
+
+    global.document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) setOpen(false);
+    });
+
+    nav.appendChild(btn);
+    nav.appendChild(panel);
+  }
+
   global.HW = {
     fmtCurrency: fmtCurrency,
     fmtBs: fmtBs,
@@ -242,11 +354,13 @@
     escapeHtml: escapeHtml,
     initTheme: hwThemeInit,
     initPaperFit: initPaperFit,
+    mountNavbar: hwNavBarMount,
     bcv: {
       mount: bcvMount,
       fetchTasa: bcvFetchTasa
     }
   };
 
+  hwNavBarMount();
   hwThemeBoot();
 })(window);
