@@ -239,39 +239,107 @@
     {
       categoria: 'Consultas',
       items: [
-        { nombre: 'Consulta de Cédula (DNI)', icon: 'person-vcard', href: '../dni-checker/index.html' }
+        {
+          nombre: 'Consulta de Cédula (DNI)',
+          icon: 'person-vcard',
+          href: '../dni-checker/index.html',
+          desc: 'Consulta los datos de una persona en el registro venezolano usando su número de cédula.',
+          keywords: 'consulta dni cedula persona nombre datos registro_identidad rif cedula.com.ve'
+        }
       ]
     },
     {
       categoria: 'Finanzas',
       items: [
-        { nombre: 'Calculadora BCV', icon: 'calculator', href: '../calculadora-bcv/index.html' }
+        {
+          nombre: 'Calculadora BCV',
+          icon: 'calculator',
+          href: '../calculadora-bcv/index.html',
+          desc: 'Conversión inmediata USD ↔ VES y EUR ↔ VES con las tasas BCV en tiempo real.',
+          keywords: 'calculadora bcv dolares euros euro eur tasa conversion usd ves'
+        }
       ]
     },
     {
       categoria: 'Producción',
       items: [
-        { nombre: 'Cotizador de Pendones', icon: 'flag', href: '../banner-estimator/index.html' },
-        { nombre: 'Cotizador DTF', icon: 'printer-fill', href: '../dtf-estimator/index.html' },
-        { nombre: 'Cotizador de Vinil', icon: 'layers', href: '../vinil-estimator/index.html' },
-        { nombre: 'Cotizador de Corte de Vinil', icon: 'scissors', href: '../cut-estimator/index.html' },
-        { nombre: 'Calculadora PVC · Vinil · Laminado', icon: 'calculator', href: '../calculadora-pvc/index.html' }
+        {
+          nombre: 'Cotizador de Pendones',
+          icon: 'flag',
+          href: '../banner-estimator/index.html',
+          desc: 'Cálculo de costos y medidas en metros cuadrados para pendones y pancartas.',
+          keywords: 'cotizador pendones lona gran formato impresion'
+        },
+        {
+          nombre: 'Cotizador DTF',
+          icon: 'printer-fill',
+          href: '../dtf-estimator/index.html',
+          desc: 'Cálculo de metros lineales y costos para impresiones textiles DTF.',
+          keywords: 'cotizador dtf metros textil impresion'
+        },
+        {
+          nombre: 'Cotizador de Vinil',
+          icon: 'layers',
+          href: '../vinil-estimator/index.html',
+          desc: 'Cálculo de metros cuadrados y lineales para trabajos en vinil adhesivo.',
+          keywords: 'cotizador vinil vinilo metros adhesivo corte'
+        },
+        {
+          nombre: 'Cotizador de Corte de Vinil',
+          icon: 'scissors',
+          href: '../cut-estimator/index.html',
+          desc: 'Cálculo de precio por metro lineal o metro cuadrado para corte en vinil y vinil textil.',
+          keywords: 'cotizador corte vinil textil troquelado planchado instalacion'
+        },
+        {
+          nombre: 'Calculadora PVC · Vinil · Laminado',
+          icon: 'calculator',
+          href: '../calculadora-pvc/index.html',
+          desc: 'Cotizador profesional de PVC, Vinil y Laminado con conversión BCV en tiempo real.',
+          keywords: 'calculadora pvc vinil laminado costos cotizador bcv conversion'
+        }
       ]
     },
     {
       categoria: 'Utilidades',
       items: [
-        { nombre: 'Generador QR', icon: 'qr-code', href: '../qr-generator/index.html' }
+        {
+          nombre: 'Generador QR',
+          icon: 'qr-code',
+          href: '../qr-generator/index.html',
+          desc: 'Creación instantánea de códigos QR para enlaces, pagos y redes Wi-Fi.',
+          keywords: 'generador codigos qr enlaces wifi pagos'
+        }
       ]
     },
     {
       categoria: 'Documentos',
       items: [
-        { nombre: 'Generador de Referencias', icon: 'file-earmark-text', href: '../reference-generator/index.html' },
-        { nombre: 'Generador de Autorizaciones', icon: 'file-earmark-check', href: '../authorization-generator/index.html' }
+        {
+          nombre: 'Generador de Referencias',
+          icon: 'file-earmark-text',
+          href: '../reference-generator/index.html',
+          desc: 'Plantilla dinámica para redactor e imprimir referencias personales o comerciales.',
+          keywords: 'generador referencias personales comerciales cartas formato'
+        },
+        {
+          nombre: 'Generador de Autorizaciones',
+          icon: 'file-earmark-check',
+          href: '../authorization-generator/index.html',
+          desc: 'Creación rápida de documentos de autorización legal o simple para trámites.',
+          keywords: 'generador autorizaciones cartas permisos tramites'
+        }
       ]
     }
   ];
+
+  var HW_CATEGORIAS_BADGE = {
+    'Consultas': 'badge-consultas',
+    'Finanzas': 'badge-finanzas',
+    'Producción': 'badge-produccion',
+    'Utilidades': 'badge-utilidades',
+    'Documentos': 'badge-documentos'
+  };
 
   // Inyecta el botón "Herramientas" + desplegable en la barra .tool-nav existente
   function hwNavBarMount() {
@@ -344,6 +412,32 @@
 
     nav.appendChild(btn);
     nav.appendChild(panel);
+  }
+
+  // Genera las tarjetas del panel principal desde HW_TOOLS (fuente única)
+  function hwRenderCatalog(id) {
+    if (!global.document) return;
+    const grid = global.document.getElementById(id);
+    if (!grid) return;
+    let html = '';
+    HW_TOOLS.forEach(function (grupo) {
+      grupo.items.forEach(function (tool) {
+        const href = tool.href.replace(/^\.\.\//, 'tools/');
+        const badge = HW_CATEGORIAS_BADGE[grupo.categoria] || 'badge-utilidades';
+        html +=
+          '<article class="tool-card" data-keywords="' + tool.keywords + '" data-category="' + grupo.categoria + '">' +
+            '<div>' +
+              '<div class="card-meta">' +
+                '<span class="category-badge ' + badge + '">' + grupo.categoria + '</span>' +
+              '</div>' +
+              '<h2 class="tool-title"><i class="bi bi-' + tool.icon + '"></i>' + tool.nombre + '</h2>' +
+              '<p class="tool-description">' + tool.desc + '</p>' +
+            '</div>' +
+            '<a href="' + href + '" class="action-button">Abrir Herramienta</a>' +
+          '</article>';
+      });
+    });
+    grid.innerHTML = html;
   }
 
   // ===== Utilidades comunes reutilizables =====
@@ -423,6 +517,8 @@
     toast: hwToast,
     copyText: copyText,
     copyResult: copyResult,
+    tools: HW_TOOLS,
+    renderCatalog: hwRenderCatalog,
     persist: {
       get: persistGet,
       set: persistSet,
