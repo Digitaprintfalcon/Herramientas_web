@@ -346,6 +346,71 @@
     nav.appendChild(panel);
   }
 
+  // ===== Utilidades comunes reutilizables =====
+
+  // Toast flotante compartido (usa el estilo .hw-toast de common.css)
+  function hwToast(mensaje, esError) {
+    if (!global.document || !mensaje) return;
+    let el = global.document.getElementById('hw-toast-shared');
+    if (!el) {
+      el = global.document.createElement('div');
+      el.id = 'hw-toast-shared';
+      el.className = 'hw-toast';
+      global.document.body.appendChild(el);
+    }
+    const icono = esError ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill';
+    el.innerHTML = '<i class="bi ' + icono + '"></i><span></span>';
+    el.querySelector('span').textContent = mensaje;
+    el.classList.add('show');
+    clearTimeout(hwToast.timer);
+    hwToast.timer = setTimeout(function () {
+      el.classList.remove('show');
+    }, 2500);
+  }
+
+  // Copiar texto al portapapeles (la herramienta decide el mensaje)
+  function copyText(texto) {
+    if (!global.navigator || !navigator.clipboard || !navigator.clipboard.writeText) {
+      return Promise.reject(new Error('sin portapapeles'));
+    }
+    return navigator.clipboard.writeText(String(texto));
+  }
+
+  function copyResult(texto, mensajeOk) {
+    return copyText(texto).then(function () {
+      hwToast(mensajeOk || 'Copiado al portapapeles');
+      return true;
+    }).catch(function () {
+      hwToast('No se pudo copiar al portapapeles', true);
+      return false;
+    });
+  }
+
+  // Almacenamiento seguro (JSON) con manejo de errores
+  function persistGet(key, fallback) {
+    try {
+      const raw = global.localStorage.getItem(key);
+      return raw === null || raw === undefined ? fallback : JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function persistSet(key, valor) {
+    try {
+      global.localStorage.setItem(key, JSON.stringify(valor));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function persistRemove(key) {
+    try {
+      global.localStorage.removeItem(key);
+    } catch (e) { /* sin almacenamiento */ }
+  }
+
   global.HW = {
     fmtCurrency: fmtCurrency,
     fmtBs: fmtBs,
@@ -355,6 +420,14 @@
     initTheme: hwThemeInit,
     initPaperFit: initPaperFit,
     mountNavbar: hwNavBarMount,
+    toast: hwToast,
+    copyText: copyText,
+    copyResult: copyResult,
+    persist: {
+      get: persistGet,
+      set: persistSet,
+      remove: persistRemove
+    },
     bcv: {
       mount: bcvMount,
       fetchTasa: bcvFetchTasa
