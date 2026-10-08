@@ -9,6 +9,15 @@ generadores de documentos (referencias y autorizaciones).
 ```
 .
 ├── index.html                 # Panel principal: tarjetas generadas desde HW_TOOLS
+├── favicon.ico
+├── favicon.svg
+├── favicon-16x16.png
+├── favicon-32x32.png
+├── favicon-48x48.png
+├── apple-touch-icon.png
+├── icon-192x192.png
+├── icon-512x512.png
+├── site.webmanifest
 ├── tools/
 │   ├── common.js              # Lógica compartida (tema, nav, helpers, catálogo)
 │   ├── common.css             # Tokens de diseño y estilos compartidos
