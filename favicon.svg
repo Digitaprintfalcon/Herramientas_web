@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Centro de Herramientas Web">
+  <title>Centro de Herramientas Web</title>
+  <defs>
+    <linearGradient id="hwEmerald" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <style>
+      .hw-tile {
+        fill: #0f172a;
+        stroke: none;
+      }
+      @media (prefers-color-scheme: light) {
+        .hw-tile {
+          fill: #ffffff;
+          stroke: #e2e8f0;
+          stroke-width: 2;
+        }
+      }
+    </style>
+  </defs>
+  <rect class="hw-tile" x="1" y="1" width="62" height="62" rx="15"/>
+  <g fill="url(#hwEmerald)">
+    <rect x="15" y="15" width="15" height="15" rx="4.5"/>
+    <rect x="34" y="15" width="15" height="15" rx="4.5" fill-opacity="0.55"/>
+    <rect x="15" y="34" width="15" height="15" rx="4.5" fill-opacity="0.55"/>
+    <rect x="34" y="34" width="15" height="15" rx="4.5"/>
+  </g>
+</svg>
