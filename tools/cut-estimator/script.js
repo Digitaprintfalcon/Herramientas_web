@@ -25,6 +25,22 @@ function cambiarMetodo() {
             calcularCosto();
         }
 
+        const cutEstado = {
+            metodo: 'lineal',
+            anchoCm: 0,
+            altoCm: 0,
+            anchoRollo: 0,
+            precioMaterial: 0,
+            cantidad: 1,
+            margen: 0,
+            planchado: false,
+            costoPlanchado: 0,
+            instalacion: false,
+            costoInstalacion: 0,
+            unitario: 0,
+            total: 0
+        };
+
         function calcularCosto() {
             const metodo = document.getElementById('metodo').value;
             const anchoDiseno = parseFloat(document.getElementById('anchoDiseno').value) || 0;
@@ -82,6 +98,20 @@ function cambiarMetodo() {
 
             const precioTotalVenta = precioUnitarioVenta * cantidad;
 
+            cutEstado.metodo = metodo;
+            cutEstado.anchoCm = anchoDiseno;
+            cutEstado.altoCm = altoDiseno;
+            cutEstado.anchoRollo = anchoRollo;
+            cutEstado.precioMaterial = precioMaterial;
+            cutEstado.cantidad = cantidad;
+            cutEstado.margen = margenGanancia;
+            cutEstado.planchado = incluirPlanchado;
+            cutEstado.costoPlanchado = costoPlanchadoInput;
+            cutEstado.instalacion = incluirInstalacion;
+            cutEstado.costoInstalacion = costoInstalacionInput;
+            cutEstado.unitario = precioUnitarioVenta;
+            cutEstado.total = precioTotalVenta;
+
             // Actualizar interfaz
             document.getElementById('resPrecioUnitario').innerText = HW.fmtCurrency(precioUnitarioVenta);
             document.getElementById('resPrecioTotal').innerText = HW.fmtCurrency(precioTotalVenta);
@@ -127,3 +157,41 @@ function cambiarMetodo() {
             bcvWidget = HW.bcv.mount(document.getElementById('bcvBox'));
             calcularCosto();
         };
+
+        function cutFmt(n, d) {
+            return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+        }
+
+        function copiarCotizacion() {
+            const e = cutEstado;
+            if (!(e.total > 0)) {
+                HW.toast('Ingresa los datos para cotizar', true);
+                return;
+            }
+            const lineas = [];
+            lineas.push('*COTIZACIÓN CORTE DE VINIL*');
+            lineas.push(e.cantidad + ' ' + (e.cantidad === 1 ? 'unidad' : 'unidades') + ' de ' + cutFmt(e.anchoCm, 1) + ' x ' + cutFmt(e.altoCm, 1) + ' cm');
+            lineas.push(e.metodo === 'lineal'
+                ? 'Material: ' + HW.fmtUsd(e.precioMaterial) + ' metro lineal (rollo ' + cutFmt(e.anchoRollo, 1) + ' cm)'
+                : 'Material: ' + HW.fmtUsd(e.precioMaterial) + ' /m²');
+            lineas.push('Margen: ' + cutFmt(e.margen, 0) + '%');
+            if (e.planchado) lineas.push('• Planchado: ' + HW.fmtUsd(e.costoPlanchado) + ' c/u');
+            if (e.instalacion) lineas.push('• Instalación: ' + HW.fmtUsd(e.costoInstalacion) + ' c/u');
+            lineas.push('Precio unitario: ' + HW.fmtUsd(e.unitario));
+            lineas.push('');
+            lineas.push('*TOTAL: ' + HW.fmtUsd(e.total) + '*');
+            const tasa = bcvWidget ? bcvWidget.getTasa() : 0;
+            if (tasa > 0) {
+                lineas.push('Equivalente: ' + HW.fmtBs(e.total * tasa));
+                lineas.push('Tasa BCV: ' + cutFmt(tasa, 2) + ' Bs/$');
+            }
+            HW.copyResult(lineas.join('\n'), 'Cotización copiada al portapapeles');
+        }
+
+        function copiarTotal() {
+            const tasa = bcvWidget ? bcvWidget.getTasa() : 0;
+            HW.copyTotal(cutEstado.total, tasa, 'Total copiado al portapapeles');
+        }
+
+        window.copiarCotizacion = copiarCotizacion;
+        window.copiarTotal = copiarTotal;

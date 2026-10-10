@@ -86,18 +86,29 @@
 
     <!-- Resultados -->
     <div class="row g-2 mt-2">
-      <div class="col-6">
+      <div class="col-4">
         <div class="hw-result neutral h-100">
           <span class="hw-result-label">Costo Impresión/u</span>
           <span class="hw-result-value" id="costoImpresion">$0.00</span>
         </div>
       </div>
-      <div class="col-6">
-        <div class="hw-result accent h-100">
+      <div class="col-4">
+        <div class="hw-result neutral h-100">
           <span class="hw-result-label">Precio Final/u</span>
           <span class="hw-result-value" id="costoTotalUnitario">$0.00</span>
         </div>
       </div>
+      <div class="col-4">
+        <div class="hw-result accent h-100">
+          <span class="hw-result-label">Precio Total</span>
+          <span class="hw-result-value" id="costoTotalGeneral">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-3 flex-wrap">
+      <button type="button" class="btn btn-outline-primary btn-sm flex-fill" onclick="copiarCotizacion()"><i class="bi bi-clipboard me-1"></i>Copiar Cotización</button>
+      <button type="button" class="btn btn-outline-success btn-sm flex-fill" onclick="copiarTotal()"><i class="bi bi-clipboard-check me-1"></i>Copiar Total</button>
     </div>
 
     <div id="bcvBox"></div>
@@ -106,7 +117,8 @@
       Fórmula: <br>
       • <strong>Costo Impresión</strong> = (Ancho m × Alto m) × Precio m² <br>
       • <strong>Logística por Unidad</strong> = Costo Logístico ÷ Cantidad de Piezas <br>
-      • <strong>Precio Final Unitario</strong> = Costo Impresión + Logística por Unidad
+      • <strong>Precio Final Unitario</strong> = Costo Impresión + Logística por Unidad <br>
+      • <strong>Precio Total</strong> = Precio Final Unitario × Cantidad de Piezas
     </div>
   </div>
   </div>

@@ -507,6 +507,14 @@
     if (Hw()) Hw().copyResult(texto, 'Cotización copiada al portapapeles');
   }
 
+  function copiarTotal() {
+    if (Hw() && Hw().copyTotal) {
+      Hw().copyTotal(lastTotalUsd, tasaEf, 'Total copiado al portapapeles');
+    } else if (Hw()) {
+      Hw().copyResult(fmtUsd(lastTotalUsd), 'Total copiado al portapapeles');
+    }
+  }
+
   // ===== Exportar / imprimir =====
 
   function pdfCotizacion() {
@@ -639,6 +647,7 @@
   window.sincronizarTasa = sincronizarTasa;
   window.guardarCotizacion = guardarCotizacion;
   window.copiarCotizacion = copiarCotizacion;
+  window.copiarTotal = copiarTotal;
   window.nuevaCotizacion = nuevaCotizacion;
   window.pdfCotizacion = pdfCotizacion;
   window.imprimirCotizacion = imprimirCotizacion;

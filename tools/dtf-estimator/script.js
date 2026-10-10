@@ -1,3 +1,17 @@
+let dtfEstado = {
+  anchoCm: 0,
+  altoCm: 0,
+  anchoImp: 0,
+  piezas: 1,
+  precioMetro: 0,
+  planchado: false,
+  costoPlanchado: 0,
+  tipoPlanchado: 'pieza',
+  unitario: 0,
+  total: 0
+};
+
+let dtfBcv = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const anchoDiseno = document.getElementById('anchoDiseno');
@@ -15,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultadoUnitario = document.getElementById('resultadoUnitario');
   const resultadoTotal = document.getElementById('resultadoTotal');
 
-  const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+  dtfBcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
   // Mostrar u ocultar la configuración de planchado al activar el switch
   incluirPlanchado.addEventListener('change', () => {
@@ -31,10 +45,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const precio = parseFloat(precioImpresion.value) || 0;
     const piezas = parseInt(cantidadPiezas.value) || 1;
 
+    dtfEstado.anchoCm = aDiseño;
+    dtfEstado.altoCm = hDiseño;
+    dtfEstado.anchoImp = aImp;
+    dtfEstado.piezas = piezas;
+    dtfEstado.precioMetro = precio;
+    dtfEstado.planchado = incluirPlanchado.checked;
+    dtfEstado.costoPlanchado = parseFloat(costoPlanchado.value) || 0;
+    dtfEstado.tipoPlanchado = tipoPlanchado.value;
+
     if (aImp <= 0 || hImp <= 0) {
       resultadoUnitario.textContent = HW.fmtCurrency(0);
       resultadoTotal.textContent = HW.fmtCurrency(0);
-      if (bcv) bcv.setUsd(0);
+      dtfEstado.unitario = 0;
+      dtfEstado.total = 0;
+      if (dtfBcv) dtfBcv.setUsd(0);
       return;
     }
 
@@ -54,9 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    dtfEstado.unitario = precioUnitario;
+    dtfEstado.total = precioTotalLote;
+
     resultadoUnitario.textContent = HW.fmtCurrency(precioUnitario);
     resultadoTotal.textContent = HW.fmtCurrency(precioTotalLote);
-    if (bcv) bcv.setUsd(precioTotalLote);
+    if (dtfBcv) dtfBcv.setUsd(precioTotalLote);
   }
 
   // Escuchar eventos en todos los inputs relevantes
@@ -69,4 +97,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   calcularPrecios();
 });
-  
+
+function dtfFmt(n, d) {
+  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+}
+
+function copiarCotizacion() {
+  const e = dtfEstado;
+  if (!(e.total > 0)) {
+    HW.toast('Ingresa las medidas para cotizar', true);
+    return;
+  }
+  const lineas = [];
+  lineas.push('*COTIZACIÓN DTF*');
+  lineas.push('Diseño: ' + dtfFmt(e.anchoCm, 1) + ' x ' + dtfFmt(e.altoCm, 1) + ' cm');
+  lineas.push('Rollo: ' + dtfFmt(e.anchoImp, 1) + ' cm de ancho');
+  lineas.push('Cantidad: ' + e.piezas + ' ' + (e.piezas === 1 ? 'pieza' : 'piezas'));
+  lineas.push('Precio unitario: ' + HW.fmtUsd(e.unitario));
+  if (e.planchado) {
+    lineas.push('Planchado: ' + HW.fmtUsd(e.costoPlanchado) + (e.tipoPlanchado === 'pieza' ? ' por pieza' : ' por lote'));
+  }
+  lineas.push('');
+  lineas.push('*TOTAL: ' + HW.fmtUsd(e.total) + '*');
+  const tasa = dtfBcv ? dtfBcv.getTasa() : 0;
+  if (tasa > 0) {
+    lineas.push('Equivalente: ' + HW.fmtBs(e.total * tasa));
+    lineas.push('Tasa BCV: ' + dtfFmt(tasa, 2) + ' Bs/$');
+  }
+  HW.copyResult(lineas.join('\n'), 'Cotización copiada al portapapeles');
+}
+
+function copiarTotal() {
+  const tasa = dtfBcv ? dtfBcv.getTasa() : 0;
+  HW.copyTotal(dtfEstado.total, tasa, 'Total copiado al portapapeles');
+}
+
+window.copiarCotizacion = copiarCotizacion;
+window.copiarTotal = copiarTotal;

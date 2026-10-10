@@ -1,9 +1,29 @@
+let vinilEstado = {
+  anchoCm: 0,
+  altoCm: 0,
+  anchoRollo: 0,
+  precioVinil: 0,
+  cantidad: 1,
+  laminado: false,
+  precioLaminado: 0,
+  diseno: false,
+  costoDiseno: 0,
+  corte: false,
+  costoCorte: 0,
+  instalacion: false,
+  costoInstalacion: 0,
+  unitario: 0,
+  total: 0
+};
+
+let vinilBcv = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   const anchoPieza = document.getElementById('anchoPieza');
   const altoPieza = document.getElementById('altoPieza');
   const anchoRollo = document.getElementById('anchoRollo');
   const precioImpresion = document.getElementById('precioImpresion');
-  
+
   const incluirLaminado = document.getElementById('incluirLaminado');
   const seccionLaminado = document.getElementById('seccionLaminado');
   const anchoLaminado = document.getElementById('anchoLaminado');
@@ -25,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultadoUnitario = document.getElementById('resultadoUnitario');
   const resultado = document.getElementById('resultado');
 
-  const bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+  vinilBcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
   // Eventos para mostrar/ocultar secciones opcionales
   incluirLaminado.addEventListener('change', () => {
@@ -55,10 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const precioVinil = parseFloat(precioImpresion.value) || 0;
     const cantidad = parseInt(cantidadPiezas.value) || 1;
 
+    vinilEstado.anchoCm = aPieza;
+    vinilEstado.altoCm = hPieza;
+    vinilEstado.anchoRollo = aRollo;
+    vinilEstado.precioVinil = precioVinil;
+    vinilEstado.cantidad = cantidad;
+    vinilEstado.laminado = incluirLaminado.checked;
+    vinilEstado.precioLaminado = parseFloat(precioLaminado.value) || 0;
+    vinilEstado.diseno = incluirDiseno.checked;
+    vinilEstado.costoDiseno = parseFloat(costoDiseno.value) || 0;
+    vinilEstado.corte = incluirCorte.checked;
+    vinilEstado.costoCorte = parseFloat(costoCorte.value) || 0;
+    vinilEstado.instalacion = incluirInstalacion.checked;
+    vinilEstado.costoInstalacion = parseFloat(costoInstalacion.value) || 0;
+
     if (aRollo <= 0) {
       resultadoUnitario.textContent = "$0.00";
       resultado.textContent = "$0.00";
-      if (bcv) bcv.setUsd(0);
+      vinilEstado.unitario = 0;
+      vinilEstado.total = 0;
+      if (vinilBcv) vinilBcv.setUsd(0);
       return;
     }
 
@@ -97,14 +133,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const costoUnitarioTotal = costoVinilUnitario + costoLamUnitario + costoDisUnitario + costoCorUnitario + costoInstUnitario;
     const precioFinal = costoUnitarioTotal * (cantidad > 0 ? cantidad : 1);
 
+    vinilEstado.unitario = costoUnitarioTotal;
+    vinilEstado.total = precioFinal;
+
     resultadoUnitario.textContent = HW.fmtCurrency(costoUnitarioTotal);
     resultado.textContent = HW.fmtCurrency(precioFinal);
-    if (bcv) bcv.setUsd(precioFinal);
+    if (vinilBcv) vinilBcv.setUsd(precioFinal);
   }
 
   const inputsMonitoreados = [
-    anchoPieza, altoPieza, anchoRollo, precioImpresion, 
-    anchoLaminado, precioLaminado, costoDiseno, costoCorte, 
+    anchoPieza, altoPieza, anchoRollo, precioImpresion,
+    anchoLaminado, precioLaminado, costoDiseno, costoCorte,
     costoInstalacion, cantidadPiezas
   ];
 
@@ -116,3 +155,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   calcularPrecio();
 });
+
+function vinilFmt(n, d) {
+  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+}
+
+function copiarCotizacion() {
+  const e = vinilEstado;
+  if (!(e.total > 0)) {
+    HW.toast('Ingresa las medidas para cotizar', true);
+    return;
+  }
+  const lineas = [];
+  lineas.push('*COTIZACIÓN VINIL*');
+  lineas.push(e.cantidad + ' ' + (e.cantidad === 1 ? 'unidad' : 'unidades') + ' de ' + vinilFmt(e.anchoCm, 1) + ' x ' + vinilFmt(e.altoCm, 1) + ' cm');
+  lineas.push('Vinil: ' + HW.fmtUsd(e.precioVinil) + ' /m²');
+  const extras = [];
+  if (e.laminado) extras.push('Laminado: ' + HW.fmtUsd(e.precioLaminado) + ' /m²');
+  if (e.diseno) extras.push('Diseño: ' + HW.fmtUsd(e.costoDiseno));
+  if (e.corte) extras.push('Corte: ' + HW.fmtUsd(e.costoCorte));
+  if (e.instalacion) extras.push('Instalación: ' + HW.fmtUsd(e.costoInstalacion));
+  extras.forEach(function (x) { lineas.push('• ' + x); });
+  lineas.push('Precio unitario: ' + HW.fmtUsd(e.unitario));
+  lineas.push('');
+  lineas.push('*TOTAL: ' + HW.fmtUsd(e.total) + '*');
+  const tasa = vinilBcv ? vinilBcv.getTasa() : 0;
+  if (tasa > 0) {
+    lineas.push('Equivalente: ' + HW.fmtBs(e.total * tasa));
+    lineas.push('Tasa BCV: ' + vinilFmt(tasa, 2) + ' Bs/$');
+  }
+  HW.copyResult(lineas.join('\n'), 'Cotización copiada al portapapeles');
+}
+
+function copiarTotal() {
+  const tasa = vinilBcv ? vinilBcv.getTasa() : 0;
+  HW.copyTotal(vinilEstado.total, tasa, 'Total copiado al portapapeles');
+}
+
+window.copiarCotizacion = copiarCotizacion;
+window.copiarTotal = copiarTotal;

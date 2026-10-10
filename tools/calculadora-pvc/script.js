@@ -275,24 +275,39 @@
             }
 
             const texto = textoCotizacion(cotizacionActual);
+            copiarTexto(texto, '¡Cotización copiada!');
+        }
 
+        function copiarTotal() {
+            if (!cotizacionActual || cotizacionActual.totalUsd <= 0) {
+                mostrarToast('Ingresa las medidas para cotizar', true);
+                return;
+            }
+
+            const usd = formatearUsd(cotizacionActual.totalUsd);
+            const bs = cotizacionActual.totalBs.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const texto = cotizacionActual.totalBs > 0 ? `${usd} (Bs. ${bs})` : usd;
+            copiarTexto(texto, '¡Total copiado!');
+        }
+
+        function copiarTexto(texto, mensajeOk) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(texto)
-                    .then(() => mostrarToast('¡Cotización copiada!'))
-                    .catch(() => copiarConTextarea(texto));
+                    .then(() => mostrarToast(mensajeOk))
+                    .catch(() => copiarConTextarea(texto, mensajeOk));
             } else {
-                copiarConTextarea(texto);
+                copiarConTextarea(texto, mensajeOk);
             }
         }
 
-        function copiarConTextarea(texto) {
+        function copiarConTextarea(texto, mensajeOk) {
             const el = document.createElement('textarea');
             el.value = texto;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            mostrarToast('¡Cotización copiada!');
+            mostrarToast(mensajeOk || '¡Cotización copiada!');
         }
 
         function mostrarToast(msg, isError) {

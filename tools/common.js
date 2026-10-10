@@ -41,6 +41,12 @@
     return 'Bs. ' + n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function fmtUsd(value) {
+    const n = Number(value);
+    if (!isFinite(n)) return '$0,00';
+    return '$' + n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   function bcvNowTime() {
     try {
       return new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -487,6 +493,18 @@
     });
   }
 
+  // Copia el total de una cotización: USD y, si hay tasa, su equivalente en Bs
+  function copyTotal(usd, tasa, mensajeOk) {
+    const montoUsd = Number(usd);
+    if (!isFinite(montoUsd) || montoUsd <= 0) {
+      hwToast('Ingresa los datos para cotizar', true);
+      return Promise.resolve(false);
+    }
+    const t = Number(tasa) > 0 ? Number(tasa) : 0;
+    const texto = fmtUsd(montoUsd) + (t > 0 ? ' (' + fmtBs(montoUsd * t) + ')' : '');
+    return copyResult(texto, mensajeOk || 'Total copiado al portapapeles');
+  }
+
   // Almacenamiento seguro (JSON) con manejo de errores
   function persistGet(key, fallback) {
     try {
@@ -515,6 +533,7 @@
   global.HW = {
     fmtCurrency: fmtCurrency,
     fmtBs: fmtBs,
+    fmtUsd: fmtUsd,
     safeParseJSON: safeParseJSON,
     safeGetJSON: safeGetJSON,
     escapeHtml: escapeHtml,
@@ -524,6 +543,7 @@
     toast: hwToast,
     copyText: copyText,
     copyResult: copyResult,
+    copyTotal: copyTotal,
     tools: HW_TOOLS,
     renderCatalog: hwRenderCatalog,
     persist: {
