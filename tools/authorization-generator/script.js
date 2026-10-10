@@ -1,21 +1,9 @@
 
 function abrirPreview() {
-  const src = document.getElementById('documento-pdf');
-  const dst = document.getElementById('documento-pdf-modal');
-  if (dst && src && src.innerHTML) {
-    dst.innerHTML = src.innerHTML;
-  }
   const modalEl = document.getElementById('previewModal');
   if (modalEl && window.bootstrap && bootstrap.Modal) {
     const m = bootstrap.Modal.getOrCreateInstance(modalEl);
     m.show();
-    if (window.HW && HW.initPaperFit) {
-      setTimeout(function () { HW.initPaperFit(); }, 50);
-      setTimeout(function () { HW.initPaperFit(); }, 250);
-      setTimeout(function () { HW.initPaperFit(); }, 500);
-    }
-  } else if (window.HW && HW.initPaperFit) {
-    setTimeout(function () { HW.initPaperFit(); }, 50);
   }
 }
 

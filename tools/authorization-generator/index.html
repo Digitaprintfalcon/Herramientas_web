@@ -171,42 +171,6 @@
         </div>
       </div>
 
-      <!-- 2. VISTA PREVIA (HOJA A4) -->
-      
-
-          <div class="doc-title">AUTORIZACION</div>
-
-          <div class="doc-body">
-            Yo, <strong id="docOtorganteNombre"></strong>, <span id="docOtorganteGenero">venezolana</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docOtorganteCedula"></span></strong>, en pleno uso de mis facultades legales e intelectuales, por este medio autorizo a <strong id="docApoderadoNombre"></strong>, <span id="docApoderadoGenero">venezolano</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docApoderadoCedula"></span></strong>, para que retire una encomienda en mi representación, <span id="docTrackingPrefix"></span><strong id="docTracking"></strong> en la oficina de MRW ubicada en el <strong id="docOficina"></strong>.
-          </div>
-
-          <div class="doc-closing">
-            Sin más a que hacer referencia y de conformidad con lo antes expuesto, firman
-            <br><br>Atentamente,
-          </div>
-
-          <div class="row text-center mt-auto">
-            <div class="col-6 px-3">
-              <div class="sig-line"></div>
-              <div class="sig-name" id="docSigOtorganteNombre"></div>
-              <div class="sig-cedula">C.I Nro. <span id="docSigOtorganteCedula"></span></div>
-              <div class="cedula-img-container" id="boxFotoOtorgante">
-                <span class="text-muted small">[ Cédula Otorgante ]</span>
-              </div>
-            </div>
-
-            <div class="col-6 px-3">
-              <div class="sig-line"></div>
-              <div class="sig-name" id="docSigApoderadoNombre"></div>
-              <div class="sig-cedula">C.I Nro. <span id="docSigApoderadoCedula"></span></div>
-              <div class="cedula-img-container" id="boxFotoApoderado">
-                <span class="text-muted small">[ Cédula Apoderado ]</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -228,7 +192,45 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body bg-light d-flex justify-content-center overflow-auto py-3">
-          <div class="paper shadow-sm" id="documento-pdf-modal"></div>
+          <div class="paper shadow-sm" id="documento-pdf-modal">
+            <div class="doc-date" id="docLugarFecha"></div>
+
+            <div class="doc-addressee">
+              <div id="docEmpresa"></div>
+              <div id="docPresente">Presente. -</div>
+            </div>
+
+            <div class="doc-title">AUTORIZACION</div>
+
+            <div class="doc-body">
+              Yo, <strong id="docOtorganteNombre"></strong>, <span id="docOtorganteGenero">venezolana</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docOtorganteCedula"></span></strong>, en pleno uso de mis facultades legales e intelectuales, por este medio autorizo a <strong id="docApoderadoNombre"></strong>, <span id="docApoderadoGenero">venezolano</span>, mayor de edad, titular de la cédula de identidad <strong>Nro. <span id="docApoderadoCedula"></span></strong>, para que retire una encomienda en mi representación, <span id="docTrackingPrefix"></span><strong id="docTracking"></strong> en la oficina de MRW ubicada en el <strong id="docOficina"></strong>.
+            </div>
+
+            <div class="doc-closing">
+              Sin más a que hacer referencia y de conformidad con lo antes expuesto, firman
+              <br><br>Atentamente,
+            </div>
+
+            <div class="row text-center mt-auto">
+              <div class="col-6 px-3">
+                <div class="sig-line"></div>
+                <div class="sig-name" id="docSigOtorganteNombre"></div>
+                <div class="sig-cedula">C.I Nro. <span id="docSigOtorganteCedula"></span></div>
+                <div class="cedula-img-container" id="boxFotoOtorgante">
+                  <span class="text-muted small">[ Cédula Otorgante ]</span>
+                </div>
+              </div>
+
+              <div class="col-6 px-3">
+                <div class="sig-line"></div>
+                <div class="sig-name" id="docSigApoderadoNombre"></div>
+                <div class="sig-cedula">C.I Nro. <span id="docSigApoderadoCedula"></span></div>
+                <div class="cedula-img-container" id="boxFotoApoderado">
+                  <span class="text-muted small">[ Cédula Apoderado ]</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer py-2 flex-wrap gap-2">
           <button class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="bi bi-pencil-square me-1"></i>Editar</button>
@@ -236,5 +238,7 @@
           <button class="btn btn-primary" onclick="descargarPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
         </div>
       </div>
+    </div>
+  </div>
 </body>
 </html>
