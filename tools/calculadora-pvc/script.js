@@ -120,6 +120,7 @@
             // Vinil incluido ($15)
             document.getElementById('checkVinil').checked = true;
             document.getElementById('checkEditVinil').checked = false;
+            document.getElementById('checkVinilDobleLado').checked = false;
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleEditSection('vinilParamsBox', 'checkEditVinil');
 
@@ -175,6 +176,7 @@
             // 2. Impresión Vinil
             let precioVinilFinal = 0;
             const incluyeVinil = document.getElementById('checkVinil').checked;
+            const dobleLadoVinil = document.getElementById('checkVinilDobleLado').checked;
             if (incluyeVinil) {
                 const vinilCostoM2 = parseFloat(document.getElementById('vinilCostoM2').value) || 0;
                 const vMerma = parseFloat(document.getElementById('vinilMerma').value) || 0;
@@ -183,6 +185,10 @@
                 const costoBaseVinil = areaTrabajoM2 * vinilCostoM2;
                 const costoVinilConMerma = costoBaseVinil * (1 + (vMerma / 100));
                 precioVinilFinal = costoVinilConMerma * (1 + (vGanancia / 100));
+                // Rotulado por ambos lados: se imprime el doble de vinil
+                if (dobleLadoVinil) {
+                    precioVinilFinal = precioVinilFinal * 2;
+                }
             }
 
             // 3. Laminado (Sin merma)
@@ -216,6 +222,7 @@
                 : areaTrabajoCm2.toLocaleString('es-ES') + ' cm² (' + areaTrabajoM2.toFixed(3) + ' m²)';
             document.getElementById('resSubPvc').innerText = incluyePvc ? formatearUsd(precioPvcFinal * cantidad) : 'No incluido';
             document.getElementById('resSubVinil').innerText = incluyeVinil ? formatearUsd(precioVinilFinal * cantidad) : 'No incluido';
+            document.getElementById('resVinilNota').innerText = (incluyeVinil && dobleLadoVinil) ? '2 caras' : '';
             document.getElementById('resSubLaminado').innerText = incluyeLaminado ? formatearUsd(precioLaminadoFinal * cantidad) : 'No incluido';
 
             document.getElementById('resPrecioFinal').innerText = formatearUsd(precioTotalUSD);
@@ -232,6 +239,7 @@
                 incluyePvc,
                 incluyeVinil,
                 incluyeLaminado,
+                dobleLado: dobleLadoVinil,
                 precioPvc: precioPvcFinal * cantidad,
                 precioVinil: precioVinilFinal * cantidad,
                 precioLaminado: precioLaminadoFinal * cantidad,
@@ -254,7 +262,7 @@
             }
             lineas.push('');
             lineas.push(`• Lámina PVC: ${cot.incluyePvc ? formatearUsd(cot.precioPvc) : 'No incluido'}`);
-            lineas.push(`• Impresión Vinil: ${cot.incluyeVinil ? formatearUsd(cot.precioVinil) : 'No incluido'}`);
+            lineas.push(`• Impresión Vinil: ${cot.incluyeVinil ? formatearUsd(cot.precioVinil) : 'No incluido'}${cot.dobleLado ? ' (2 caras)' : ''}`);
             lineas.push(`• Laminado: ${cot.incluyeLaminado ? formatearUsd(cot.precioLaminado) : 'No incluido'}`);
             lineas.push('');
             lineas.push(`*TOTAL: ${formatearUsd(cot.totalUsd)}*`);
