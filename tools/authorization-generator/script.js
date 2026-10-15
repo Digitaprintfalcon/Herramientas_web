@@ -13,16 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Mapeo de elementos de entrada con sus respectivos nodos en la vista previa
   const bindings = [
     { input: 'inputLugarFecha', doc: 'docLugarFecha' },
-    { input: 'inputEmpresa', doc: 'docEmpresa' },
-    { input: 'inputPresente', doc: 'docPresente' },
     { input: 'inputOtorganteNombre', doc: 'docOtorganteNombre', callback: updateSigNames },
     { input: 'inputOtorganteGenero', doc: 'docOtorganteGenero' },
     { input: 'inputOtorganteCedula', doc: 'docOtorganteCedula', callback: updateSigCedulas },
     { input: 'inputApoderadoNombre', doc: 'docApoderadoNombre', callback: updateSigNames },
     { input: 'inputApoderadoGenero', doc: 'docApoderadoGenero' },
     { input: 'inputApoderadoCedula', doc: 'docApoderadoCedula', callback: updateSigCedulas },
+    { input: 'inputServicio', doc: 'docServicio', callback: sincronizarEmpresa },
     { input: 'inputOficina', doc: 'docOficina' },
   ];
+
+  // Fecha por defecto: lugar fijo + fecha actual (solo si el campo está vacío)
+  const inputLugarFecha = document.getElementById('inputLugarFecha');
+  if (inputLugarFecha && inputLugarFecha.value.trim() === '') {
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const hoy = new Date();
+    inputLugarFecha.value = `Santa Ana de Coro; ${hoy.getDate()} de ${meses[hoy.getMonth()]} del ${hoy.getFullYear()}.`;
+  }
 
   // Escuchar eventos de entrada de texto e interacción
   bindings.forEach(item => {
@@ -37,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     el.addEventListener('input', syncValue);
     el.addEventListener('change', syncValue);
+    syncValue();
   });
 
   // Configuración para la subida de imágenes locales mediante FileReader API
@@ -157,6 +165,14 @@ function updateSigCedulas() {
   if (a) a.textContent = document.getElementById('inputApoderadoCedula')?.value || '';
 }
 
+// Predetermina el destinatario "Sres. <servicio>" según el servicio de encomienda
+function sincronizarEmpresa() {
+  const servicio = document.getElementById('inputServicio');
+  const docEmpresa = document.getElementById('docEmpresa');
+  const texto = servicio && servicio.value ? 'Sres. ' + servicio.value : '';
+  if (docEmpresa) docEmpresa.innerText = texto;
+}
+
 // Cargar imagen seleccionada en su contenedor
 function setupImageUpload(inputId, containerId) {
   const inputEl = document.getElementById(inputId);
@@ -181,11 +197,11 @@ function setupImageUpload(inputId, containerId) {
 function validarFormulario() {
   const requeridos = [
     { id: 'inputLugarFecha', label: 'Lugar y fecha' },
-    { id: 'inputEmpresa', label: 'empresa' },
     { id: 'inputOtorganteNombre', label: 'nombre del otorgante' },
     { id: 'inputOtorganteCedula', label: 'cédula del otorgante' },
     { id: 'inputApoderadoNombre', label: 'nombre del apoderado' },
     { id: 'inputApoderadoCedula', label: 'cédula del apoderado' },
+    { id: 'inputServicio', label: 'servicio de encomienda' },
     { id: 'inputOficina', label: 'oficina de entrega' }
   ];
   const faltan = [];

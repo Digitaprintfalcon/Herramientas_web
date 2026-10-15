@@ -567,11 +567,6 @@ html.dark .bg-primary-subtle {
   border-color: rgba(16, 185, 129, 0.35) !important;
 }
 
-html.dark .cedula-img-container {
-  background-color: var(--hw-card-soft) !important;
-  border-color: var(--hw-border) !important;
-}
-
 /* ===== Generadores de documentos: layout paralelo con vista previa A4 ===== */
 .doc-layout {
   height: calc(100vh - 5.5rem);
