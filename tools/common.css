@@ -466,6 +466,54 @@ html.dark .form-select {
   overflow-wrap: anywhere;
 }
 
+.hw-data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.hw-data-row > * {
+  min-width: 0;
+}
+
+.hw-data-row > .hw-data-value,
+.hw-data-row > .hw-data-name {
+  margin-top: 0.15rem;
+}
+
+.hw-copy-btn {
+  border: 0;
+  background: transparent;
+  color: var(--hw-text-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0.45rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.hw-copy-btn:hover,
+.hw-copy-btn:focus-visible {
+  color: var(--hw-accent);
+  background: var(--hw-accent-soft);
+  outline: none;
+}
+
+.hw-copy-btn:focus-visible {
+  outline: 2px solid var(--hw-accent);
+  outline-offset: 1px;
+}
+
+.hw-copy-btn.copied,
+.hw-copy-btn.copied:hover {
+  color: var(--hw-accent);
+  background: var(--hw-accent-soft);
+}
+
 /* ===== Widget de tasa BCV ===== */
 .bcv-widget {
   background: var(--hw-card-soft);

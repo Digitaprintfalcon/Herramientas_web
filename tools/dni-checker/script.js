@@ -30,9 +30,7 @@
                 btn: document.getElementById('btnConsultar'),
                 spinner: document.getElementById('btnSpinner'),
                 btnText: document.getElementById('btnText'),
-                toast: document.getElementById('toast'),
-                toastIcon: document.getElementById('toastIcon'),
-                toastMsg: document.getElementById('toastMsg')
+
             };
 
             var ultimo = null;
@@ -353,6 +351,36 @@
                 ocultarAvisos();
                 ultimo = null;
                 el.cedula.focus();
+            }
+
+            // Copia individual de cada dato de la ficha (delegación en el contenedor)
+            if (el.resultBox) {
+                el.resultBox.addEventListener('click', function (evento) {
+                    var btn = evento.target && evento.target.closest ? evento.target.closest('.hw-copy-btn') : null;
+                    if (!btn) return;
+
+                    var destino = document.getElementById(btn.getAttribute('data-copy-target'));
+                    if (!destino) return;
+
+                    var texto = (destino.textContent || '').trim();
+                    if (!texto || texto === '-') {
+                        mostrarToast('No hay datos para copiar', true);
+                        return;
+                    }
+
+                    HW.copyResult(texto, 'Dato copiado').then(function (ok) {
+                        if (!ok) return;
+                        var ico = btn.querySelector('i');
+                        if (!ico) return;
+
+                        btn.classList.add('copied');
+                        ico.className = 'bi bi-check2-fill';
+                        setTimeout(function () {
+                            btn.classList.remove('copied');
+                            ico.className = 'bi bi-clipboard';
+                        }, 1500);
+                    });
+                });
             }
 
             el.cedula.addEventListener('input', function () {

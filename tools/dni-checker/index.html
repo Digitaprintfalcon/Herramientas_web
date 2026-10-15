@@ -76,29 +76,53 @@
                                     <i class="bi bi-person-circle" style="color: var(--hw-accent);"></i>
                                     <span class="hw-uppercase-label">Titular</span>
                                 </div>
-                                <div id="dNombre" class="hw-data-name"></div>
+                                <div class="hw-data-row">
+                                    <div id="dNombre" class="hw-data-name"></div>
+                                    <button type="button" class="hw-copy-btn" data-copy-target="dNombre"
+                                        title="Copiar nombre" aria-label="Copiar nombre"><i class="bi bi-clipboard"></i></button>
+                                </div>
                             </div>
 
                             <div class="hw-data-grid mb-3">
                                 <div class="hw-data-cell">
                                     <span class="hw-data-label">Nacionalidad</span>
-                                    <span class="hw-data-value" id="dNacionalidad">-</span>
+                                    <div class="hw-data-row">
+                                        <span class="hw-data-value" id="dNacionalidad">-</span>
+                                        <button type="button" class="hw-copy-btn" data-copy-target="dNacionalidad"
+                                            title="Copiar nacionalidad" aria-label="Copiar nacionalidad"><i class="bi bi-clipboard"></i></button>
+                                    </div>
                                 </div>
                                 <div class="hw-data-cell">
                                     <span class="hw-data-label">Cédula</span>
-                                    <span class="hw-data-value" id="dCedula">-</span>
+                                    <div class="hw-data-row">
+                                        <span class="hw-data-value" id="dCedula">-</span>
+                                        <button type="button" class="hw-copy-btn" data-copy-target="dCedula"
+                                            title="Copiar cédula" aria-label="Copiar cédula"><i class="bi bi-clipboard"></i></button>
+                                    </div>
                                 </div>
                                 <div class="hw-data-cell">
                                     <span class="hw-data-label">RIF</span>
-                                    <span class="hw-data-value" id="dRif">-</span>
+                                    <div class="hw-data-row">
+                                        <span class="hw-data-value" id="dRif">-</span>
+                                        <button type="button" class="hw-copy-btn" data-copy-target="dRif"
+                                            title="Copiar RIF" aria-label="Copiar RIF"><i class="bi bi-clipboard"></i></button>
+                                    </div>
                                 </div>
                                 <div class="hw-data-cell">
                                     <span class="hw-data-label">Fecha de nacimiento</span>
-                                    <span class="hw-data-value" id="dFecha">-</span>
+                                    <div class="hw-data-row">
+                                        <span class="hw-data-value" id="dFecha">-</span>
+                                        <button type="button" class="hw-copy-btn" data-copy-target="dFecha"
+                                            title="Copiar fecha de nacimiento" aria-label="Copiar fecha de nacimiento"><i class="bi bi-clipboard"></i></button>
+                                    </div>
                                 </div>
                                 <div class="hw-data-cell" id="dCeldaEdad">
                                     <span class="hw-data-label">Edad</span>
-                                    <span class="hw-data-value" id="dEdad">-</span>
+                                    <div class="hw-data-row">
+                                        <span class="hw-data-value" id="dEdad">-</span>
+                                        <button type="button" class="hw-copy-btn" data-copy-target="dEdad"
+                                            title="Copiar edad" aria-label="Copiar edad"><i class="bi bi-clipboard"></i></button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -133,11 +157,6 @@
 
             </div>
         </div>
-    </div>
-
-    <div id="toast" class="hw-toast">
-        <i id="toastIcon" class="bi bi-check-circle-fill"></i>
-        <span id="toastMsg">Mensaje</span>
     </div>
 
     <script src="config.js"></script>
