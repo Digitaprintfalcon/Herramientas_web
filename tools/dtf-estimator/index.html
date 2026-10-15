@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Precio Unitario - DTF</title>
+  <title>Cotizador DTF - Múltiples diseños y prenda</title>
 
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../../favicon-32x32.png" sizes="32x32" type="image/png">
@@ -25,36 +25,18 @@
     <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
     <div class="tool-nav-titles">
       <h1 class="tool-nav-title">Cotizador DTF</h1>
-      <p class="tool-nav-sub">Calculadora de precio unitario - Impresión DTF</p>
+      <p class="tool-nav-sub">Múltiples diseños y prenda - Impresión DTF</p>
     </div>
   </div>
 
   <div class="container my-auto py-4">
-    <div class="card shadow-sm border-0 p-4 mx-auto" style="max-width: 480px;">
-    <h2 class="hw-card-title h5 mb-1"><i class="bi bi-printer-fill text-primary me-2"></i>Calculadora de Precio - DTF</h2>
-    <p class="hw-card-subtitle mb-4"><i class="bi bi-calculator me-1"></i>Cálculo proporcional por área para impresión DTF</p>
-
-    <div class="row g-2 mb-3">
-      <div class="col-6">
-        <label for="anchoDiseno" class="form-label fw-semibold small text-secondary">Ancho Diseño</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="anchoDiseno" placeholder="10" value="10" step="0.1" min="0">
-          <span class="input-group-text bg-light text-muted">cm</span>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <label for="altoDiseno" class="form-label fw-semibold small text-secondary">Alto Diseño</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="altoDiseno" placeholder="10" value="10" step="0.1" min="0">
-          <span class="input-group-text bg-light text-muted">cm</span>
-        </div>
-      </div>
-    </div>
+    <div class="card shadow-sm border-0 p-4 mx-auto" style="max-width: 640px;">
+    <h2 class="hw-card-title h5 mb-1"><i class="bi bi-printer-fill text-primary me-2"></i>Calculadora DTF</h2>
+    <p class="hw-card-subtitle mb-4"><i class="bi bi-calculator me-1"></i>Suma varios diseños y agrega planchado y prenda</p>
 
     <p class="hw-section-title">Dimensión del rollo</p>
     <div class="row g-2 mb-3">
-      <div class="col-6">
+      <div class="col-6 col-md-4">
         <label for="anchoImprimible" class="form-label fw-semibold small text-secondary">Ancho Imprimible</label>
         <div class="input-group input-group-sm">
           <input type="number" class="form-control" id="anchoImprimible" placeholder="57" value="57" step="0.1" min="0">
@@ -62,36 +44,33 @@
         </div>
       </div>
 
-      <div class="col-6">
+      <div class="col-6 col-md-4">
         <label for="altoImprimible" class="form-label fw-semibold small text-secondary">Alto Imprimible</label>
         <div class="input-group input-group-sm">
           <input type="number" class="form-control bg-light text-muted" id="altoImprimible" value="100" readonly>
           <span class="input-group-text bg-light text-muted">cm (1m)</span>
         </div>
       </div>
-    </div>
 
-    <p class="hw-section-title">Costos</p>
-    <div class="row g-2 mb-3">
-      <div class="col-6">
+      <div class="col-12 col-md-4">
         <label for="precioImpresion" class="form-label fw-semibold small text-secondary">Precio Metro Lineal</label>
         <div class="input-group input-group-sm">
           <input type="number" class="form-control" id="precioImpresion" placeholder="25.00" value="25" step="0.01" min="0">
           <span class="input-group-text bg-light text-muted">$</span>
         </div>
       </div>
-
-      <div class="col-6">
-        <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
-          <span class="input-group-text bg-light text-muted">un.</span>
-        </div>
-      </div>
     </div>
 
+    <p class="hw-section-title">Diseños</p>
+    <div id="listaDisenos" class="mb-2"></div>
+    <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-3" onclick="agregarDiseno()">
+      <i class="bi bi-plus-lg me-1"></i>Agregar diseño
+    </button>
+
+    <p class="hw-section-title">Servicios adicionales</p>
+
     <!-- Sección: Costo de Planchado / Aplicación -->
-    <div class="card bg-white border rounded-3 p-3 mb-3 shadow-sm">
+    <div class="card bg-white border rounded-3 p-3 mb-2 shadow-sm">
       <div class="form-check form-switch mb-2">
         <input class="form-check-input" type="checkbox" id="incluirPlanchado">
         <label class="form-check-label fw-semibold small text-secondary" for="incluirPlanchado">
@@ -117,16 +96,63 @@
       </div>
     </div>
 
+    <!-- Sección: Costo de la Prenda -->
+    <div class="card bg-white border rounded-3 p-3 mb-3 shadow-sm">
+      <div class="form-check form-switch mb-2">
+        <input class="form-check-input" type="checkbox" id="incluirPrenda">
+        <label class="form-check-label fw-semibold small text-secondary" for="incluirPrenda">
+          <i class="bi bi-bag-heart text-primary me-1"></i>Incluir Costo de la Prenda
+        </label>
+      </div>
+
+      <div id="seccionPrenda" class="row g-2" style="display: none;">
+        <div class="col-7">
+          <label for="costoPrenda" class="form-label text-muted" style="font-size: 0.75rem;">Costo de la Prenda ($)</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" id="costoPrenda" placeholder="5.00" value="5" step="0.01" min="0">
+            <span class="input-group-text bg-light text-muted">$</span>
+          </div>
+        </div>
+        <div class="col-5">
+          <label for="tipoPrenda" class="form-label text-muted" style="font-size: 0.75rem;">Cobrar por:</label>
+          <select class="form-select form-select-sm" id="tipoPrenda">
+            <option value="pieza">Por pieza</option>
+            <option value="lote">Lote único</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <p class="hw-section-title">Resumen</p>
+    <div class="border rounded-3 p-3 mb-3">
+      <div class="d-flex justify-content-between small py-1">
+        <span class="text-secondary">Total impresión</span>
+        <span class="fw-semibold" id="resumenImpresion">$0.00</span>
+      </div>
+      <div class="d-flex justify-content-between small py-1" id="lineaResumenPlanchado">
+        <span class="text-secondary">Planchado</span>
+        <span class="fw-semibold" id="resumenPlanchado">$0.00</span>
+      </div>
+      <div class="d-flex justify-content-between small py-1" id="lineaResumenPrenda">
+        <span class="text-secondary">Prenda</span>
+        <span class="fw-semibold" id="resumenPrenda">$0.00</span>
+      </div>
+      <div class="d-flex justify-content-between small border-top mt-1 pt-2">
+        <span class="text-secondary">Total piezas</span>
+        <span class="fw-semibold" id="resumenPiezas">0</span>
+      </div>
+    </div>
+
     <div class="row g-2">
       <div class="col-6">
         <div class="hw-result neutral h-100">
-          <span class="hw-result-label">Precio Unitario</span>
+          <span class="hw-result-label">Impresión por pieza</span>
           <span class="hw-result-value" id="resultadoUnitario">$0.00</span>
         </div>
       </div>
       <div class="col-6">
         <div class="hw-result accent h-100">
-          <span class="hw-result-label">Precio Total</span>
+          <span class="hw-result-label">Total General</span>
           <span class="hw-result-value" id="resultadoTotal">$0.00</span>
         </div>
       </div>
@@ -140,7 +166,8 @@
     <div id="bcvBox"></div>
 
     <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
-      Fórmula aplicada: <code class="text-dark">(Ancho Diseño × Alto Diseño) ÷ (Ancho Imprimible × 100 cm) × Precio Metro</code>
+      Fórmula por diseño: <code class="text-dark">(Ancho × Alto) ÷ (Ancho Imprimible × 100 cm) × Precio Metro × Cantidad</code>.
+      Los cobros "por pieza" (planchado y prenda) se aplican sobre el total de piezas.
     </div>
   </div>
   </div>
