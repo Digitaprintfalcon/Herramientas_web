@@ -76,3 +76,20 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setup();
 })();
+
+
+// Mejorar feedback precios
+(function(){
+  function setup(){
+    var btn = document.querySelector('[data-bs-target="#preciosConfigModal"]');
+    if (btn){
+      btn.addEventListener('click', function(){
+        try {
+          if (window.HW && window.HW.precios) window.HW.precios.load();
+        } catch(e){}
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();

@@ -128,3 +128,20 @@
   };
 
 })(window);
+
+
+// Mejorar robustez
+(function(){
+  var HW = window.HW || (window.HW = {});
+  if (HW.cedula){
+    var orig = HW.cedula.consultar;
+    HW.cedula.consultar = function(cedula, nac){
+      if (HW.cedula.configFalta()){
+        var err = new Error('No hay proxyUrl configurado para consultar cédulas. Revisa tools/dni-checker/config.js');
+        err.code = 'NO_PROXY';
+        throw err;
+      }
+      return orig.call(HW.cedula, cedula, nac);
+    };
+  }
+})();

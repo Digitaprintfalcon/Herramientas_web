@@ -329,3 +329,27 @@ window.togglePreview = abrirPreview;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
   else setupCedulaLookup();
 })();
+
+
+// Mejorar feedback autocompletado
+(function(){
+  function patch(){
+    if (!window.HW || !window.HW.cedula) return;
+    document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
+      if (btn.dataset._patched) return;
+      btn.dataset._patched = '1';
+      var orig = btn.onclick;
+      btn.onclick = function(ev){
+        try {
+          if (window.HW.cedula.configFalta()){
+            if (window.HW.toast) window.HW.toast('Falta configurar proxy de cédulas (config.js)', true);
+            return;
+          }
+        } catch(e){}
+        if (orig) orig.call(this, ev);
+      };
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', patch);
+  else patch();
+})();
