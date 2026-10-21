@@ -87,7 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---- Modos de captura (Manual / Precargadas / Vacía) ----
   const selReferente = document.getElementById('selectReferente');
-  if (selReferente) {
+  if (selReferente && typeof window.renderReferenteSelect === 'function') {
+    window.renderReferenteSelect(selReferente.value);
+    selReferente.onchange = function () {
+      applyReferente(selReferente.value);
+    };
+  } else if (selReferente) {
     REFERENTES.forEach(function (p, i) {
       const opt = document.createElement('option');
       opt.value = String(i);
@@ -124,10 +129,19 @@ function aplicarEmisorEnDocumento(datos) {
   set('docSigEmisorTelefono', datos.telefono);
 }
 
-function applyReferente(ref) {
+function applyReferente(refOrId) {
+  var ref = null;
+  if (refOrId && typeof refOrId === 'object') ref = refOrId;
+  else if (typeof refOrId === 'string') {
+    var base = (window.obtenerReferentesBase && window.obtenerReferentesBase()) || [];
+    ref = base.find(function(x){ return x.id === refOrId; }) || (typeof REFERENTES !== 'undefined' ? REFERENTES.find(function(x){ return x.id === refOrId; }) : null);
+    if (!ref && !isNaN(Number(refOrId)) && typeof REFERENTES !== 'undefined') ref = REFERENTES[Number(refOrId)];
+  } else if (typeof refOrId === 'number' && typeof REFERENTES !== 'undefined') {
+    ref = REFERENTES[refOrId];
+  }
   if (!ref) return;
   aplicarEmisorEnDocumento(ref);
-  const prev = document.getElementById('referentePreview');
+  var prev = document.getElementById('referentePreview');
   if (prev) prev.textContent = 'Se usará: ' + (ref.nombre || 'Referente') + ' · C.I ' + (ref.cedula || '');
 }
 
@@ -329,4 +343,190 @@ window.togglePreview = abrirPreview;
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
   else setupCedulaLookup();
+})();
+
+
+// Base editable de referencias (solo Precargadas) + importar/exportar JSON
+(function(){
+  var LS_KEY = 'hw_ref_base';
+  var SEED = [
+    { id: 'ref_seed_1', nombre: 'JUAN PÉREZ GONZÁLEZ', nacionalidad: 'Venezolano', cedula: 'V-12.345.678', telefono: '0412-5551234', creado: new Date().toISOString(), actualizado: new Date().toISOString() },
+    { id: 'ref_seed_2', nombre: 'MARÍA RODRÍGUEZ LÓPEZ', nacionalidad: 'Venezolana', cedula: 'V-13.456.789', telefono: '0414-5555678', creado: new Date().toISOString(), actualizado: new Date().toISOString() },
+    { id: 'ref_seed_3', nombre: 'CARLOS MARTÍNEZ SILVA', nacionalidad: 'Venezolano', cedula: 'V-14.567.890', telefono: '0424-5559012', creado: new Date().toISOString(), actualizado: new Date().toISOString() }
+  ];
+
+  function obtenerReferentes(){
+    try {
+      var raw = (window.HW && window.HW.persist) ? window.HW.persist.get(LS_KEY) : localStorage.getItem(LS_KEY);
+      if (raw && typeof raw === 'string') raw = JSON.parse(raw);
+      if (Array.isArray(raw) && raw.length) return raw.filter(function(x){ return x && x.id && x.nombre && x.cedula; });
+      return SEED.slice();
+    } catch(e){ return SEED.slice(); }
+  }
+
+  function guardarBase(arr){
+    try {
+      if (window.HW && window.HW.persist) window.HW.persist.set(LS_KEY, arr);
+      else localStorage.setItem(LS_KEY, JSON.stringify(arr));
+      return true;
+    } catch(e){ return false; }
+  }
+
+  var REFERENTES_BASE = [];
+  function renderReferenteSelect(selectedId){
+    var sel = document.getElementById('selectReferente');
+    if (!sel) return;
+    REFERENTES_BASE = obtenerReferentes();
+    sel.innerHTML = '<option value="">Seleccione un referente...</option>';
+    REFERENTES_BASE.forEach(function(r){
+      var opt = document.createElement('option');
+      opt.value = r.id;
+      opt.textContent = r.nombre + ' - ' + r.cedula;
+      sel.appendChild(opt);
+    });
+    if (selectedId) sel.value = selectedId;
+    sel.onchange = function(){
+      var id = sel.value;
+      var ref = REFERENTES_BASE.find(function(x){ return x.id === id; });
+      var prev = document.getElementById('referentePreview');
+      if (prev){
+        if (ref) prev.textContent = ref.nombre + ' | ' + (ref.nacionalidad||'') + ' | ' + ref.cedula + (ref.telefono? ' | ' + ref.telefono : '');
+        else prev.textContent = '';
+      }
+    };
+    sel.onchange();
+  }
+
+  // exponer para uso existente
+  window.renderReferenteSelect = renderReferenteSelect;
+  window.obtenerReferentesBase = obtenerReferentes;
+
+  // admin modal
+  function renderAdminList(){
+    var list = document.getElementById('refBaseList');
+    if (!list) return;
+    var arr = obtenerReferentes();
+    list.innerHTML = '';
+    if (!arr.length){
+      var tr = document.createElement('tr');
+      var td = document.createElement('td'); td.colSpan = 5; td.className = 'text-muted text-center'; td.textContent = 'Sin referencias en base'; tr.appendChild(td); list.appendChild(tr); return;
+    }
+    arr.forEach(function(r){
+      var tr = document.createElement('tr');
+      var tdN = document.createElement('td'); tdN.textContent = r.nombre || ''; tr.appendChild(tdN);
+      var tdNac = document.createElement('td'); tdNac.textContent = r.nacionalidad || ''; tr.appendChild(tdNac);
+      var tdC = document.createElement('td'); tdC.textContent = r.cedula || ''; tr.appendChild(tdC);
+      var tdT = document.createElement('td'); tdT.textContent = r.telefono || ''; tr.appendChild(tdT);
+      var tdA = document.createElement('td'); tdA.className = 'text-end';
+      var btnE = document.createElement('button'); btnE.className = 'btn btn-outline-primary btn-sm me-1'; btnE.type='button'; btnE.innerHTML = '<i class="bi bi-pencil"></i>'; btnE.onclick = function(){ editar(r); };
+      var btnD = document.createElement('button'); btnD.className = 'btn btn-outline-danger btn-sm'; btnD.type='button'; btnD.innerHTML = '<i class="bi bi-trash"></i>'; btnD.onclick = function(){ eliminar(r); };
+      tdA.appendChild(btnE); tdA.appendChild(btnD); tr.appendChild(tdA); list.appendChild(tr);
+    });
+  }
+
+  function showForm(edit){
+    var wrap = document.getElementById('refBaseFormWrap');
+    if (!wrap) return;
+    document.getElementById('refBaseId').value = edit && edit.id ? edit.id : '';
+    document.getElementById('refBaseNombre').value = edit && edit.nombre ? edit.nombre : '';
+    document.getElementById('refBaseNacionalidad').value = edit && edit.nacionalidad ? edit.nacionalidad : 'Venezolano';
+    document.getElementById('refBaseCedula').value = edit && edit.cedula ? edit.cedula : '';
+    document.getElementById('refBaseTelefono').value = edit && edit.telefono ? edit.telefono : '';
+    wrap.style.display = 'block';
+  }
+
+  function hideForm(){ var wrap = document.getElementById('refBaseFormWrap'); if (wrap) wrap.style.display = 'none'; }
+
+  function nuevo(){ showForm(null); }
+  function editar(r){ showForm(r); }
+  function eliminar(r){
+    if (!confirm('¿Eliminar esta referencia de la base?')) return;
+    var arr = obtenerReferentes().filter(function(x){ return x.id !== r.id; });
+    guardarBase(arr);
+    renderAdminList();
+    renderReferenteSelect(document.getElementById('selectReferente') ? document.getElementById('selectReferente').value : null);
+    if (window.HW.toast) window.HW.toast('Referencia eliminada');
+  }
+
+  function guardar(){
+    var id = document.getElementById('refBaseId').value || ('ref_' + Date.now());
+    var nombre = (document.getElementById('refBaseNombre').value || '').trim();
+    var nac = document.getElementById('refBaseNacionalidad').value || 'Venezolano';
+    var ced = (document.getElementById('refBaseCedula').value || '').trim();
+    var tel = (document.getElementById('refBaseTelefono').value || '').trim();
+    if (!nombre || !ced){ if (window.HW.toast) window.HW.toast('Nombre y cédula son obligatorios', true); return; }
+    var arr = obtenerReferentes();
+    var idx = arr.findIndex(function(x){ return x.id === id; });
+    var obj = { id: id, nombre: nombre.toUpperCase(), nacionalidad: nac, cedula: ced, telefono: tel, creado: idx >=0 && arr[idx].creado ? arr[idx].creado : new Date().toISOString(), actualizado: new Date().toISOString() };
+    if (idx >=0) arr[idx] = obj; else arr.push(obj);
+    guardarBase(arr);
+    renderAdminList();
+    renderReferenteSelect(id);
+    hideForm();
+    if (window.HW.toast) window.HW.toast('Referencia guardada');
+  }
+
+  function exportarBase(){
+    var arr = obtenerReferentes();
+    var blob = new Blob([JSON.stringify(arr, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'referencias-base.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+
+  function importarBase(file){
+    if (!file) return;
+    var fr = new FileReader();
+    fr.onload = function(e){
+      try {
+        var data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)){ if (window.HW.toast) window.HW.toast('Archivo JSON inválido', true); return; }
+        var arr = obtenerReferentes();
+        var added = 0;
+        data.forEach(function(x){
+          if (!x || !x.nombre || !x.cedula) return;
+          var id = x.id || ('ref_imp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6));
+          if (arr.find(function(y){ return y.id === id || y.cedula === x.cedula; })) return;
+          arr.push({ id: id, nombre: String(x.nombre).toUpperCase(), nacionalidad: x.nacionalidad || 'Venezolano', cedula: x.cedula, telefono: x.telefono || '', creado: new Date().toISOString(), actualizado: new Date().toISOString() });
+          added++;
+        });
+        guardarBase(arr);
+        renderAdminList();
+        renderReferenteSelect();
+        if (window.HW.toast) window.HW.toast(added + ' referencia(s) importada(s)');
+      } catch(err){
+        if (window.HW.toast) window.HW.toast('Error al importar JSON', true);
+      }
+    };
+    fr.readAsText(file);
+  }
+
+  function restaurar(){
+    if (!confirm('¿Restaurar ejemplos a la base? Se agregarán ejemplos si no existen.')) return;
+    var arr = obtenerReferentes();
+    SEED.forEach(function(s){
+      if (!arr.find(function(x){ return x.cedula === s.cedula; })){
+        arr.push({ id: 'ref_seed_' + Date.now() + '_' + Math.random().toString(36).slice(2,4), nombre: s.nombre, nacionalidad: s.nacionalidad, cedula: s.cedula, telefono: s.telefono, creado: new Date().toISOString(), actualizado: new Date().toISOString() });
+      }
+    });
+    guardarBase(arr);
+    renderAdminList();
+    renderReferenteSelect();
+    if (window.HW.toast) window.HW.toast('Ejemplos restaurados');
+  }
+
+  function setup(){
+    var btnN = document.getElementById('btnRefNuevo'); if (btnN) btnN.onclick = nuevo;
+    var btnG = document.getElementById('btnRefGuardar'); if (btnG) btnG.onclick = guardar;
+    var btnC = document.getElementById('btnRefCancelar'); if (btnC) btnC.onclick = hideForm;
+    var btnE = document.getElementById('btnRefExportar'); if (btnE) btnE.onclick = exportarBase;
+    var inp = document.getElementById('inputRefImportar'); if (inp) inp.onchange = function(){ importarBase(this.files[0]); this.value=''; };
+    var btnR = document.getElementById('btnRefRestaurar'); if (btnR) btnR.onclick = restaurar;
+    var modal = document.getElementById('refBaseModal');
+    if (modal) modal.addEventListener('show.bs.modal', function(){ renderAdminList(); hideForm(); });
+    renderReferenteSelect();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
 })();
