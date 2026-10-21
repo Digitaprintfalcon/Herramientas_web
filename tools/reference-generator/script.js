@@ -237,12 +237,18 @@ function descargarPDF() {
     margin: 0,
     filename: `Referencia_Personal_${baseNombre}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollY: -window.scrollY,
+      windowWidth: document.documentElement.scrollWidth
+    },
     jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
   };
 
   const escalaPrevia = element.style.transform || '';
   element.style.transform = 'none';
+  window.scrollTo(0, 0);
   try {
     const worker = html2pdf().set(opt).from(element).save();
     const restaurar = () => restaurarEscala(element, escalaPrevia);
@@ -261,7 +267,7 @@ function descargarPDF() {
 function imprimirDocumento() {
   if (!validarYReportar()) return;
   abrirPreview();
-  window.print();
+  setTimeout(function(){ window.print(); }, 450);
 }
 window.abrirPreview = abrirPreview;
 window.togglePreview = abrirPreview;
