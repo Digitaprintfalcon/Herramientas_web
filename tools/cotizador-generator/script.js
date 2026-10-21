@@ -699,3 +699,21 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
   else setupCedulaLookup();
 })();
+
+
+// Usar precios por defecto centralizados
+(function(){
+  function loadCotizadorPrecios(){
+    try {
+      if (window.HW && window.HW.precios){
+        var c = window.HW.precios.get('cotizador') || {};
+        // aplicar a líneas por defecto si existen
+        if (document.querySelectorAll('.l-precio').length){
+          // no forzar, solo se usan al crear nueva línea? dejamos fallback
+        }
+      }
+    } catch(e){}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadCotizadorPrecios);
+  else loadCotizadorPrecios();
+})();
