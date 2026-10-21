@@ -271,3 +271,62 @@ function imprimirDocumento() {
 }
 window.abrirPreview = abrirPreview;
 window.togglePreview = abrirPreview;
+
+
+// Autocompletar por cédula
+(function(){
+  function setupCedulaLookup(){
+    if (!window.HW || !window.HW.cedula) return;
+    document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var inputId = btn.getAttribute('data-cedula-input');
+        var map = btn.getAttribute('data-map') || '';
+        var inp = document.getElementById(inputId);
+        if (!inp) return;
+        var cedula = inp.value || '';
+        var num = cedula.replace(/\D/g,'');
+        if (!num || num.length < 5 || num.length > 10){
+          if (window.HW.toast) window.HW.toast('Ingresa un número de cédula válido', true);
+          return;
+        }
+        var nacSel = map === 'emisor' ? document.getElementById('inputEmisorNacionalidad') : document.getElementById('inputRefNacionalidad');
+        var nac = window.HW.cedula.derivarNacionalidad ? window.HW.cedula.derivarNacionalidad(nacSel) : 'v';
+        var icon = btn.querySelector('i');
+        var prevIcon = icon ? icon.className : '';
+        if (icon) icon.className = 'bi bi-arrow-clockwise hw-bcv-spin';
+        btn.disabled = true;
+        window.HW.cedula.consultar(cedula, nac).then(function(data){
+          var nombre = window.HW.cedula.nombreCompleto(data);
+          if (map === 'emisor'){
+            var n = document.getElementById('inputEmisorNombre'); if (n){ n.value = nombre; n.dispatchEvent(new Event('input',{bubbles:true})); n.dispatchEvent(new Event('change',{bubbles:true})); }
+            var c = document.getElementById('inputEmisorCedula'); if (c){ c.value = window.HW.cedula.formatearCedula(num, data.nacionalidad || (nac==='e'?'E':'V')); c.dispatchEvent(new Event('input',{bubbles:true})); c.dispatchEvent(new Event('change',{bubbles:true})); }
+            if (nacSel){
+              var nv = (data.nacionalidad || nac) === 'E' ? 'Extranjero' : 'Venezolano';
+              // mantener género si es femenina? opcional, ajustar básico
+              if (nacSel.value && nacSel.value.toLowerCase().indexOf('ana') !== -1 && nv === 'Venezolano') nv = 'Venezolana';
+              if (nacSel.value && nacSel.value.toLowerCase().indexOf('era') !== -1 && nv === 'Extranjero') nv = 'Extranjera';
+              nacSel.value = nv; nacSel.dispatchEvent(new Event('change',{bubbles:true}));
+            }
+          }else if (map === 'referenciado'){
+            var nr = document.getElementById('inputRefNombre'); if (nr){ nr.value = nombre; nr.dispatchEvent(new Event('input',{bubbles:true})); nr.dispatchEvent(new Event('change',{bubbles:true})); }
+            var cr = document.getElementById('inputRefCedula'); if (cr){ cr.value = window.HW.cedula.formatearCedula(num, data.nacionalidad || (nac==='e'?'E':'V')); cr.dispatchEvent(new Event('input',{bubbles:true})); cr.dispatchEvent(new Event('change',{bubbles:true})); }
+            var nr2 = document.getElementById('inputRefNacionalidad'); if (nr2){
+              var nv2 = (data.nacionalidad || nac) === 'E' ? 'Extranjero' : 'Venezolano';
+              if (nr2.value && nr2.value.toLowerCase().indexOf('ana') !== -1 && nv2 === 'Venezolano') nv2 = 'Venezolana';
+              if (nr2.value && nr2.value.toLowerCase().indexOf('era') !== -1 && nv2 === 'Extranjero') nv2 = 'Extranjera';
+              nr2.value = nv2; nr2.dispatchEvent(new Event('change',{bubbles:true}));
+            }
+          }
+          if (window.HW.toast) window.HW.toast('Datos cargados desde cédula');
+        }).catch(function(e){
+          if (window.HW.toast) window.HW.toast(e.message || 'Error al consultar cédula', true);
+        }).finally(function(){
+          btn.disabled = false;
+          if (icon) icon.className = prevIcon;
+        });
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
+  else setupCedulaLookup();
+})();

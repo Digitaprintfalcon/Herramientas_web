@@ -277,3 +277,55 @@ function imprimirDocumento() {
 }
 window.abrirPreview = abrirPreview;
 window.togglePreview = abrirPreview;
+
+
+// Autocompletar por cédula
+(function(){
+  function setupCedulaLookup(){
+    if (!window.HW || !window.HW.cedula) return;
+    document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var inputId = btn.getAttribute('data-cedula-input');
+        var map = btn.getAttribute('data-map') || '';
+        var inp = document.getElementById(inputId);
+        if (!inp) return;
+        var cedula = inp.value || '';
+        var num = cedula.replace(/\D/g,'');
+        if (!num || num.length < 5 || num.length > 10){
+          if (window.HW.toast) window.HW.toast('Ingresa un número de cédula válido', true);
+          return;
+        }
+        var nac = 'v';
+        if (map === 'otorgante') nac = document.getElementById('inputOtorganteGenero') && document.getElementById('inputOtorganteGenero').value && document.getElementById('inputOtorganteGenero').value.toLowerCase().indexOf('era') !== -1 ? 'v' : 'v';
+        var icon = btn.querySelector('i');
+        var prevIcon = icon ? icon.className : '';
+        if (icon) icon.className = 'bi bi-arrow-clockwise hw-bcv-spin';
+        btn.disabled = true;
+        window.HW.cedula.consultar(cedula, nac).then(function(data){
+          var nombre = window.HW.cedula.nombreCompleto(data);
+          if (map === 'otorgante'){
+            var n = document.getElementById('inputOtorganteNombre'); if (n){ n.value = nombre; n.dispatchEvent(new Event('input',{bubbles:true})); n.dispatchEvent(new Event('change',{bubbles:true})); }
+            var c = document.getElementById('inputOtorganteCedula'); if (c){ c.value = window.HW.cedula.formatearCedula(num, data.nacionalidad || 'V'); c.dispatchEvent(new Event('input',{bubbles:true})); c.dispatchEvent(new Event('change',{bubbles:true})); }
+            if (data.nacionalidad === 'E'){
+              if (window.HW.toast) window.HW.toast('La API indica nacionalidad E; el select es venezolano/venezolana, no se ajustó el género', true);
+            }
+          }else if (map === 'apoderado'){
+            var na = document.getElementById('inputApoderadoNombre'); if (na){ na.value = nombre; na.dispatchEvent(new Event('input',{bubbles:true})); na.dispatchEvent(new Event('change',{bubbles:true})); }
+            var ca = document.getElementById('inputApoderadoCedula'); if (ca){ ca.value = window.HW.cedula.formatearCedula(num, data.nacionalidad || 'V'); ca.dispatchEvent(new Event('input',{bubbles:true})); ca.dispatchEvent(new Event('change',{bubbles:true})); }
+            if (data.nacionalidad === 'E'){
+              if (window.HW.toast) window.HW.toast('La API indica nacionalidad E; el select es venezolano/venezolana, no se ajustó el género', true);
+            }
+          }
+          if (window.HW.toast) window.HW.toast('Datos cargados desde cédula');
+        }).catch(function(e){
+          if (window.HW.toast) window.HW.toast(e.message || 'Error al consultar cédula', true);
+        }).finally(function(){
+          btn.disabled = false;
+          if (icon) icon.className = prevIcon;
+        });
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
+  else setupCedulaLookup();
+})();

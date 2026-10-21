@@ -652,3 +652,50 @@
   window.pdfCotizacion = pdfCotizacion;
   window.imprimirCotizacion = imprimirCotizacion;
 })();
+
+// Autocompletar por cédula (cliente)
+(function(){
+  function setupCedulaLookup(){
+    if (!window.HW || !window.HW.cedula) return;
+    document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var inputId = btn.getAttribute('data-cedula-input');
+        var inp = document.getElementById(inputId);
+        if (!inp) return;
+        var cedula = inp.value || '';
+        var upper = cedula.toUpperCase();
+        if (upper.indexOf('J-') === 0 || upper.indexOf('G-') === 0 || upper.indexOf('P-') === 0){
+          if (window.HW.toast) window.HW.toast('Este campo es para RIF de empresa, la consulta aplica a cédula de persona', true);
+          return;
+        }
+        var num = cedula.replace(/\D/g,'');
+        if (!num || num.length < 5 || num.length > 10){
+          if (window.HW.toast) window.HW.toast('Ingresa un número de cédula válido', true);
+          return;
+        }
+        var nac = upper.indexOf('E-') === 0 ? 'e' : 'v';
+        var icon = btn.querySelector('i');
+        var prevIcon = icon ? icon.className : '';
+        if (icon) icon.className = 'bi bi-arrow-clockwise hw-bcv-spin';
+        btn.disabled = true;
+        window.HW.cedula.consultar(cedula, nac).then(function(data){
+          var nombre = window.HW.cedula.nombreCompleto(data);
+          var n = document.getElementById('inputClienteNombre'); if (n){ n.value = nombre; n.dispatchEvent(new Event('input',{bubbles:true})); n.dispatchEvent(new Event('change',{bubbles:true})); }
+          var c = document.getElementById('inputClienteRif');
+          if (c){
+            var rif = data.rif || window.HW.cedula.formatearCedula(num, data.nacionalidad || (nac==='e'?'E':'V'));
+            c.value = rif; c.dispatchEvent(new Event('input',{bubbles:true})); c.dispatchEvent(new Event('change',{bubbles:true}));
+          }
+          if (window.HW.toast) window.HW.toast('Datos cargados desde cédula');
+        }).catch(function(e){
+          if (window.HW.toast) window.HW.toast(e.message || 'Error al consultar cédula', true);
+        }).finally(function(){
+          btn.disabled = false;
+          if (icon) icon.className = prevIcon;
+        });
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
+  else setupCedulaLookup();
+})();
