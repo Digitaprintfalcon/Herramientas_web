@@ -9,6 +9,7 @@ generadores de documentos (referencias y autorizaciones).
 ```
 .
 ├── index.html                 # Panel principal: tarjetas generadas desde HW_TOOLS
+├── script.js                  # Lógica del panel (modal de precios por defecto)
 ├── favicon.ico
 ├── favicon.svg
 ├── favicon-16x16.png
@@ -21,6 +22,8 @@ generadores de documentos (referencias y autorizaciones).
 ├── tools/
 │   ├── common.js              # Lógica compartida (tema, nav, helpers, catálogo)
 │   ├── common.css             # Tokens de diseño y estilos compartidos
+│   ├── prices-client.js       # Precios por defecto centralizados (HW.precios)
+│   ├── cedula-client.js       # Cliente de consulta de cédulas (HW.cedula)
 │   ├── <herramienta>/index.html
 │   ├── <herramienta>/script.js
 │   └── dni-checker/
@@ -40,11 +43,29 @@ Solo necesitás Python 3:
 
 ## Catálogo y navegación
 
-- Las 10 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
+- Las 11 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
   El menú "Herramientas" de la barra superior y las tarjetas del panel principal se
   generan desde esa fuente: para agregar/quitar una herramienta se edita solo ahí.
 - Tema claro/oscuro: automático por dispositivo, con preferencia manual guardada en
   `localStorage`. Botón 🌙/☀️ en la barra superior.
+
+## Precios por defecto
+
+El menú **Configuración → Precios por defecto** del panel define los precios que
+usan por omisión los cotizadores. Se guardan en el navegador (`hw_tool_prices`)
+y se pueden exportar/importar como JSON.
+
+| Herramienta | Campos |
+|---|---|
+| Vinil | precio m², laminado m², diseño, corte, instalación |
+| Banner | precio m², costo logístico |
+| Corte de vinil | precio material m², planchado, instalación |
+| DTF | precio por metro, planchado, prenda |
+| PVC | precio hoja, vinil m², laminado m² |
+
+Los precios se aplican al abrir cada herramienta; editar el campo a mano sigue
+siendo posible y el valor centralizado se recupera al recargar. El botón
+"Reiniciar Valores" del corte de vinil y del PVC vuelve al precio centralizado.
 
 ## Herramienta de cédulas (dni-checker)
 

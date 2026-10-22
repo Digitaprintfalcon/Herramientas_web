@@ -3,6 +3,11 @@
 
   var HW = global.HW || (global.HW = {});
 
+  // Mensaje único para el caso "falta configurar el proxy": lo usan tanto la
+  // validación previa (avisoConfigFalta) como el error de consultar(), para
+  // no mostrar dos avisos distintos por el mismo problema.
+  var MSG_CONFIG_FALTA = 'Falta configurar el proxy de cédulas (tools/dni-checker/config.js).';
+
   function getConfig() {
     var cfg = global.HW_CEDULA_CONFIG || global.HW_DNI_CONFIG || {};
     var proxyUrl = cfg.proxyUrl || '';
@@ -18,6 +23,14 @@
   function configFalta() {
     var cfg = getConfig();
     return !cfg.proxyUrl;
+  }
+
+  // Aviso único y punto de entrada para los botones de autocompletado:
+  // devuelve true (y muestra un toast) cuando falta configurar el proxy.
+  function avisoConfigFalta() {
+    if (!configFalta()) return false;
+    if (HW.toast) HW.toast(MSG_CONFIG_FALTA, true);
+    return true;
   }
 
   function formatearCedula(n, pref) {
@@ -72,7 +85,7 @@
   function consultar(cedula, nac) {
     var cfg = getConfig();
     if (!cfg.proxyUrl) {
-      var err = new Error('Falta configurar proxyUrl en la herramienta de cédulas.');
+      var err = new Error(MSG_CONFIG_FALTA);
       err.code = 'NO_PROXY';
       throw err;
     }
@@ -119,6 +132,7 @@
 
   HW.cedula = {
     configFalta: configFalta,
+    avisoConfigFalta: avisoConfigFalta,
     consultar: consultar,
     formatearCedula: formatearCedula,
     nombreCompleto: nombreCompleto,
@@ -128,20 +142,3 @@
   };
 
 })(window);
-
-
-// Mejorar robustez
-(function(){
-  var HW = window.HW || (window.HW = {});
-  if (HW.cedula){
-    var orig = HW.cedula.consultar;
-    HW.cedula.consultar = function(cedula, nac){
-      if (HW.cedula.configFalta()){
-        var err = new Error('No hay proxyUrl configurado para consultar cédulas. Revisa tools/dni-checker/config.js');
-        err.code = 'NO_PROXY';
-        throw err;
-      }
-      return orig.call(HW.cedula, cedula, nac);
-    };
-  }
-})();

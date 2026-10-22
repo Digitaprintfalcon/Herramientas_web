@@ -659,6 +659,7 @@
     if (!window.HW || !window.HW.cedula) return;
     document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
       btn.addEventListener('click', function(){
+        if (window.HW.cedula.avisoConfigFalta()) return;
         var inputId = btn.getAttribute('data-cedula-input');
         var inp = document.getElementById(inputId);
         if (!inp) return;
@@ -678,7 +679,9 @@
         var prevIcon = icon ? icon.className : '';
         if (icon) icon.className = 'bi bi-arrow-clockwise hw-bcv-spin';
         btn.disabled = true;
-        window.HW.cedula.consultar(cedula, nac).then(function(data){
+        Promise.resolve().then(function(){
+          return window.HW.cedula.consultar(cedula, nac);
+        }).then(function(data){
           var nombre = window.HW.cedula.nombreCompleto(data);
           var n = document.getElementById('inputClienteNombre'); if (n){ n.value = nombre; n.dispatchEvent(new Event('input',{bubbles:true})); n.dispatchEvent(new Event('change',{bubbles:true})); }
           var c = document.getElementById('inputClienteRif');
@@ -698,46 +701,4 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
   else setupCedulaLookup();
-})();
-
-
-// Usar precios por defecto centralizados
-(function(){
-  function loadCotizadorPrecios(){
-    try {
-      if (window.HW && window.HW.precios){
-        var c = window.HW.precios.get('cotizador') || {};
-        // aplicar a líneas por defecto si existen
-        if (document.querySelectorAll('.l-precio').length){
-          // no forzar, solo se usan al crear nueva línea? dejamos fallback
-        }
-      }
-    } catch(e){}
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadCotizadorPrecios);
-  else loadCotizadorPrecios();
-})();
-
-
-// Mejorar feedback autocompletado
-(function(){
-  function patch(){
-    if (!window.HW || !window.HW.cedula) return;
-    document.querySelectorAll('[data-lookup-cedula]').forEach(function(btn){
-      if (btn.dataset._patched) return;
-      btn.dataset._patched = '1';
-      var orig = btn.onclick;
-      btn.onclick = function(ev){
-        try {
-          if (window.HW.cedula.configFalta()){
-            if (window.HW.toast) window.HW.toast('Falta configurar proxy de cédulas (config.js)', true);
-            return;
-          }
-        } catch(e){}
-        if (orig) orig.call(this, ev);
-      };
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', patch);
-  else patch();
 })();

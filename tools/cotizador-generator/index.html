@@ -88,7 +88,7 @@
           <h5 class="hw-section-title">2. Datos del cliente</h5>
           <div class="row g-2 mb-3">
             <div class="col-12"><label for="inputClienteNombre" class="form-label form-label-sm fw-semibold text-secondary">Nombre o razón social:</label><input type="text" class="form-control form-control-sm" id="inputClienteNombre" placeholder="Nombre del cliente"></div>
-            <div class="col-md-6"><label for="inputClienteRif" class="form-label form-label-sm fw-semibold text-secondary">RIF / C.I:</label><input type="text" class="form-control form-control-sm" id="inputClienteRif" placeholder="J-00000000-0"></div>
+            <div class="col-md-6"><label for="inputClienteRif" class="form-label form-label-sm fw-semibold text-secondary">RIF / C.I:</label><div class="input-group input-group-sm"><input type="text" class="form-control form-control-sm" id="inputClienteRif" placeholder="J-00000000-0"><button class="btn btn-outline-primary" type="button" data-lookup-cedula data-cedula-input="inputClienteRif" title="Buscar datos por cédula"><i class="bi bi-person-vcard"></i></button></div></div>
             <div class="col-md-6"><label for="inputClienteTelefono" class="form-label form-label-sm fw-semibold text-secondary">Teléfono:</label><input type="text" class="form-control form-control-sm" id="inputClienteTelefono" placeholder="0414-0000000"></div>
             <div class="col-12"><label for="inputClienteEmail" class="form-label form-label-sm fw-semibold text-secondary">Email:</label><input type="email" class="form-control form-control-sm" id="inputClienteEmail" placeholder="cliente@correo.com"></div>
           </div>
@@ -248,8 +248,8 @@
   <script src="empresa.local.js"></script>
   <script src="../dni-checker/config.js"></script>
   <script src="../dni-checker/config.local.js"></script>
-  <script src="../cedula-client.js"></script>
   <script src="../common.js"></script>
+  <script src="../cedula-client.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -5,32 +5,38 @@
 
   var LS_KEY = 'hw_tool_prices';
 
+  // Los defaults son los mismos valores que traía cada herramienta hardcodeada
+  // en su HTML. Así el modal muestra precios reales y una integración que lea
+  // estas claves nunca deja un precio en 0.
   var DEFAULTS = {
-    version: 1,
+    version: 2,
     updatedAt: null,
     tools: {
-      cotizador: {
-        papelCarta: 0,
-        impresionColor: 0,
-        diseno: 0
-      },
       vinil: {
-        precioVinilM2: 0,
-        precioLaminadoM2: 0
+        precioVinilM2: 25,
+        precioLaminadoM2: 12,
+        costoDiseno: 5,
+        costoCorte: 5,
+        costoInstalacion: 10
       },
       banner: {
-        precioM2: 0
+        precioM2: 25,
+        costoLogistica: 10
       },
       cut: {
-        precioMaterialM2: 0
+        precioMaterialM2: 3.5,
+        costoPlanchado: 0.5,
+        costoInstalacion: 1
       },
       dtf: {
-        precioMetro: 0
+        precioMetro: 25,
+        costoPlanchado: 1.5,
+        costoPrenda: 5
       },
       pvc: {
-        precioPvcHoja: 0,
-        precioVinilM2: 0,
-        precioLaminadoM2: 0
+        precioPvcHoja: 45,
+        precioVinilM2: 15,
+        precioLaminadoM2: 8
       }
     }
   };
@@ -42,11 +48,13 @@
   function load() {
     var base = getDefaults();
     try {
-      var raw = (HW.persist && HW.persist.get) ? HW.persist.get(LS_KEY) : localStorage.getItem(LS_KEY);
+      var raw = (HW.persist && HW.persist.get) ? HW.persist.get(LS_KEY, null) : localStorage.getItem(LS_KEY);
       if (raw && typeof raw === 'string') raw = JSON.parse(raw);
       if (!raw || typeof raw !== 'object') return base;
-      // merge
-      base.version = raw.version || 1;
+      // Configuración guardada con una versión anterior: se descarta para no
+      // dejar precios en cero (la v1 usaba 0 como "sin configurar").
+      if ((raw.version || 1) < 2) return base;
+      base.version = raw.version || 2;
       base.updatedAt = raw.updatedAt || null;
       base.tools = base.tools || {};
       if (raw.tools && typeof raw.tools === 'object') {
@@ -71,7 +79,7 @@
   function save(obj) {
     try {
       if (!obj || typeof obj !== 'object') obj = load();
-      obj.version = obj.version || 1;
+      obj.version = obj.version || 2;
       obj.updatedAt = new Date().toISOString();
       if (HW.persist && HW.persist.set) HW.persist.set(LS_KEY, obj);
       else localStorage.setItem(LS_KEY, JSON.stringify(obj));
@@ -109,6 +117,24 @@
     return save(cfg);
   }
 
+  // Aplica los precios guardados a los inputs de una herramienta.
+  // mapa = { claveEsquema: idDelInput }
+  function aplicar(tool, mapa) {
+    if (!global.document || !mapa) return 0;
+    var t = get(tool);
+    if (!t) return 0;
+    var n = 0;
+    Object.keys(mapa).forEach(function (key) {
+      var el = global.document.getElementById(mapa[key]);
+      if (!el) return;
+      var v = t[key];
+      if (typeof v !== 'number' || isNaN(v)) return;
+      el.value = v;
+      n++;
+    });
+    return n;
+  }
+
   function exportJSON() {
     var cfg = load();
     var blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' });
@@ -131,6 +157,9 @@
           var data = JSON.parse(e.target.result);
           if (!data || typeof data !== 'object' || !data.tools || typeof data.tools !== 'object') {
             throw new Error('Estructura inválida. Se requiere { tools: {...} }');
+          }
+          if ((data.version || 1) < 2) {
+            throw new Error('El archivo es de una versión anterior (precios en 0). Exporta la configuración actual y edítala.');
           }
           var cfg = load();
           Object.keys(data.tools).forEach(function (k) {
@@ -165,6 +194,7 @@
     list: list,
     get: get,
     set: set,
+    aplicar: aplicar,
     exportJSON: exportJSON,
     importJSON: importJSON
   };

@@ -100,6 +100,21 @@
             calcular();
         }
 
+        // Precios por defecto centralizados (panel principal)
+        const PRECIOS_CENTRALIZADOS = {
+            precioPvcHoja: 'costoLamina',
+            precioVinilM2: 'vinilCostoM2',
+            precioLaminadoM2: 'laminadoCostoM2'
+        };
+
+        function precioCentralizado(clave, fallback) {
+            if (window.HW && HW.precios) {
+                const v = HW.precios.get('pvc', clave);
+                if (typeof v === 'number' && !isNaN(v)) return v;
+            }
+            return fallback;
+        }
+
         function limpiarFormulario() {
             document.getElementById('trabajoAncho').value = 50;
             document.getElementById('trabajoLargo').value = 30;
@@ -113,7 +128,7 @@
             
             document.getElementById('baseLargo').value = 244;
             document.getElementById('baseAncho').value = 122;
-            document.getElementById('costoLamina').value = 45.00;
+            document.getElementById('costoLamina').value = precioCentralizado('precioPvcHoja', 45.00);
             document.getElementById('pvcMerma').value = 10;
             document.getElementById('pvcGanancia').value = 50;
             
@@ -124,7 +139,7 @@
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleEditSection('vinilParamsBox', 'checkEditVinil');
 
-            document.getElementById('vinilCostoM2').value = 15.00;
+            document.getElementById('vinilCostoM2').value = precioCentralizado('precioVinilM2', 15.00);
             document.getElementById('vinilMerma').value = 10;
             document.getElementById('vinilGanancia').value = 60;
 
@@ -134,7 +149,7 @@
             toggleUnifiedSection('laminadoSubContent', 'checkLaminado', 'cardLaminadoContainer');
             toggleEditSection('laminadoParamsBox', 'checkEditLaminado');
 
-            document.getElementById('laminadoCostoM2').value = 8.00;
+            document.getElementById('laminadoCostoM2').value = precioCentralizado('precioLaminadoM2', 8.00);
             document.getElementById('laminadoGanancia').value = 50;
             
             calcular();
@@ -332,6 +347,8 @@
         }
 
         window.onload = function() {
+            if (window.HW && HW.precios) HW.precios.aplicar('pvc', PRECIOS_CENTRALIZADOS);
+
             toggleUnifiedSection('pvcSubContent', 'checkPvc', 'cardPvcContainer');
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleUnifiedSection('laminadoSubContent', 'checkLaminado', 'cardLaminadoContainer');

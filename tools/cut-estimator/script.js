@@ -131,16 +131,31 @@ function cambiarMetodo() {
             costoInstalacion: 1.00
         };
 
+        // Precios por defecto centralizados (panel principal)
+        const PRECIOS_CENTRALIZADOS = {
+            precioMaterialM2: 'precioMaterial',
+            costoPlanchado: 'costoPlanchado',
+            costoInstalacion: 'costoInstalacion'
+        };
+
+        function precioCentralizado(clave, fallback) {
+            if (window.HW && HW.precios) {
+                const v = HW.precios.get('cut', clave);
+                if (typeof v === 'number' && !isNaN(v)) return v;
+            }
+            return fallback;
+        }
+
         function limpiarFormulario() {
             document.getElementById('metodo').value = DEFAULTS.metodo;
             document.getElementById('anchoDiseno').value = DEFAULTS.anchoDiseno;
             document.getElementById('altoDiseno').value = DEFAULTS.altoDiseno;
             document.getElementById('anchoRollo').value = DEFAULTS.anchoRollo;
-            document.getElementById('precioMaterial').value = DEFAULTS.precioMaterial;
+            document.getElementById('precioMaterial').value = precioCentralizado('precioMaterialM2', DEFAULTS.precioMaterial);
             document.getElementById('cantidadPiezas').value = DEFAULTS.cantidadPiezas;
             document.getElementById('margenGanancia').value = DEFAULTS.margenGanancia;
-            document.getElementById('costoPlanchado').value = DEFAULTS.costoPlanchado;
-            document.getElementById('costoInstalacion').value = DEFAULTS.costoInstalacion;
+            document.getElementById('costoPlanchado').value = precioCentralizado('costoPlanchado', DEFAULTS.costoPlanchado);
+            document.getElementById('costoInstalacion').value = precioCentralizado('costoInstalacion', DEFAULTS.costoInstalacion);
 
             document.getElementById('incluirPlanchado').checked = false;
             document.getElementById('incluirInstalacion').checked = false;
@@ -155,6 +170,7 @@ function cambiarMetodo() {
         // Ejecutar cálculo inicial al cargar
         window.onload = function () {
             bcvWidget = HW.bcv.mount(document.getElementById('bcvBox'));
+            if (window.HW && HW.precios) HW.precios.aplicar('cut', PRECIOS_CENTRALIZADOS);
             calcularCosto();
         };
 
