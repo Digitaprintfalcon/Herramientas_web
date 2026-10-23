@@ -39,6 +39,7 @@
     var checkVinil = document.getElementById('checkVinil');
     var checkLaminado = document.getElementById('checkLaminado');
     var checkSeparadores = document.getElementById('checkSeparadores');
+    var costoSeparador = document.getElementById('costoSeparador');
     var dobleLado = document.getElementById('checkVinilDobleLado');
 
     estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
@@ -56,7 +57,8 @@
         vinilCostoM2: C.pvcVinilM2,
         vinilMerma: C.pvcVinilMerma,
         laminadoCostoM2: C.pvcLaminadoM2,
-        cantidadSeparadores: A.separadores.cantidad
+        cantidadSeparadores: A.separadores.cantidad,
+        costoSeparador: A.separadores.precio
       });
       checkPvc.checked = true;
       checkVinil.checked = true;
@@ -71,6 +73,7 @@
       alternarCuerpo('cuerpoVinil', checkVinil.checked);
       alternarCuerpo('cuerpoLaminado', checkLaminado.checked);
       checkSeparadores.disabled = !checkPvc.checked;
+      if (costoSeparador) costoSeparador.disabled = !(checkPvc.checked && checkSeparadores.checked);
       alternarCuerpo('cuerpoSeparadores', checkPvc.checked && checkSeparadores.checked);
     }
 
@@ -128,9 +131,10 @@
       var accesorios = [];
       var incluyeSeparadores = incluyePvc && checkSeparadores.checked;
       if (incluyeSeparadores) {
+        var precioSep = costoSeparador ? Math.max(0, val('costoSeparador')) : Math.max(0, A.separadores.precio);
         accesorios.push({
           nombre: 'Separadores',
-          precio: A.separadores.precio,
+          precio: precioSep,
           cantidad: Math.max(0, parseInt(document.getElementById('cantidadSeparadores').value, 10) || 0)
         });
       }
@@ -164,8 +168,8 @@
       document.getElementById('baseAncho'), document.getElementById('costoLamina'),
       document.getElementById('pvcMerma'), document.getElementById('vinilCostoM2'),
       document.getElementById('vinilMerma'), document.getElementById('laminadoCostoM2'),
-      document.getElementById('cantidadSeparadores')].forEach(function (el) {
-      el.addEventListener('input', calcular);
+      document.getElementById('cantidadSeparadores'), costoSeparador].forEach(function (el) {
+      if (el) el.addEventListener('input', calcular);
     });
 
     [checkPvc, checkVinil, checkLaminado, checkVinilDobleLado, checkSeparadores].forEach(function (el) {

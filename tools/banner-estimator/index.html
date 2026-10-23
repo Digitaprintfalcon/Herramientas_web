@@ -63,6 +63,14 @@
               </div>
             </div>
           </div>
+          <div class="mt-3 pt-3 border-top">
+            <span class="small text-muted d-block mb-2">Medidas rápidas:</span>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-banner-ancho="60" data-banner-alto="100">60 x 100 cm</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-banner-ancho="60" data-banner-alto="60">60 x 60 cm</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-banner-ancho="100" data-banner-alto="100">100 x 100 cm</button>
+            </div>
+          </div>
         </div>
 
         <div class="card p-4 mb-4">
@@ -108,11 +116,21 @@
                     <label class="visually-hidden" for="incluirLogistica">Incluir logística</label>
                   </div>
                 </div>
-                <div class="input-group mt-2">
-                  <input type="number" class="form-control" id="costoLogistica" value="0" step="1" min="0" disabled>
-                  <span class="input-group-text">$/lote</span>
+                <div class="row g-2 mt-1">
+                  <div class="col-7">
+                    <div class="input-group input-group-sm">
+                      <input type="number" class="form-control" id="costoLogistica" value="0" step="1" min="0" disabled>
+                      <span class="input-group-text">$</span>
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    <select class="form-select form-select-sm" id="modoLogistica" disabled>
+                      <option value="lote">Por lote</option>
+                      <option value="pieza">Por unidad</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="form-text">Se cobra una vez por lote al activarla.</div>
+                <div class="form-text">Puede cobrarse por lote o por unidad.</div>
               </div>
             </div>
             <div class="col-sm-6">
@@ -129,15 +147,25 @@
 
           <div class="hw-switch-card">
             <div class="hw-switch-row">
-              <label for="incluirOjales"><i class="bi bi-circle me-1 text-primary"></i>Ojales <span class="text-muted fw-normal">($1 c/u)</span></label>
+              <label for="incluirOjales"><i class="bi bi-circle me-1 text-primary"></i>Ojales</label>
               <div class="form-check form-switch mb-0">
                 <input class="form-check-input" type="checkbox" id="incluirOjales">
               </div>
             </div>
             <div class="hw-switch-body d-none" id="cuerpoOjales">
-              <div class="input-group input-group-sm">
-                <input type="number" class="form-control" id="cantidadOjales" value="4" step="1" min="0" disabled>
-                <span class="input-group-text">por pieza</span>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="cantidadOjales" value="4" step="1" min="0" disabled>
+                    <span class="input-group-text">por pieza</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="costoOjal" value="1" step="0.01" min="0" disabled>
+                    <span class="input-group-text">$/c/u</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

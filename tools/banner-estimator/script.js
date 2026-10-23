@@ -31,8 +31,10 @@
     var margen = document.getElementById('margen');
     var incluirLogistica = document.getElementById('incluirLogistica');
     var logistica = document.getElementById('costoLogistica');
+    var modoLogistica = document.getElementById('modoLogistica');
     var incluirOjales = document.getElementById('incluirOjales');
     var cantidadOjales = document.getElementById('cantidadOjales');
+    var costoOjal = document.getElementById('costoOjal');
     var incluirBolsillos = document.getElementById('incluirBolsillos');
     var cantidadBolsillos = document.getElementById('cantidadBolsillos');
     var costoBolsillo = document.getElementById('costoBolsillo');
@@ -47,9 +49,11 @@
         costoLogistica: S.logistica.precio,
         cantidadOjales: A.ojales.cantidad,
         cantidadBolsillos: A.bolsillos.cantidad,
+        costoOjal: A.ojales.precio,
         costoBolsillo: A.bolsillos.precio,
         costoTubos: A.tubos.precio
       });
+      if (modoLogistica) modoLogistica.value = 'lote';
       incluirLogistica.checked = false;
       incluirOjales.checked = false;
       incluirBolsillos.checked = true;
@@ -59,12 +63,15 @@
     function sincronizarAccesorios() {
       var conOjales = incluirOjales.checked;
       var conBolsillos = incluirBolsillos.checked;
+      var conLogistica = incluirLogistica.checked;
 
       cantidadOjales.disabled = !conOjales;
+      if (costoOjal) costoOjal.disabled = !conOjales;
       cantidadBolsillos.disabled = !conBolsillos;
-      costoBolsillo.disabled = !conBolsillos;
-      costoTubos.disabled = !conBolsillos;
-      logistica.disabled = !incluirLogistica.checked;
+      if (costoBolsillo) costoBolsillo.disabled = !conBolsillos;
+      if (costoTubos) costoTubos.disabled = !conBolsillos;
+      logistica.disabled = !conLogistica;
+      if (modoLogistica) modoLogistica.disabled = !conLogistica;
 
       document.getElementById('cuerpoOjales').classList.toggle('d-none', !conOjales);
       document.getElementById('cuerpoBolsillos').classList.toggle('d-none', !conBolsillos);
@@ -96,11 +103,12 @@
 
       var servicios = [];
       if (incluirLogistica.checked) {
+        var modoLog = modoLogistica ? modoLogistica.value : 'lote';
         servicios.push({
           nombre: 'Logística',
           precio: Math.max(0, val('costoLogistica')),
-          modo: 'lote',
-          detalle: 'por lote'
+          modo: modoLog,
+          detalle: modoLog === 'pieza' ? 'por unidad' : 'por lote'
         });
       }
 
@@ -108,7 +116,7 @@
       if (incluirOjales.checked) {
         accesorios.push({
           nombre: 'Ojales',
-          precio: A.ojales.precio,
+          precio: costoOjal ? Math.max(0, val('costoOjal')) : Math.max(0, A.ojales.precio),
           cantidad: Math.max(0, parseInt(cantidadOjales.value, 10) || 0)
         });
       }
@@ -156,10 +164,14 @@
 
     [
       ancho, alto, cantidad, costoM2, margen,
-      logistica, cantidadOjales, cantidadBolsillos, costoBolsillo, costoTubos
+      logistica, cantidadOjales, cantidadBolsillos, costoOjal, costoBolsillo, costoTubos
     ].forEach(function (el) {
-      el.addEventListener('input', calcular);
+      if (el) el.addEventListener('input', calcular);
     });
+
+    if (modoLogistica) {
+      modoLogistica.addEventListener('change', calcular);
+    }
 
     incluirLogistica.addEventListener('change', function () {
       sincronizarAccesorios();
@@ -185,6 +197,14 @@
     document.getElementById('btnCopiarTotal').addEventListener('click', function () {
       HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
     });
+    document.querySelectorAll('[data-banner-ancho]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        ancho.value = btn.getAttribute('data-banner-ancho');
+        alto.value = btn.getAttribute('data-banner-alto');
+        calcular();
+      });
+    });
+
     document.getElementById('btnGenerador').addEventListener('click', function () {
       HW.quote.enviarAlGenerador(estado.quote, {
         titulo: 'Pendones',

@@ -67,6 +67,7 @@
             <span class="small text-muted d-block mb-2">Medidas rápidas:</span>
             <div class="d-flex flex-wrap gap-2">
               <button type="button" class="btn btn-outline-secondary btn-sm" data-ancho="50" data-alto="30">50 x 30 cm</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-ancho="60" data-alto="60">60 x 60 cm</button>
               <button type="button" class="btn btn-outline-secondary btn-sm" data-ancho="100" data-alto="50">100 x 50 cm</button>
               <button type="button" class="btn btn-outline-secondary btn-sm" data-ancho="122" data-alto="61">122 x 61 cm</button>
               <button type="button" class="btn btn-outline-secondary btn-sm" data-ancho="244" data-alto="122">Lámina completa</button>
@@ -193,15 +194,25 @@
           </div>
           <div class="hw-switch-card">
             <div class="hw-switch-row">
-              <label for="checkSeparadores"><i class="bi bi-columns-gap me-1 text-primary"></i>Separadores <span class="text-muted fw-normal">($2 c/u)</span></label>
+              <label for="checkSeparadores"><i class="bi bi-columns-gap me-1 text-primary"></i>Separadores</label>
               <div class="form-check form-switch mb-0">
                 <input class="form-check-input" type="checkbox" id="checkSeparadores">
               </div>
             </div>
             <div class="hw-switch-body" id="cuerpoSeparadores">
-              <div class="input-group input-group-sm">
-                <input type="number" class="form-control" id="cantidadSeparadores" step="1" min="0">
-                <span class="input-group-text">por pieza con PVC</span>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="cantidadSeparadores" step="1" min="0">
+                    <span class="input-group-text">por pieza</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="costoSeparador" step="0.01" min="0">
+                    <span class="input-group-text">$/c/u</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
