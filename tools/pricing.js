@@ -31,12 +31,13 @@
     planchado: { precio: 1.5, unidad: 'pieza' },
     instalacion: { precio: 10, unidad: 'pieza' },
     prenda: { precio: 5, unidad: 'pieza' },
-    logistica: { precio: 10, unidad: 'lote' }
+    logistica: { precio: 0, unidad: 'lote' }
   };
 
   var ACCESORIOS = {
     ojales: { precio: 1, cantidad: 4, unidad: 'ud', aplicaA: ['banner'] },
-    bolsillos: { precio: 2, cantidad: 4, unidad: 'ud', aplicaA: ['banner'] },
+    bolsillos: { precio: 2, cantidad: 2, unidad: 'ud', aplicaA: ['banner'] },
+    tubos: { precio: 10, cantidad: 1, unidad: 'ud', aplicaA: ['banner'] },
     separadores: { precio: 2, cantidad: 4, unidad: 'ud', aplicaA: ['pvc'] }
   };
 

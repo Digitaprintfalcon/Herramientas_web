@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-require('../tools/pricing.js');
+const pricing = require('../tools/pricing.js');
 const quote = require('../tools/quote.js');
 
 function close(actual, expected, tolerance, message) {
@@ -33,6 +33,31 @@ close(banner.total, 34.5);
 close(banner.unitario, 17.25);
 assert.equal(banner.lineas.length, 4);
 assert.equal(banner.lineas[0].margenPct, 40);
+
+const bannerConTubos = quote.build({
+  titulo: 'Pendones',
+  cantidad: 2,
+  materiales: [
+    { nombre: 'Banner', costoBase: 0.3, unidad: 'ud' }
+  ],
+  accesorios: [
+    {
+      nombre: 'Bolsillos',
+      precio: pricing.ACCESORIOS.bolsillos.precio,
+      cantidad: pricing.ACCESORIOS.bolsillos.cantidad
+    },
+    {
+      nombre: 'Tubos',
+      precio: pricing.ACCESORIOS.tubos.precio,
+      cantidad: pricing.ACCESORIOS.tubos.cantidad
+    }
+  ]
+});
+
+close(bannerConTubos.totalAccesorios, 28);
+close(bannerConTubos.total, 28.5);
+assert.equal(bannerConTubos.accesorios[1].cantidad, 2);
+assert.equal(bannerConTubos.accesorios[1].detalle, '1 por pieza');
 
 const corte = quote.build({
   titulo: 'Corte de vinil',

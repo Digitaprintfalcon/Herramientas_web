@@ -29,11 +29,14 @@
     var cantidad = document.getElementById('cantidadPiezas');
     var costoM2 = document.getElementById('costoM2');
     var margen = document.getElementById('margen');
+    var incluirLogistica = document.getElementById('incluirLogistica');
     var logistica = document.getElementById('costoLogistica');
     var incluirOjales = document.getElementById('incluirOjales');
     var cantidadOjales = document.getElementById('cantidadOjales');
     var incluirBolsillos = document.getElementById('incluirBolsillos');
     var cantidadBolsillos = document.getElementById('cantidadBolsillos');
+    var costoBolsillo = document.getElementById('costoBolsillo');
+    var costoTubos = document.getElementById('costoTubos');
 
     estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
@@ -43,18 +46,37 @@
         margen: P.margen,
         costoLogistica: S.logistica.precio,
         cantidadOjales: A.ojales.cantidad,
-        cantidadBolsillos: A.bolsillos.cantidad
+        cantidadBolsillos: A.bolsillos.cantidad,
+        costoBolsillo: A.bolsillos.precio,
+        costoTubos: A.tubos.precio
       });
-      incluirOjales.checked = true;
+      incluirLogistica.checked = false;
+      incluirOjales.checked = false;
       incluirBolsillos.checked = true;
       sincronizarAccesorios();
     }
 
     function sincronizarAccesorios() {
-      cantidadOjales.disabled = !incluirOjales.checked;
-      cantidadBolsillos.disabled = !incluirBolsillos.checked;
-      document.getElementById('cuerpoOjales').classList.toggle('d-none', !incluirOjales.checked);
-      document.getElementById('cuerpoBolsillos').classList.toggle('d-none', !incluirBolsillos.checked);
+      var conOjales = incluirOjales.checked;
+      var conBolsillos = incluirBolsillos.checked;
+
+      cantidadOjales.disabled = !conOjales;
+      cantidadBolsillos.disabled = !conBolsillos;
+      costoBolsillo.disabled = !conBolsillos;
+      costoTubos.disabled = !conBolsillos;
+      logistica.disabled = !incluirLogistica.checked;
+
+      document.getElementById('cuerpoOjales').classList.toggle('d-none', !conOjales);
+      document.getElementById('cuerpoBolsillos').classList.toggle('d-none', !conBolsillos);
+    }
+
+    function aplicarExclusividad(origen) {
+      if (origen === incluirOjales && incluirOjales.checked) {
+        incluirBolsillos.checked = false;
+      }
+      if (origen === incluirBolsillos && incluirBolsillos.checked) {
+        incluirOjales.checked = false;
+      }
     }
 
     function calcular() {
@@ -72,12 +94,15 @@
         margenPct: margenPct
       }];
 
-      var servicios = [{
-        nombre: 'Logística',
-        precio: Math.max(0, val('costoLogistica')),
-        modo: 'lote',
-        detalle: 'por lote'
-      }];
+      var servicios = [];
+      if (incluirLogistica.checked) {
+        servicios.push({
+          nombre: 'Logística',
+          precio: Math.max(0, val('costoLogistica')),
+          modo: 'lote',
+          detalle: 'por lote'
+        });
+      }
 
       var accesorios = [];
       if (incluirOjales.checked) {
@@ -90,8 +115,14 @@
       if (incluirBolsillos.checked) {
         accesorios.push({
           nombre: 'Bolsillos',
-          precio: A.bolsillos.precio,
+          precio: Math.max(0, val('costoBolsillo')),
           cantidad: Math.max(0, parseInt(cantidadBolsillos.value, 10) || 0)
+        });
+        accesorios.push({
+          nombre: 'Tubos',
+          precio: Math.max(0, val('costoTubos')),
+          cantidad: A.tubos.cantidad,
+          detalle: 'por pieza'
         });
       }
 
@@ -123,12 +154,21 @@
       calcular();
     }
 
-    [ancho, alto, cantidad, costoM2, margen, logistica, cantidadOjales, cantidadBolsillos].forEach(function (el) {
+    [
+      ancho, alto, cantidad, costoM2, margen,
+      logistica, cantidadOjales, cantidadBolsillos, costoBolsillo, costoTubos
+    ].forEach(function (el) {
       el.addEventListener('input', calcular);
+    });
+
+    incluirLogistica.addEventListener('change', function () {
+      sincronizarAccesorios();
+      calcular();
     });
 
     [incluirOjales, incluirBolsillos].forEach(function (el) {
       el.addEventListener('change', function () {
+        aplicarExclusividad(el);
         sincronizarAccesorios();
         calcular();
       });

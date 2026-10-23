@@ -101,11 +101,28 @@
           <div class="row g-3 mb-3">
             <div class="col-sm-6">
               <div class="hw-field">
-                <label for="costoLogistica" class="form-label">Logística</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="costoLogistica" step="1" min="0">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <label for="costoLogistica" class="form-label mb-0">Logística</label>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="incluirLogistica">
+                    <label class="visually-hidden" for="incluirLogistica">Incluir logística</label>
+                  </div>
+                </div>
+                <div class="input-group mt-2">
+                  <input type="number" class="form-control" id="costoLogistica" value="0" step="1" min="0" disabled>
                   <span class="input-group-text">$/lote</span>
                 </div>
+                <div class="form-text">Se cobra una vez por lote al activarla.</div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="hw-field">
+                <label for="costoTubos" class="form-label">Tubos <span class="text-muted fw-normal">($10 c/u)</span></label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="costoTubos" value="10" step="0.01" min="0" disabled>
+                  <span class="input-group-text">$/pieza</span>
+                </div>
+                <div class="form-text">Se incluyen automáticamente con Bolsillos.</div>
               </div>
             </div>
           </div>
@@ -114,12 +131,12 @@
             <div class="hw-switch-row">
               <label for="incluirOjales"><i class="bi bi-circle me-1 text-primary"></i>Ojales <span class="text-muted fw-normal">($1 c/u)</span></label>
               <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" id="incluirOjales" checked>
+                <input class="form-check-input" type="checkbox" id="incluirOjales">
               </div>
             </div>
-            <div class="hw-switch-body" id="cuerpoOjales">
+            <div class="hw-switch-body d-none" id="cuerpoOjales">
               <div class="input-group input-group-sm">
-                <input type="number" class="form-control" id="cantidadOjales" value="4" step="1" min="0">
+                <input type="number" class="form-control" id="cantidadOjales" value="4" step="1" min="0" disabled>
                 <span class="input-group-text">por pieza</span>
               </div>
             </div>
@@ -127,23 +144,36 @@
 
           <div class="hw-switch-card">
             <div class="hw-switch-row">
-              <label for="incluirBolsillos"><i class="bi bi-bounding-box me-1 text-primary"></i>Bolsillos <span class="text-muted fw-normal">($2 c/u)</span></label>
+              <label for="incluirBolsillos"><i class="bi bi-bounding-box me-1 text-primary"></i>Bolsillos <span class="text-muted fw-normal">(cantidad y precio editables)</span></label>
               <div class="form-check form-switch mb-0">
                 <input class="form-check-input" type="checkbox" id="incluirBolsillos" checked>
               </div>
             </div>
             <div class="hw-switch-body" id="cuerpoBolsillos">
-              <div class="input-group input-group-sm">
-                <input type="number" class="form-control" id="cantidadBolsillos" value="4" step="1" min="0">
-                <span class="input-group-text">por pieza</span>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="cantidadBolsillos" value="2" step="1" min="0">
+                    <span class="input-group-text">por pieza</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="costoBolsillo" value="2" step="0.01" min="0">
+                    <span class="input-group-text">$/c/u</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          <p class="hw-section-help mt-3 mb-0">Ojales y bolsillos son excluyentes: al activar uno se desactiva el otro.</p>
         </div>
 
         <div class="hw-formula">
           <strong>Cómo se calcula:</strong> costo del banner × área × cantidad → merma → margen.
-          La logística se cobra una vez por lote y los accesorios por pieza.
+          La logística se cobra por lote si está activa; bolsillos y tubos por pieza.
+          Los tubos se incluyen automáticamente con los bolsillos.
         </div>
       </div>
 

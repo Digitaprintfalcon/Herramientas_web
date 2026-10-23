@@ -8,9 +8,9 @@ herramientas y en el generador de cotizaciones.
 
 | Herramienta | Archivo | Materiales | Servicios / accesorios |
 | --- | --- | --- | --- |
-| Pendones | `tools/banner-estimator/` | Banner por m² | Logística, ojales, bolsillos |
+| Pendones | `tools/banner-estimator/` | Banner por m² | Logística opcional, ojales o bolsillos, tubos con bolsillos |
 | Vinil | `tools/vinil-estimator/` | Vinil adhesivo, vinil textil, laminado | Diseño, corte, instalación, planchado |
-| DTF | `tools/dtf-estimator/` | Uno o varios diseños DTF | Planchado, prenda |
+| DTF | `tools/dtf-estimator/` | Uno o varios diseños DTF (ancho máx. 57 cm) | Planchado, prenda |
 | PVC | `tools/calculadora-pvc/` | Lámina PVC, vinil, laminado | Separadores |
 | Generador | `tools/cotizador-generator/` | Recibe borradores | Documento final, PDF y totales |
 
@@ -62,9 +62,13 @@ Valores base actuales:
 | Laminado para PVC | `$8/m²` | `$13.33/m²` |
 | Laminado de vinil | `$12/ml` | `$20/ml` |
 
-Servicios fijos: diseño `$5`, corte `$5`, planchado `$1.50`, instalación `$10`,
-prenda `$5` y logística `$10`. Accesorios: ojales `$1` c/u, bolsillos `$2` c/u y
-separadores `$2` c/u.
+Servicios fijos: diseño `$5`, corte `$5`, planchado `$1.50`, instalación `$10`
+y prenda `$5`. La logística inicia en `$0` y solo se cobra por lote cuando el usuario
+la activa en el cotizador de pendones.
+
+Accesorios: ojales `$1` c/u, bolsillos `$2` c/u con 2 unidades por pieza, tubos `$10`
+por pieza (se incluyen automáticamente con los bolsillos) y separadores `$2` c/u.
+En pendones, ojales y bolsillos son excluyentes.
 
 ## Motor compartido
 
@@ -114,7 +118,8 @@ El generador también permite importar manualmente desde **Importar borrador**.
 
 ## Persistencia y migración
 
-- DTF guarda su estado en `hw_dtf_estado` con `version: 2`.
+- DTF guarda su estado en `hw_dtf_estado` con `version: 2`. Al restaurar, el ancho
+  imprimible y el de cada diseño se limitan al máximo de 57 cm del rollo.
 - Los estados DTF anteriores guardaban `precioMetro` como precio de venta. Al migrar se
   convierte a costo equivalente con `costo = precioViejo × 0.6`, que conserva el valor
   de venta con el margen del 40%.
@@ -129,4 +134,4 @@ node tests/quote.test.js
 ```
 
 Las pruebas cubren catálogo, margen, merma, servicios, accesorios, PVC, vinil textil,
-banner, DTF y generación de borradores.
+banner, DTF, límites de ancho y generación de borradores.

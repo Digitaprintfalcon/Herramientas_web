@@ -39,9 +39,10 @@
               <div class="hw-field">
                 <label for="anchoImprimible" class="form-label">Ancho imprimible</label>
                 <div class="input-group">
-                  <input type="number" class="form-control" id="anchoImprimible" step="0.1" min="0">
+                  <input type="number" class="form-control" id="anchoImprimible" step="0.1" min="0" max="57">
                   <span class="input-group-text">cm</span>
                 </div>
+                <div class="form-text">Máximo 57 cm (ancho del rollo).</div>
               </div>
             </div>
             <div class="col-sm-6 col-md-3">
@@ -79,7 +80,7 @@
             <span class="hw-step">2</span>
             <h2>Diseños</h2>
           </div>
-          <p class="hw-section-help">Cada diseño se convierte a metros lineales del rollo según su área.</p>
+          <p class="hw-section-help">Cada diseño se convierte a metros lineales del rollo según su área. El ancho no puede superar el ancho imprimible.</p>
           <div id="listaDisenos" class="mb-3"></div>
           <button type="button" class="btn btn-outline-primary btn-sm w-100" id="btnAgregarDiseno">
             <i class="bi bi-plus-lg me-1"></i>Agregar diseño
@@ -146,7 +147,8 @@
 
         <div class="hw-formula">
           <strong>Cómo se calcula:</strong> área del diseño ÷ (ancho del rollo × 100 cm) × costo del metro × cantidad
-          → margen. Planchado y prenda se cobran por pieza o como lote único.
+          → margen. El ancho de cada diseño se limita al ancho imprimible (máx. 57 cm).
+          Planchado y prenda se cobran por pieza o como lote único.
         </div>
       </div>
 

@@ -65,9 +65,13 @@ Solo necesitás Python 3:
 - El margen único por defecto es **40%**. Banner y vinil adhesivo quedan en `$25/m²`,
   DTF en `$25/ml`; PVC y laminado de vinil se recalibraron con el mismo criterio.
 - Planchado e instalación usan los valores únicos `$1.50` y `$10.00`.
-- Accesorios con precio fijo: ojales `$1` c/u y bolsillos `$2` c/u en pendones/banners;
-  separadores `$2` c/u solo cuando la pieza incluye PVC. Inician activos con 4 unidades
-  por pieza y se pueden desactivar o cambiar de cantidad.
+- En pendones, los bolsillos inician activos con 2 unidades y precio editable de `$2` c/u;
+  los tubos se incluyen automáticamente a `$10` por pieza. Ojales (`$1` c/u) y bolsillos
+  son excluyentes. La logística inicia desactivada en `$0` y se cobra por lote al activarla.
+- Los separadores de PVC cuestan `$2` c/u, inician activos con 4 unidades por pieza y se
+  pueden desactivar o cambiar de cantidad.
+- El cotizador DTF limita el ancho imprimible y el de cada diseño a 57 cm, el ancho del
+  rollo.
 - El cotizador de vinil unifica el vinil adhesivo y el textil (corte). La ruta antigua
   `tools/cut-estimator/` redirige a `?tipo=textil`.
 - Para probar las fórmulas y el motor: `node tests/pricing.test.js` y

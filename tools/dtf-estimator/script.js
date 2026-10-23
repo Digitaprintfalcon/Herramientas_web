@@ -22,13 +22,20 @@
     return parseFloat(document.getElementById(id).value) || 0;
   }
 
+  function limitarAncho(valor, maximo) {
+    var n = parseFloat(valor);
+    if (!isFinite(n) || n < 0) return 0;
+    return Math.min(n, Math.max(0, maximo));
+  }
+
   function nuevoId() {
     return 'dis' + (estado.seq++);
   }
 
   function costoDiseno(diseno, anchoRollo, costoMl) {
     if (anchoRollo <= 0) return 0;
-    var area = HW.pricing.areaM2(diseno.ancho, diseno.alto);
+    var ancho = Math.min(Math.max(0, diseno.ancho || 0), anchoRollo);
+    var area = HW.pricing.areaM2(ancho, diseno.alto);
     return HW.pricing.costoRollo(area, anchoRollo, costoMl) * (diseno.cantidad || 0);
   }
 
@@ -36,6 +43,7 @@
     var P = HW.pricing.PRECIOS;
     var C = HW.pricing.COSTOS;
     var S = HW.pricing.SERVICIOS;
+    var maxAnchoRollo = P.dtf.anchoRolloCm;
 
     dom = {
       anchoImprimible: document.getElementById('anchoImprimible'),
@@ -56,6 +64,7 @@
     estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
     function defaults() {
+      dom.anchoImprimible.max = String(maxAnchoRollo);
       HW.pricing.poblar({
         anchoImprimible: P.dtf.anchoRolloCm,
         altoImprimible: P.dtf.altoRolloCm,
@@ -76,11 +85,40 @@
       dom.cuerpoPrenda.classList.toggle('d-none', !dom.incluirPrenda.checked);
     }
 
+    function ajustarAnchoImprimible() {
+      if (dom.anchoImprimible.value === '') return 0;
+      var ancho = limitarAncho(dom.anchoImprimible.value, maxAnchoRollo);
+      if (parseFloat(dom.anchoImprimible.value) !== ancho) {
+        dom.anchoImprimible.value = String(ancho);
+      }
+      return ancho;
+    }
+
+    function actualizarMaximoDisenos(maximo) {
+      var limite = maximo > 0 ? maximo : maxAnchoRollo;
+      var inputs = dom.listaDisenos.querySelectorAll('[data-campo="ancho"]');
+      Array.prototype.forEach.call(inputs, function (input) {
+        input.max = String(limite);
+      });
+    }
+
+    function ajustarAnchoDisenos() {
+      var maximo = ajustarAnchoImprimible();
+      if (maximo > 0) {
+        estado.disenos.forEach(function (diseno) {
+          diseno.ancho = limitarAncho(diseno.ancho, maximo);
+        });
+      }
+      renderDisenos();
+    }
+
     function agregarDisenoValores(d) {
+      var maximo = val('anchoImprimible');
+      var ancho = d && parseFloat(d.ancho) || 10;
       estado.disenos.push({
         id: nuevoId(),
         etiqueta: (d && d.etiqueta) || '',
-        ancho: d && parseFloat(d.ancho) || 10,
+        ancho: maximo > 0 ? limitarAncho(ancho, maximo) : ancho,
         alto: d && parseFloat(d.alto) || 10,
         cantidad: d && parseInt(d.cantidad, 10) || 1
       });
@@ -151,9 +189,9 @@
       var row = document.createElement('div');
       row.className = 'row g-2';
       row.appendChild(campoNumero('Ancho', diseno.ancho, function (v) {
-        diseno.ancho = v;
+        diseno.ancho = limitarAncho(v, val('anchoImprimible'));
         calcular();
-      }));
+      }, 0, diseno.id));
       row.appendChild(campoNumero('Alto', diseno.alto, function (v) {
         diseno.alto = v;
         calcular();
@@ -179,7 +217,7 @@
       return card;
     }
 
-    function campoNumero(label, valor, onChange, min) {
+    function campoNumero(label, valor, onChange, min, disenoId) {
       var col = document.createElement('div');
       col.className = 'col-4';
 
@@ -197,13 +235,35 @@
       input.step = label === 'Cantidad' ? '1' : '0.1';
       input.min = String(min != null ? min : 0);
       input.value = valor;
+      input.setAttribute('data-campo', label.toLowerCase());
+      if (label === 'Ancho') {
+        var anchoMax = val('anchoImprimible');
+        input.max = String(anchoMax > 0 ? anchoMax : maxAnchoRollo);
+      }
+      if (disenoId) input.setAttribute('data-diseno', disenoId);
 
       var suffix = document.createElement('span');
       suffix.className = 'input-group-text';
       suffix.textContent = label === 'Cantidad' ? 'un.' : 'cm';
 
       input.addEventListener('input', function () {
-        onChange(parseFloat(input.value) || 0);
+        if (input.value === '') {
+          onChange(0);
+          return;
+        }
+        var v = parseFloat(input.value) || 0;
+        if (v < 0) {
+          v = 0;
+          input.value = '0';
+        }
+        if (label === 'Ancho') {
+          var maximo = val('anchoImprimible');
+          if (v > maximo) {
+            v = maximo;
+            input.value = String(maximo);
+          }
+        }
+        onChange(v);
       });
 
       group.appendChild(input);
@@ -313,6 +373,7 @@
       if (!est || typeof est !== 'object') return;
 
       if (est.anchoImp != null) dom.anchoImprimible.value = est.anchoImp;
+      ajustarAnchoImprimible();
 
       // Los estados antiguos guardaban el precio de venta; se convierte a costo.
       if (est.version === 2) {
@@ -336,13 +397,14 @@
       if (prenda.tipo) dom.tipoPrenda.value = prenda.tipo;
 
       if (Array.isArray(est.disenos)) {
+        var maximo = val('anchoImprimible');
         estado.disenos = est.disenos
           .filter(function (d) { return d && typeof d === 'object'; })
           .map(function (d) {
             return {
               id: nuevoId(),
               etiqueta: typeof d.etiqueta === 'string' ? d.etiqueta : '',
-              ancho: parseFloat(d.ancho) || 0,
+              ancho: limitarAncho(d.ancho, maximo),
               alto: parseFloat(d.alto) || 0,
               cantidad: Math.max(1, parseInt(d.cantidad, 10) || 1)
             };
@@ -359,8 +421,18 @@
       calcular();
     });
 
+    dom.anchoImprimible.addEventListener('input', function () {
+      var maximo = ajustarAnchoImprimible();
+      actualizarMaximoDisenos(maximo);
+      calcular();
+    });
+    dom.anchoImprimible.addEventListener('change', function () {
+      ajustarAnchoDisenos();
+      calcular();
+    });
+
     [
-      dom.anchoImprimible, dom.costoImpresion, dom.margen,
+      dom.costoImpresion, dom.margen,
       dom.costoPlanchado, dom.tipoPlanchado,
       dom.costoPrenda, dom.tipoPrenda
     ].forEach(function (el) {
