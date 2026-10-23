@@ -273,6 +273,12 @@
               <span id="fileLabel" class="text-primary fw-semibold small"><i class="bi bi-image me-1"></i>Clic aquí para seleccionar/tomar foto de la Cédula</span>
               <input type="file" id="inputCedulaImg" accept="image/*" class="d-none">
             </div>
+            <div id="previewCedulaWrap" class="mt-3 text-center d-none">
+              <img id="previewCedulaImg" src="" alt="Miniatura de la cédula" class="img-thumbnail" role="button" tabindex="0" title="Ampliar cédula" style="max-height: 140px; cursor: zoom-in;">
+              <div class="mt-2">
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btnQuitarCedula"><i class="bi bi-trash me-1"></i>Quitar cédula</button>
+              </div>
+            </div>
           </div>
           </section>
 
@@ -389,6 +395,96 @@
           <button class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="bi bi-pencil-square me-1"></i>Editar</button>
           <button class="btn btn-success" onclick="imprimirDocumento()"><i class="bi bi-printer me-1"></i>Imprimir</button>
           <button class="btn btn-primary" onclick="descargarPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA AMPLIADA DE LA CÉDULA -->
+  <div class="modal fade" id="cedulaModal" tabindex="-1" aria-labelledby="cedulaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title" id="cedulaModalLabel"><i class="bi bi-person-vcard me-1"></i>Cédula adjunta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body bg-light text-center">
+          <img id="cedulaModalImg" src="" alt="Cédula de Identidad" class="img-fluid rounded">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMINISTRACIÓN DE REFERENCIAS PRECARGADAS -->
+  <div class="modal fade" id="refBaseModal" tabindex="-1" aria-labelledby="refBaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title" id="refBaseModalLabel"><i class="bi bi-gear me-1"></i>Referencias precargadas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+            <p class="small text-muted mb-0">Se guardan en este navegador (localStorage).</p>
+            <button type="button" class="btn btn-primary btn-sm" id="btnRefNuevo"><i class="bi bi-plus-lg me-1"></i>Nueva referencia</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Nacionalidad</th>
+                  <th scope="col">Cédula</th>
+                  <th scope="col">Teléfono</th>
+                  <th scope="col" class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="refBaseList"></tbody>
+            </table>
+          </div>
+
+          <div id="refBaseFormWrap" class="border rounded-3 p-3 mt-3" style="display: none;">
+            <h6 class="fw-semibold mb-3">Datos de la referencia</h6>
+            <input type="hidden" id="refBaseId">
+            <div class="row g-2">
+              <div class="col-12">
+                <label for="refBaseNombre" class="form-label form-label-sm fw-semibold text-secondary">Nombre Completo:</label>
+                <input type="text" class="form-control form-control-sm" id="refBaseNombre" placeholder="Nombre y apellido">
+              </div>
+              <div class="col-md-6">
+                <label for="refBaseNacionalidad" class="form-label form-label-sm fw-semibold text-secondary">Nacionalidad / Género:</label>
+                <select class="form-select form-select-sm" id="refBaseNacionalidad">
+                  <option value="Venezolano">Venezolano</option>
+                  <option value="Venezolana">Venezolana</option>
+                  <option value="Extranjero">Extranjero</option>
+                  <option value="Extranjera">Extranjera</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="refBaseCedula" class="form-label form-label-sm fw-semibold text-secondary">Cédula de Identidad:</label>
+                <input type="text" class="form-control form-control-sm" id="refBaseCedula" placeholder="V-00.000.000">
+              </div>
+              <div class="col-12">
+                <label for="refBaseTelefono" class="form-label form-label-sm fw-semibold text-secondary">Teléfono de Contacto:</label>
+                <input type="text" class="form-control form-control-sm" id="refBaseTelefono" placeholder="0414-0000000">
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button type="button" class="btn btn-primary btn-sm" id="btnRefGuardar"><i class="bi bi-check-lg me-1"></i>Guardar</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefCancelar">Cancelar</button>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap border-top pt-3 mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefExportar"><i class="bi bi-download me-1"></i>Exportar JSON</button>
+            <label class="btn btn-outline-secondary btn-sm mb-0" for="inputRefImportar"><i class="bi bi-upload me-1"></i>Importar JSON</label>
+            <input type="file" id="inputRefImportar" accept="application/json,.json" class="d-none">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefRestaurar"><i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar ejemplos</button>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
         </div>
       </div>
     </div>

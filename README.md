@@ -21,6 +21,7 @@ generadores de documentos (referencias y autorizaciones).
 ├── tools/
 │   ├── common.js              # Lógica compartida (tema, nav, helpers, catálogo)
 │   ├── common.css             # Tokens de diseño y estilos compartidos
+│   ├── pricing.js             # Catálogo de precios y fórmulas compartidas (HW.pricing)
 │   ├── cedula-client.js       # Cliente de consulta de cédulas (HW.cedula)
 │   ├── <herramienta>/index.html
 │   ├── <herramienta>/script.js
@@ -46,6 +47,31 @@ Solo necesitás Python 3:
   generan desde esa fuente: para agregar/quitar una herramienta se edita solo ahí.
 - Tema claro/oscuro: automático por dispositivo, con preferencia manual guardada en
   `localStorage`. Botón 🌙/☀️ en la barra superior.
+
+## Precios y cotizadores
+
+- Todos los precios y parámetros base viven en `tools/pricing.js` (`HW.pricing.PRECIOS`).
+  Los estimadores los cargan después de `common.js` y los usan para inicializar sus
+  campos; si el usuario edita un precio, se respeta durante la sesión.
+- El botón de limpiar/restablecer vuelve a los valores del catálogo. En DTF, la
+  cotización persistida en `localStorage` tiene prioridad sobre los defaults.
+- Las unidades importan: `$/m²` para área, `$/ml` para rollo/metro lineal y `$/unidad`
+  para servicios. No se mezclan áreas con metros lineales.
+- El margen es **sobre el precio de venta**: `precio = costo / (1 - margen/100)`.
+  El pipeline es `costo base → merma → margen → servicios → cantidad`.
+- Planchado e instalación usan los valores únicos `$1.50` y `$10.00`.
+- Para probar las fórmulas compartidas: `node tests/pricing.test.js`.
+
+## Referencias precargadas
+
+El generador de referencias guarda sus referentes en `localStorage` con la clave
+`hw_ref_base`. Desde el botón "Administrar base" se pueden crear, editar, eliminar,
+exportar e importar. La primera vez se cargan tres ejemplos; si la base se deja vacía,
+se respeta y no se vuelve a sembrar.
+
+La fecha del documento se completa sola al cargar o cambiar de modo. Si se edita a
+mano, deja de actualizarse automáticamente. La foto de la cédula se muestra como
+miniatura, se puede ampliar y quitar antes de generar el PDF.
 
 ## Herramienta de cédulas (dni-checker)
 
