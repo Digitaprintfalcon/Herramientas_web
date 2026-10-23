@@ -164,11 +164,17 @@
     return !!(global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches);
   }
 
+  function hwApplyBsTheme(dark) {
+    // Bootstrap 5.3 usa data-bs-theme para adaptar modales, tablas, cierres (X), etc.
+    document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+  }
+
   function hwThemeInit() {
     const html = document.documentElement;
     const saved = hwSavedTheme();
     const dark = saved !== null ? (saved === 'dark') : hwSystemPrefersDark();
     html.classList.toggle('dark', dark);
+    hwApplyBsTheme(dark);
 
     let btn = global.document.querySelector('.hw-theme-toggle');
     if (!btn) {
@@ -186,6 +192,7 @@
     hwThemeIcons(btn, dark);
     btn.addEventListener('click', function () {
       const next = html.classList.toggle('dark');
+      hwApplyBsTheme(next);
       hwThemeIcons(btn, next);
       try {
         global.localStorage.setItem('hw_theme', next ? 'dark' : 'light');
@@ -198,6 +205,7 @@
       const onSystemChange = function (e) {
         if (hwSavedTheme() !== null) return;
         html.classList.toggle('dark', e.matches);
+        hwApplyBsTheme(e.matches);
         const b = global.document.querySelector('.hw-theme-toggle');
         if (b) hwThemeIcons(b, e.matches);
       };
