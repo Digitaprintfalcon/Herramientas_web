@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { input: 'inputApoderadoGenero', doc: 'docApoderadoGenero' },
     { input: 'inputApoderadoCedula', doc: 'docApoderadoCedula', callback: updateSigCedulas },
     { input: 'inputServicio', doc: 'docServicio', callback: sincronizarEmpresa },
-    { input: 'inputOficina', doc: 'docOficina' },
+    { input: 'inputOficina', doc: 'docOficina', callback: actualizarOficina },
   ];
 
   // Fecha por defecto: lugar fijo + fecha actual (solo si el campo está vacío)
@@ -173,6 +173,16 @@ function sincronizarEmpresa() {
   if (docEmpresa) docEmpresa.innerText = texto;
 }
 
+// Muestra u oculta la ubicación de la oficina según si el usuario la indicó
+function actualizarOficina() {
+  const input = document.getElementById('inputOficina');
+  const doc = document.getElementById('docOficina');
+  const wrap = document.getElementById('docOficinaWrap');
+  const valor = input ? input.value.trim() : '';
+  if (doc) doc.textContent = valor;
+  if (wrap) wrap.hidden = valor === '';
+}
+
 // Cargar imagen seleccionada en su contenedor
 function setupImageUpload(inputId, containerId) {
   const inputEl = document.getElementById(inputId);
@@ -201,8 +211,7 @@ function validarFormulario() {
     { id: 'inputOtorganteCedula', label: 'cédula del otorgante' },
     { id: 'inputApoderadoNombre', label: 'nombre del apoderado' },
     { id: 'inputApoderadoCedula', label: 'cédula del apoderado' },
-    { id: 'inputServicio', label: 'servicio de encomienda' },
-    { id: 'inputOficina', label: 'oficina de entrega' }
+    { id: 'inputServicio', label: 'servicio de encomienda' }
   ];
   const faltan = [];
   requeridos.forEach(item => {
