@@ -126,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     el.addEventListener('input', updateFn);
     el.addEventListener('change', updateFn);
+    updateFn();
   });
 
   // Configuración para la lectura e inserción de la foto de la cédula
