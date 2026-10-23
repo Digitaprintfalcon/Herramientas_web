@@ -877,3 +877,251 @@ html.dark .hw-chip-emerald {
     transform: none !important;
   }
 }
+/* ===== Cotizadores: layout y componentes compartidos ===== */
+.hw-quote-container {
+  width: 100%;
+  max-width: 1120px;
+}
+
+.hw-quote-layout {
+  align-items: flex-start;
+}
+
+.hw-quote-side {
+  position: sticky;
+  top: 1.25rem;
+}
+
+.hw-section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.hw-step {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.65rem;
+  background: var(--hw-accent-soft);
+  color: var(--hw-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.hw-section-head h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hw-section-help {
+  color: var(--hw-text-muted);
+  font-size: 0.78rem;
+  margin: -0.35rem 0 0.9rem;
+}
+
+.hw-field {
+  margin-bottom: 0;
+}
+
+.hw-field .form-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--hw-text-muted);
+}
+
+.hw-switch-card {
+  border: 1px solid var(--hw-border);
+  border-radius: 1rem;
+  background: var(--hw-card-soft);
+  padding: 0.8rem 0.9rem;
+}
+
+.hw-switch-card + .hw-switch-card {
+  margin-top: 0.6rem;
+}
+
+.hw-switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hw-switch-row .form-check-input {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.hw-switch-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.hw-switch-card .hw-switch-body {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--hw-border);
+}
+
+.hw-advanced {
+  border-top: 1px solid var(--hw-border);
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+}
+
+.hw-advanced summary {
+  cursor: pointer;
+  color: var(--hw-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.hw-advanced[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+.hw-summary-unit,
+.hw-summary-total {
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  text-align: center;
+  border: 1px solid var(--hw-border);
+}
+
+.hw-summary-unit {
+  background: var(--hw-card-soft);
+}
+
+.hw-summary-total {
+  background: var(--hw-accent);
+  border-color: var(--hw-accent);
+  color: #ffffff;
+  margin-top: 0.6rem;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.22);
+}
+
+.hw-summary-label {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.88;
+}
+
+.hw-summary-value {
+  display: block;
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 0.15rem;
+}
+
+.hw-summary-total .hw-summary-value {
+  font-size: 1.9rem;
+}
+
+.hw-breakdown {
+  border: 1px solid var(--hw-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-top: 0.8rem;
+  background: var(--hw-card-soft);
+}
+
+.hw-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--hw-border);
+  font-size: 0.84rem;
+}
+
+.hw-breakdown-row:last-child {
+  border-bottom: 0;
+}
+
+.hw-breakdown-name {
+  min-width: 0;
+}
+
+.hw-breakdown-name small {
+  display: block;
+  color: var(--hw-text-muted);
+  font-size: 0.72rem;
+}
+
+.hw-breakdown-value {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hw-summary-note {
+  color: var(--hw-text-muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  margin-top: 0.65rem;
+}
+
+.hw-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hw-actions .btn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.65rem 0.7rem;
+}
+
+.hw-actions .hw-action-wide {
+  grid-column: 1 / -1;
+}
+
+.hw-formula {
+  color: var(--hw-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  border-top: 1px solid var(--hw-border);
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+.readonly-inputs input {
+  background-color: var(--hw-card-soft) !important;
+  pointer-events: none;
+}
+
+.section-disabled {
+  opacity: 0.65;
+  background-color: var(--hw-bg-soft);
+}
+
+@media (max-width: 991.98px) {
+  .hw-quote-side {
+    position: static;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hw-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .hw-actions .hw-action-wide {
+    grid-column: auto;
+  }
+}

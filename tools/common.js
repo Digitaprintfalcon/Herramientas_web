@@ -2,8 +2,7 @@
   'use strict';
 
   function fmtCurrency(value) {
-    const n = Number(value);
-    return '$' + (isFinite(n) ? n.toFixed(2) : '0.00');
+    return fmtUsd(value);
   }
 
   function safeParseJSON(raw, fallback) {
@@ -295,15 +294,8 @@
           nombre: 'Cotizador de Vinil',
           icon: 'layers',
           href: '../vinil-estimator/index.html',
-          desc: 'Cálculo de metros cuadrados y lineales para trabajos en vinil adhesivo.',
-          keywords: 'cotizador vinil vinilo metros adhesivo corte'
-        },
-        {
-          nombre: 'Cotizador de Corte de Vinil',
-          icon: 'scissors',
-          href: '../cut-estimator/index.html',
-          desc: 'Cálculo de precio por metro lineal o metro cuadrado para corte en vinil y vinil textil.',
-          keywords: 'cotizador corte vinil textil troquelado planchado instalacion'
+          desc: 'Vinil adhesivo y textil: m² o rollo, laminado, corte, planchado e instalación.',
+          keywords: 'cotizador vinil vinilo metros adhesivo textil corte planchado instalacion'
         },
         {
           nombre: 'Calculadora PVC · Vinil · Laminado',
