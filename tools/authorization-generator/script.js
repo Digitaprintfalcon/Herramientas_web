@@ -210,6 +210,16 @@ function validarFormulario() {
     if (!el || !el.value.trim()) faltan.push(item.label);
   });
   if (guias.length === 0) faltan.push('al menos un número de guía');
+
+  const cedulaKey = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.replace(/\D/g, '') : '';
+  };
+  const otorgante = cedulaKey('inputOtorganteCedula');
+  const autorizado = cedulaKey('inputApoderadoCedula');
+  if (otorgante && autorizado && otorgante === autorizado) {
+    faltan.push('una cédula distinta para el autorizado');
+  }
   return faltan;
 }
 
