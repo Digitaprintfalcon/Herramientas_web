@@ -68,7 +68,7 @@
       margen.value = String(P.margen);
       metodo.value = 'lineal';
       anchoRollo.value = String(P.corte.anchoRolloCm);
-      anchoLaminado.value = String(P.dtf.anchoRolloCm);
+      anchoLaminado.value = String(P.vinil.anchoRolloLaminadoCm);
       costoLaminado.value = String(C.laminadoVinilMl);
 
       if (esTextil) {
