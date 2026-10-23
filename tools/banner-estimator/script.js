@@ -1,162 +1,158 @@
-// Última cotización calculada (para copiar lo mismo que se muestra en pantalla)
-const bannerEstado = {
-  anchoCm: 0,
-  altoCm: 0,
-  areaM2: 0,
-  precioM2: 0,
-  piezas: 1,
-  accesorios: [],
-  extrasUnitario: 0,
-  unitario: 0,
-  total: 0
-};
+(function () {
+  'use strict';
 
-let bannerBcv = null;
+  var estado = {
+    quote: null,
+    detalle: [],
+    bcv: null
+  };
 
-function bannerFmt(n, d) {
-  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const anchoDiseno = document.getElementById('anchoDiseno');
-  const altoDiseno = document.getElementById('altoDiseno');
-  const precioMetroCuadrado = document.getElementById('precioMetroCuadrado');
-  const costoLogistica = document.getElementById('costoLogistica');
-  const cantidadPiezas = document.getElementById('cantidadPiezas');
-  const incluirOjales = document.getElementById('incluirOjales');
-  const cantidadOjales = document.getElementById('cantidadOjales');
-  const incluirBolsillos = document.getElementById('incluirBolsillos');
-  const cantidadBolsillos = document.getElementById('cantidadBolsillos');
-
-  const costoImpresionEl = document.getElementById('costoImpresion');
-  const costoTotalUnitarioEl = document.getElementById('costoTotalUnitario');
-  const costoTotalGeneralEl = document.getElementById('costoTotalGeneral');
-  const detalleAccesoriosEl = document.getElementById('detalleAccesorios');
-
-  bannerBcv = HW.bcv.mount(document.getElementById('bcvBox'));
-
-  const P = HW.pricing.PRECIOS;
-  HW.pricing.poblar({
-    precioMetroCuadrado: P.banner.impresionM2,
-    costoLogistica: P.banner.logistica,
-    cantidadOjales: P.accesorios.ojales.cantidad,
-    cantidadBolsillos: P.accesorios.bolsillos.cantidad
-  });
-
-  function sincronizarAccesorios() {
-    if (cantidadOjales) cantidadOjales.disabled = !incluirOjales.checked;
-    if (cantidadBolsillos) cantidadBolsillos.disabled = !incluirBolsillos.checked;
+  function fmt(n, d) {
+    return Number(n).toLocaleString('es-ES', {
+      minimumFractionDigits: d || 0,
+      maximumFractionDigits: d || 0
+    });
   }
 
-  function calcular() {
-    const aDiseñoCm = parseFloat(anchoDiseno.value) || 0;
-    const hDiseñoCm = parseFloat(altoDiseno.value) || 0;
-    const precioM2 = parseFloat(precioMetroCuadrado.value) || 0;
-    const totalLogistica = parseFloat(costoLogistica.value) || 0;
-    const piezas = parseFloat(cantidadPiezas.value) || 1;
+  function val(id) {
+    return parseFloat(document.getElementById(id).value) || 0;
+  }
 
-    // 1. Costo de Impresión directo por área
-    const areaM2 = HW.pricing.areaM2(aDiseñoCm, hDiseñoCm);
-    const costoImpresionUnitario = HW.pricing.costoArea(areaM2, precioM2);
+  document.addEventListener('DOMContentLoaded', function () {
+    var P = HW.pricing.PRECIOS;
+    var C = HW.pricing.COSTOS;
+    var S = HW.pricing.SERVICIOS;
+    var A = HW.pricing.ACCESORIOS;
 
-    // 2. Costo logístico por unidad
-    const logisticaUnitario = piezas > 0 ? (totalLogistica / piezas) : 0;
+    var ancho = document.getElementById('anchoDiseno');
+    var alto = document.getElementById('altoDiseno');
+    var cantidad = document.getElementById('cantidadPiezas');
+    var costoM2 = document.getElementById('costoM2');
+    var margen = document.getElementById('margen');
+    var logistica = document.getElementById('costoLogistica');
+    var incluirOjales = document.getElementById('incluirOjales');
+    var cantidadOjales = document.getElementById('cantidadOjales');
+    var incluirBolsillos = document.getElementById('incluirBolsillos');
+    var cantidadBolsillos = document.getElementById('cantidadBolsillos');
 
-    // 3. Accesorios por pieza
-    const accesorios = [];
-    const agregarAccesorio = (label, activo, precio, cantidad) => {
-      const unidades = Math.max(0, parseInt(cantidad, 10) || 0);
-      if (!activo || unidades <= 0) return;
-      accesorios.push({
-        label,
-        cantidad: unidades,
-        precio,
-        subtotal: HW.pricing.total(precio, unidades)
+    estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
+
+    function defaults() {
+      HW.pricing.poblar({
+        costoM2: C.bannerM2,
+        margen: P.margen,
+        costoLogistica: S.logistica.precio,
+        cantidadOjales: A.ojales.cantidad,
+        cantidadBolsillos: A.bolsillos.cantidad
       });
-    };
-    agregarAccesorio('Ojales', incluirOjales.checked, P.accesorios.ojales.precio, cantidadOjales.value);
-    agregarAccesorio('Bolsillos', incluirBolsillos.checked, P.accesorios.bolsillos.precio, cantidadBolsillos.value);
-    const extrasUnitario = accesorios.reduce((suma, a) => suma + a.subtotal, 0);
-
-    // 4. Costo Total Unitario
-    const costoFinal = HW.pricing.conServicios(costoImpresionUnitario, [logisticaUnitario, extrasUnitario]);
-
-    // 5. Precio total del trabajo
-    const totalGeneral = HW.pricing.total(costoFinal, piezas > 0 ? piezas : 0);
-
-    bannerEstado.anchoCm = aDiseñoCm;
-    bannerEstado.altoCm = hDiseñoCm;
-    bannerEstado.areaM2 = areaM2;
-    bannerEstado.precioM2 = precioM2;
-    bannerEstado.piezas = piezas;
-    bannerEstado.accesorios = accesorios;
-    bannerEstado.extrasUnitario = extrasUnitario;
-    bannerEstado.unitario = costoFinal;
-    bannerEstado.total = totalGeneral;
-
-    if (costoImpresionEl) costoImpresionEl.textContent = HW.fmtCurrency(costoImpresionUnitario);
-    if (costoTotalUnitarioEl) costoTotalUnitarioEl.textContent = HW.fmtCurrency(costoFinal);
-    if (costoTotalGeneralEl) costoTotalGeneralEl.textContent = HW.fmtCurrency(totalGeneral);
-    if (detalleAccesoriosEl) {
-      detalleAccesoriosEl.classList.toggle('d-none', accesorios.length === 0);
-      detalleAccesoriosEl.textContent = accesorios.length
-        ? 'Accesorios: ' + accesorios.map(a => a.cantidad + ' ' + a.label.toLowerCase() + ' (' + HW.fmtUsd(a.subtotal) + ')').join(' + ') + ' = ' + HW.fmtUsd(extrasUnitario) + '/u'
-        : '';
+      incluirOjales.checked = true;
+      incluirBolsillos.checked = true;
+      sincronizarAccesorios();
     }
-    if (bannerBcv) bannerBcv.setUsd(totalGeneral);
-  }
 
-  [anchoDiseno, altoDiseno, precioMetroCuadrado, costoLogistica, cantidadPiezas, cantidadOjales, cantidadBolsillos].forEach(el => {
-    if (el) {
+    function sincronizarAccesorios() {
+      cantidadOjales.disabled = !incluirOjales.checked;
+      cantidadBolsillos.disabled = !incluirBolsillos.checked;
+      document.getElementById('cuerpoOjales').classList.toggle('d-none', !incluirOjales.checked);
+      document.getElementById('cuerpoBolsillos').classList.toggle('d-none', !incluirBolsillos.checked);
+    }
+
+    function calcular() {
+      var piezas = Math.max(0, parseFloat(cantidad.value) || 0);
+      var area = HW.pricing.areaM2(val('anchoDiseno'), val('altoDiseno'));
+      var margenPct = Math.max(0, val('margen'));
+      var costoBase = HW.pricing.costoArea(area, Math.max(0, val('costoM2'))) * piezas;
+
+      var materiales = [{
+        nombre: 'Banner',
+        detalle: fmt(area, 3) + ' m² × ' + fmt(piezas, 0) + ' ud',
+        unidad: 'm²',
+        costoBase: costoBase,
+        mermaPct: 0,
+        margenPct: margenPct
+      }];
+
+      var servicios = [{
+        nombre: 'Logística',
+        precio: Math.max(0, val('costoLogistica')),
+        modo: 'lote',
+        detalle: 'por lote'
+      }];
+
+      var accesorios = [];
+      if (incluirOjales.checked) {
+        accesorios.push({
+          nombre: 'Ojales',
+          precio: A.ojales.precio,
+          cantidad: Math.max(0, parseInt(cantidadOjales.value, 10) || 0)
+        });
+      }
+      if (incluirBolsillos.checked) {
+        accesorios.push({
+          nombre: 'Bolsillos',
+          precio: A.bolsillos.precio,
+          cantidad: Math.max(0, parseInt(cantidadBolsillos.value, 10) || 0)
+        });
+      }
+
+      estado.detalle = [
+        fmt(piezas, 0) + ' ' + (piezas === 1 ? 'unidad' : 'unidades') + ' de ' +
+          fmt(val('anchoDiseno'), 1) + ' x ' + fmt(val('altoDiseno'), 1) + ' cm',
+        'Área por unidad: ' + fmt(area, 3) + ' m²'
+      ];
+
+      estado.quote = HW.quote.build({
+        titulo: 'Pendones',
+        cantidad: piezas,
+        detalle: estado.detalle,
+        materiales: materiales,
+        servicios: servicios,
+        accesorios: accesorios,
+        margenPct: margenPct
+      });
+
+      HW.quote.renderResumen(document.getElementById('resumen'), estado.quote);
+      if (estado.bcv) estado.bcv.setUsd(estado.quote.total);
+    }
+
+    function reiniciar() {
+      ancho.value = '10';
+      alto.value = '10';
+      cantidad.value = '1';
+      defaults();
+      calcular();
+    }
+
+    [ancho, alto, cantidad, costoM2, margen, logistica, cantidadOjales, cantidadBolsillos].forEach(function (el) {
       el.addEventListener('input', calcular);
-    }
-  });
+    });
 
-  [incluirOjales, incluirBolsillos].forEach(el => {
-    if (el) {
-      el.addEventListener('change', () => {
+    [incluirOjales, incluirBolsillos].forEach(function (el) {
+      el.addEventListener('change', function () {
         sincronizarAccesorios();
         calcular();
       });
-    }
-  });
-
-  sincronizarAccesorios();
-  calcular();
-});
-
-function copiarCotizacion() {
-  const e = bannerEstado;
-  if (!(e.total > 0)) {
-    HW.toast('Ingresa las medidas para cotizar', true);
-    return;
-  }
-  const lineas = [];
-  lineas.push('*COTIZACIÓN PENDONES*');
-  lineas.push(e.piezas + ' ' + (e.piezas === 1 ? 'unidad' : 'unidades') + ' de ' + bannerFmt(e.anchoCm, 1) + ' x ' + bannerFmt(e.altoCm, 1) + ' cm');
-  lineas.push('Área por unidad: ' + bannerFmt(e.areaM2, 3) + ' m²');
-  lineas.push('Material: ' + HW.fmtUsd(e.precioM2) + ' /m²');
-  if (e.accesorios.length) {
-    lineas.push('Accesorios por pieza:');
-    e.accesorios.forEach(a => {
-      lineas.push('• ' + a.label + ': ' + a.cantidad + ' × ' + HW.fmtUsd(a.precio) + ' = ' + HW.fmtUsd(a.subtotal));
     });
-  }
-  lineas.push('Precio unitario: ' + HW.fmtUsd(e.unitario));
-  lineas.push('');
-  lineas.push('*TOTAL: ' + HW.fmtUsd(e.total) + '*');
-  const tasa = bannerBcv ? bannerBcv.getTasa() : 0;
-  if (tasa > 0) {
-    lineas.push('Equivalente: ' + HW.fmtBs(e.total * tasa));
-    lineas.push('Tasa BCV: ' + bannerFmt(tasa, 2) + ' Bs/$');
-  }
-  HW.copyResult(lineas.join('\n'), 'Cotización copiada al portapapeles');
-}
 
-function copiarTotal() {
-  const tasa = bannerBcv ? bannerBcv.getTasa() : 0;
-  HW.copyTotal(bannerEstado.total, tasa, 'Total copiado al portapapeles');
-}
+    document.getElementById('btnReiniciar').addEventListener('click', reiniciar);
+    document.getElementById('btnCopiar').addEventListener('click', function () {
+      HW.quote.copiar(estado.quote, {
+        titulo: 'Pendones',
+        detalle: estado.detalle,
+        tasa: estado.bcv ? estado.bcv.getTasa() : 0
+      });
+    });
+    document.getElementById('btnCopiarTotal').addEventListener('click', function () {
+      HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
+    });
+    document.getElementById('btnGenerador').addEventListener('click', function () {
+      HW.quote.enviarAlGenerador(estado.quote, {
+        titulo: 'Pendones',
+        detalle: estado.detalle
+      });
+    });
 
-window.copiarCotizacion = copiarCotizacion;
-window.copiarTotal = copiarTotal;
+    defaults();
+    calcular();
+  });
+})();
