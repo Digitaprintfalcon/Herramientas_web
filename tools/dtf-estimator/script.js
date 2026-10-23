@@ -22,12 +22,11 @@ function dtfFmt(n, d) {
   return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
 }
 
-// Subtotal de un diseño: (ancho × alto ÷ (anchoImp × 100)) × precioMetro × cantidad
-function dtfSubtotal(d, anchoImp, altoImp, precioMetro) {
-  if (anchoImp <= 0 || altoImp <= 0) return 0;
-  const areaDiseno = d.ancho * d.alto;
-  const areaImprimible = anchoImp * altoImp;
-  return (areaDiseno / areaImprimible) * precioMetro * d.cantidad;
+// Subtotal de un diseño: área del diseño convertida a metros lineales de rollo.
+function dtfSubtotal(d, anchoImp, precioMetro) {
+  if (anchoImp <= 0) return 0;
+  const areaDisenoM2 = HW.pricing.areaM2(d.ancho, d.alto);
+  return HW.pricing.costoRollo(areaDisenoM2, anchoImp, precioMetro) * (d.cantidad || 0);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -55,6 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   dtfBcv = HW.bcv.mount(document.getElementById('bcvBox'));
+
+  const P = HW.pricing.PRECIOS;
+  HW.pricing.poblar({
+    anchoImprimible: P.dtf.anchoRolloCm,
+    altoImprimible: P.dtf.altoRolloCm,
+    precioImpresion: P.dtf.impresionMl,
+    costoPlanchado: P.servicios.planchado,
+    costoPrenda: P.dtf.prenda
+  });
 
   dtfRestaurar();
   if (!dtfDisenos.length) {
@@ -203,9 +211,9 @@ function dtfCampoNumero(label, valor, onChange, min) {
   return col;
 }
 
-function dtfActualizarSubtotales(anchoImp, altoImp, precioMetro) {
+function dtfActualizarSubtotales(anchoImp, precioMetro) {
   dtfDisenos.forEach((d) => {
-    const sub = dtfSubtotal(d, anchoImp, altoImp, precioMetro);
+    const sub = dtfSubtotal(d, anchoImp, precioMetro);
     const st = dtfDom.listaDisenos.querySelector('[data-subtotal="' + d.id + '"]');
     const ar = dtfDom.listaDisenos.querySelector('[data-area="' + d.id + '"]');
     if (st) st.textContent = 'Subtotal: ' + HW.fmtCurrency(sub);
@@ -231,18 +239,17 @@ function dtfEliminarDiseno(id) {
 
 function dtfCalcular() {
   const anchoImp = parseFloat(dtfDom.anchoImprimible.value) || 0;
-  const altoImp = parseFloat(dtfDom.altoImprimible.value) || 100;
   const precioMetro = parseFloat(dtfDom.precioImpresion.value) || 0;
 
   let totalImpresion = 0;
   let totalPiezas = 0;
 
   dtfDisenos.forEach((d) => {
-    totalImpresion += dtfSubtotal(d, anchoImp, altoImp, precioMetro);
+    totalImpresion += dtfSubtotal(d, anchoImp, precioMetro);
     totalPiezas += d.cantidad;
   });
 
-  dtfActualizarSubtotales(anchoImp, altoImp, precioMetro);
+  dtfActualizarSubtotales(anchoImp, precioMetro);
 
   // Planchado
   let totalPlanchado = 0;
@@ -352,7 +359,7 @@ function copiarCotizacion() {
     lineas.push('--- Diseños ---');
     dtfDisenos.forEach((d, i) => {
       const nombre = d.etiqueta ? d.etiqueta + ': ' : 'Diseño ' + (i + 1) + ': ';
-      const sub = dtfSubtotal(d, parseFloat(dtfDom.anchoImprimible.value) || 0, parseFloat(dtfDom.altoImprimible.value) || 100, parseFloat(dtfDom.precioImpresion.value) || 0);
+      const sub = dtfSubtotal(d, parseFloat(dtfDom.anchoImprimible.value) || 0, parseFloat(dtfDom.precioImpresion.value) || 0);
       lineas.push(nombre + dtfFmt(d.ancho, 1) + ' x ' + dtfFmt(d.alto, 1) + ' cm × ' + d.cantidad + ' = ' + HW.fmtUsd(sub));
     });
   }

@@ -1,5 +1,5 @@
 
-        let tasaBCVOficial = 857.01;
+        let tasaBCVOficial = HW.pricing.PRECIOS.pvc.tasaFallback;
         let horaTasaActualizada = '';
 
         // Última cotización calculada: es lo que se copia al portapapeles, para
@@ -100,47 +100,67 @@
             calcular();
         }
 
+        function aplicarDefaultsPrecios() {
+            const P = HW.pricing.PRECIOS;
+            HW.pricing.poblar({
+                baseLargo: P.pvc.baseLargoCm,
+                baseAncho: P.pvc.baseAnchoCm,
+                costoLamina: P.pvc.costoHoja,
+                pvcMerma: P.pvc.merma,
+                pvcGanancia: P.pvc.margen,
+                vinilCostoM2: P.pvc.vinilCostoM2,
+                vinilMerma: P.pvc.vinilMerma,
+                vinilGanancia: P.pvc.vinilMargen,
+                laminadoCostoM2: P.pvc.laminadoCostoM2,
+                laminadoGanancia: P.pvc.laminadoMargen,
+                inputTasaManual: P.pvc.tasaFallback
+            });
+            tasaBCVOficial = P.pvc.tasaFallback;
+        }
+
         function limpiarFormulario() {
+            const P = HW.pricing.PRECIOS;
             document.getElementById('trabajoAncho').value = 50;
             document.getElementById('trabajoLargo').value = 30;
             document.getElementById('trabajoCantidad').value = 1;
             
-            // PVC incluido ($45)
+            // PVC incluido
             document.getElementById('checkPvc').checked = true;
             document.getElementById('checkEditPvc').checked = false;
             toggleUnifiedSection('pvcSubContent', 'checkPvc', 'cardPvcContainer');
             toggleEditSection('pvcParamsBox', 'checkEditPvc');
             
-            document.getElementById('baseLargo').value = 244;
-            document.getElementById('baseAncho').value = 122;
-            document.getElementById('costoLamina').value = 45.00;
-            document.getElementById('pvcMerma').value = 10;
-            document.getElementById('pvcGanancia').value = 50;
+            document.getElementById('baseLargo').value = P.pvc.baseLargoCm;
+            document.getElementById('baseAncho').value = P.pvc.baseAnchoCm;
+            document.getElementById('costoLamina').value = P.pvc.costoHoja;
+            document.getElementById('pvcMerma').value = P.pvc.merma;
+            document.getElementById('pvcGanancia').value = P.pvc.margen;
             
-            // Vinil incluido ($15)
+            // Vinil incluido
             document.getElementById('checkVinil').checked = true;
             document.getElementById('checkEditVinil').checked = false;
             document.getElementById('checkVinilDobleLado').checked = false;
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleEditSection('vinilParamsBox', 'checkEditVinil');
 
-            document.getElementById('vinilCostoM2').value = 15.00;
-            document.getElementById('vinilMerma').value = 10;
-            document.getElementById('vinilGanancia').value = 60;
+            document.getElementById('vinilCostoM2').value = P.pvc.vinilCostoM2;
+            document.getElementById('vinilMerma').value = P.pvc.vinilMerma;
+            document.getElementById('vinilGanancia').value = P.pvc.vinilMargen;
 
-            // Laminado excluido ($8)
+            // Laminado excluido
             document.getElementById('checkLaminado').checked = false;
             document.getElementById('checkEditLaminado').checked = false;
             toggleUnifiedSection('laminadoSubContent', 'checkLaminado', 'cardLaminadoContainer');
             toggleEditSection('laminadoParamsBox', 'checkEditLaminado');
 
-            document.getElementById('laminadoCostoM2').value = 8.00;
-            document.getElementById('laminadoGanancia').value = 50;
+            document.getElementById('laminadoCostoM2').value = P.pvc.laminadoCostoM2;
+            document.getElementById('laminadoGanancia').value = P.pvc.laminadoMargen;
             
             calcular();
         }
 
         function calcular() {
+            const P = HW.pricing;
             const tAncho = parseFloat(document.getElementById('trabajoAncho').value) || 0;
             const tLargo = parseFloat(document.getElementById('trabajoLargo').value) || 0;
             const areaTrabajoCm2 = tAncho * tLargo;
@@ -162,11 +182,11 @@
                 const pveMerma = parseFloat(document.getElementById('pvcMerma').value) || 0;
                 const pveGanancia = parseFloat(document.getElementById('pvcGanancia').value) || 0;
 
-                const areaBase = bLargo * bAncho;
-                const costoPvcCm2 = areaBase > 0 ? (costoLamina / areaBase) : 0;
-                const costoBasePvc = areaTrabajoCm2 * costoPvcCm2;
-                const costoPvcConMerma = costoBasePvc * (1 + (pveMerma / 100));
-                precioPvcFinal = costoPvcConMerma * (1 + (pveGanancia / 100));
+                const areaBaseM2 = P.areaM2(bLargo, bAncho);
+                const costoM2 = areaBaseM2 > 0 ? (costoLamina / areaBaseM2) : 0;
+                const costoBasePvc = P.costoArea(areaTrabajoM2, costoM2);
+                const costoPvcConMerma = P.aplicarMerma(costoBasePvc, pveMerma);
+                precioPvcFinal = P.precioVenta(costoPvcConMerma, pveGanancia);
 
                 if (tAncho > bAncho || tLargo > bLargo) {
                     excedePvc = true;
@@ -182,9 +202,9 @@
                 const vMerma = parseFloat(document.getElementById('vinilMerma').value) || 0;
                 const vGanancia = parseFloat(document.getElementById('vinilGanancia').value) || 0;
 
-                const costoBaseVinil = areaTrabajoM2 * vinilCostoM2;
-                const costoVinilConMerma = costoBaseVinil * (1 + (vMerma / 100));
-                precioVinilFinal = costoVinilConMerma * (1 + (vGanancia / 100));
+                const costoBaseVinil = P.costoArea(areaTrabajoM2, vinilCostoM2);
+                const costoVinilConMerma = P.aplicarMerma(costoBaseVinil, vMerma);
+                precioVinilFinal = P.precioVenta(costoVinilConMerma, vGanancia);
                 // Rotulado por ambos lados: se imprime el doble de vinil
                 if (dobleLadoVinil) {
                     precioVinilFinal = precioVinilFinal * 2;
@@ -198,14 +218,14 @@
                 const lamCostoM2 = parseFloat(document.getElementById('laminadoCostoM2').value) || 0;
                 const lGanancia = parseFloat(document.getElementById('laminadoGanancia').value) || 0;
 
-                const costoBaseLam = areaTrabajoM2 * lamCostoM2;
-                precioLaminadoFinal = costoBaseLam * (1 + (lGanancia / 100));
+                const costoBaseLam = P.costoArea(areaTrabajoM2, lamCostoM2);
+                precioLaminadoFinal = P.precioVenta(costoBaseLam, lGanancia);
             }
 
             // Total general sumando componentes activos y multiplicando por unidades.
             // El precio de cada material es por unidad (una lámina por pieza), así que
             // la cantidad se aplica recién sobre el subtotal, no dentro del cálculo.
-            const precioTotalUSD = (precioPvcFinal + precioVinilFinal + precioLaminadoFinal) * cantidad;
+            const precioTotalUSD = P.total(precioPvcFinal + precioVinilFinal + precioLaminadoFinal, cantidad);
             const precioTotalBs = precioTotalUSD * tasaBCVOficial;
 
             // Alerta de exceso de dimensiones base PVC (se evalúa por unidad)
@@ -332,6 +352,7 @@
         }
 
         window.onload = function() {
+            aplicarDefaultsPrecios();
             toggleUnifiedSection('pvcSubContent', 'checkPvc', 'cardPvcContainer');
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleUnifiedSection('laminadoSubContent', 'checkLaminado', 'cardLaminadoContainer');

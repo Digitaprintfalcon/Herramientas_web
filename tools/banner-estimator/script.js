@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bannerBcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
+  const P = HW.pricing.PRECIOS;
+  HW.pricing.poblar({
+    precioMetroCuadrado: P.banner.impresionM2,
+    costoLogistica: P.banner.logistica
+  });
+
   function calcular() {
     const aDiseñoCm = parseFloat(anchoDiseno.value) || 0;
     const hDiseñoCm = parseFloat(altoDiseno.value) || 0;
@@ -36,17 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const piezas = parseFloat(cantidadPiezas.value) || 1;
 
     // 1. Costo de Impresión directo por área
-    const areaM2 = (aDiseñoCm / 100) * (hDiseñoCm / 100);
-    const costoImpresionUnitario = areaM2 * precioM2;
+    const areaM2 = HW.pricing.areaM2(aDiseñoCm, hDiseñoCm);
+    const costoImpresionUnitario = HW.pricing.costoArea(areaM2, precioM2);
 
     // 2. Costo logístico por unidad
     const logisticaUnitario = piezas > 0 ? (totalLogistica / piezas) : 0;
 
     // 3. Costo Total Unitario
-    const costoFinal = costoImpresionUnitario + logisticaUnitario;
+    const costoFinal = HW.pricing.conServicios(costoImpresionUnitario, [logisticaUnitario]);
 
     // 4. Precio total del trabajo
-    const totalGeneral = costoFinal * (piezas > 0 ? piezas : 0);
+    const totalGeneral = HW.pricing.total(costoFinal, piezas > 0 ? piezas : 0);
 
     bannerEstado.anchoCm = aDiseñoCm;
     bannerEstado.altoCm = hDiseñoCm;

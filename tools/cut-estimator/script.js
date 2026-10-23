@@ -45,7 +45,7 @@ function cambiarMetodo() {
             const metodo = document.getElementById('metodo').value;
             const anchoDiseno = parseFloat(document.getElementById('anchoDiseno').value) || 0;
             const altoDiseno = parseFloat(document.getElementById('altoDiseno').value) || 0;
-            const anchoRollo = parseFloat(document.getElementById('anchoRollo').value) || 50;
+            const anchoRollo = parseFloat(document.getElementById('anchoRollo').value) || HW.pricing.PRECIOS.corte.anchoRolloCm;
             const precioMaterial = parseFloat(document.getElementById('precioMaterial').value) || 0;
             const cantidad = parseInt(document.getElementById('cantidadPiezas').value) || 1;
             const margenGanancia = parseFloat(document.getElementById('margenGanancia').value) || 0;
@@ -73,30 +73,26 @@ function cambiarMetodo() {
 
             let costoMaterialNetoUnitario = 0;
             let formulaStr = "";
+            const areaDisenoM2 = HW.pricing.areaM2(anchoDiseno, altoDiseno);
 
             if (metodo === 'lineal') {
-                const areaDisenoCm2 = anchoDiseno * altoDiseno;
-                const areaFranjaRolloCm2 = anchoRollo * 100;
-                costoMaterialNetoUnitario = (areaDisenoCm2 / areaFranjaRolloCm2) * precioMaterial;
+                costoMaterialNetoUnitario = HW.pricing.costoRollo(areaDisenoM2, anchoRollo, precioMaterial);
                 formulaStr = `Fórmula: [(Ancho Diseño × Alto Diseño) ÷ (Ancho Rollo × 100 cm)] × Precio Metro`;
             } else {
-                const areaM2 = (anchoDiseno / 100) * (altoDiseno / 100);
-                costoMaterialNetoUnitario = areaM2 * precioMaterial;
+                costoMaterialNetoUnitario = HW.pricing.costoArea(areaDisenoM2, precioMaterial);
                 formulaStr = `Fórmula: [(Ancho m × Alto m) × Precio m²]`;
             }
 
             // Precio unitario aplicando margen de ganancia comercial (sobre precio de venta)
-            let precioUnitarioVenta = costoMaterialNetoUnitario / (1 - (margenGanancia / 100));
+            let precioUnitarioVenta = HW.pricing.precioVenta(costoMaterialNetoUnitario, margenGanancia);
 
             // Agregar servicios adicionales por pieza si están activos
-            if (incluirPlanchado) {
-                precioUnitarioVenta += costoPlanchadoInput;
-            }
-            if (incluirInstalacion) {
-                precioUnitarioVenta += costoInstalacionInput;
-            }
+            precioUnitarioVenta = HW.pricing.conServicios(precioUnitarioVenta, [
+                incluirPlanchado ? costoPlanchadoInput : 0,
+                incluirInstalacion ? costoInstalacionInput : 0
+            ]);
 
-            const precioTotalVenta = precioUnitarioVenta * cantidad;
+            const precioTotalVenta = HW.pricing.total(precioUnitarioVenta, cantidad);
 
             cutEstado.metodo = metodo;
             cutEstado.anchoCm = anchoDiseno;
@@ -119,19 +115,23 @@ function cambiarMetodo() {
             if (bcvWidget) bcvWidget.setUsd(precioTotalVenta);
         }
 
-        const DEFAULTS = {
-            metodo: 'lineal',
-            anchoDiseno: 20,
-            altoDiseno: 15,
-            anchoRollo: 50,
-            precioMaterial: 3.50,
-            cantidadPiezas: 1,
-            margenGanancia: 40,
-            costoPlanchado: 0.50,
-            costoInstalacion: 1.00
-        };
+        function cutDefaults() {
+            const P = HW.pricing.PRECIOS;
+            return {
+                metodo: 'lineal',
+                anchoDiseno: 20,
+                altoDiseno: 15,
+                anchoRollo: P.corte.anchoRolloCm,
+                precioMaterial: P.corte.materialMl,
+                cantidadPiezas: 1,
+                margenGanancia: P.corte.margen,
+                costoPlanchado: P.servicios.planchado,
+                costoInstalacion: P.servicios.instalacion
+            };
+        }
 
         function limpiarFormulario() {
+            const DEFAULTS = cutDefaults();
             document.getElementById('metodo').value = DEFAULTS.metodo;
             document.getElementById('anchoDiseno').value = DEFAULTS.anchoDiseno;
             document.getElementById('altoDiseno').value = DEFAULTS.altoDiseno;
@@ -155,6 +155,14 @@ function cambiarMetodo() {
         // Ejecutar cálculo inicial al cargar
         window.onload = function () {
             bcvWidget = HW.bcv.mount(document.getElementById('bcvBox'));
+            const DEFAULTS = cutDefaults();
+            HW.pricing.poblar({
+                anchoRollo: DEFAULTS.anchoRollo,
+                precioMaterial: DEFAULTS.precioMaterial,
+                margenGanancia: DEFAULTS.margenGanancia,
+                costoPlanchado: DEFAULTS.costoPlanchado,
+                costoInstalacion: DEFAULTS.costoInstalacion
+            });
             calcularCosto();
         };
 

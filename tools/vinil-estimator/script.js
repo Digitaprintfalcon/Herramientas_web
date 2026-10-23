@@ -1,7 +1,6 @@
 let vinilEstado = {
   anchoCm: 0,
   altoCm: 0,
-  anchoRollo: 0,
   precioVinil: 0,
   cantidad: 1,
   laminado: false,
@@ -21,7 +20,6 @@ let vinilBcv = null;
 document.addEventListener('DOMContentLoaded', () => {
   const anchoPieza = document.getElementById('anchoPieza');
   const altoPieza = document.getElementById('altoPieza');
-  const anchoRollo = document.getElementById('anchoRollo');
   const precioImpresion = document.getElementById('precioImpresion');
 
   const incluirLaminado = document.getElementById('incluirLaminado');
@@ -47,6 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   vinilBcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
+  const P = HW.pricing.PRECIOS;
+  HW.pricing.poblar({
+    precioImpresion: P.vinil.impresionM2,
+    anchoLaminado: P.vinil.anchoRolloLaminadoCm,
+    precioLaminado: P.vinil.laminadoMl,
+    costoDiseno: P.vinil.diseno,
+    costoCorte: P.vinil.corte,
+    costoInstalacion: P.servicios.instalacion
+  });
+
   // Eventos para mostrar/ocultar secciones opcionales
   incluirLaminado.addEventListener('change', () => {
     seccionLaminado.style.display = incluirLaminado.checked ? 'flex' : 'none';
@@ -71,13 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function calcularPrecio() {
     const aPieza = parseFloat(anchoPieza.value) || 0;
     const hPieza = parseFloat(altoPieza.value) || 0;
-    const aRollo = parseFloat(anchoRollo.value) || 0;
     const precioVinil = parseFloat(precioImpresion.value) || 0;
     const cantidad = parseInt(cantidadPiezas.value) || 1;
 
     vinilEstado.anchoCm = aPieza;
     vinilEstado.altoCm = hPieza;
-    vinilEstado.anchoRollo = aRollo;
     vinilEstado.precioVinil = precioVinil;
     vinilEstado.cantidad = cantidad;
     vinilEstado.laminado = incluirLaminado.checked;
@@ -89,25 +95,17 @@ document.addEventListener('DOMContentLoaded', () => {
     vinilEstado.instalacion = incluirInstalacion.checked;
     vinilEstado.costoInstalacion = parseFloat(costoInstalacion.value) || 0;
 
-    if (aRollo <= 0) {
-      resultadoUnitario.textContent = "$0.00";
-      resultado.textContent = "$0.00";
-      vinilEstado.unitario = 0;
-      vinilEstado.total = 0;
-      if (vinilBcv) vinilBcv.setUsd(0);
-      return;
-    }
-
     // Parte 1: Calcular el precio unitario del vinil
-    const costoVinilUnitario = aPieza * hPieza * precioVinil * 0.0001;
+    const areaPiezaM2 = HW.pricing.areaM2(aPieza, hPieza);
+    const costoVinilUnitario = HW.pricing.costoArea(areaPiezaM2, precioVinil);
 
     // Parte 2: Calcular el precio unitario del laminado (si está activo)
     let costoLamUnitario = 0;
     if (incluirLaminado.checked) {
-      const aLam = parseFloat(anchoLaminado.value) || aRollo;
+      const aLam = parseFloat(anchoLaminado.value) || P.vinil.anchoRolloLaminadoCm;
       const precioLam = parseFloat(precioLaminado.value) || 0;
       if (aLam > 0) {
-        costoLamUnitario = (aPieza * hPieza) / (aLam * 100) * precioLam;
+        costoLamUnitario = HW.pricing.costoRollo(areaPiezaM2, aLam, precioLam);
       }
     }
 
@@ -130,8 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Sumar todos los costos por pieza y multiplicar por la cantidad total
-    const costoUnitarioTotal = costoVinilUnitario + costoLamUnitario + costoDisUnitario + costoCorUnitario + costoInstUnitario;
-    const precioFinal = costoUnitarioTotal * (cantidad > 0 ? cantidad : 1);
+    const costoUnitarioTotal = HW.pricing.conServicios(costoVinilUnitario + costoLamUnitario, [
+      costoDisUnitario, costoCorUnitario, costoInstUnitario
+    ]);
+    const precioFinal = HW.pricing.total(costoUnitarioTotal, cantidad > 0 ? cantidad : 1);
 
     vinilEstado.unitario = costoUnitarioTotal;
     vinilEstado.total = precioFinal;
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const inputsMonitoreados = [
-    anchoPieza, altoPieza, anchoRollo, precioImpresion,
+    anchoPieza, altoPieza, precioImpresion,
     anchoLaminado, precioLaminado, costoDiseno, costoCorte,
     costoInstalacion, cantidadPiezas
   ];
@@ -171,7 +171,7 @@ function copiarCotizacion() {
   lineas.push(e.cantidad + ' ' + (e.cantidad === 1 ? 'unidad' : 'unidades') + ' de ' + vinilFmt(e.anchoCm, 1) + ' x ' + vinilFmt(e.altoCm, 1) + ' cm');
   lineas.push('Vinil: ' + HW.fmtUsd(e.precioVinil) + ' /m²');
   const extras = [];
-  if (e.laminado) extras.push('Laminado: ' + HW.fmtUsd(e.precioLaminado) + ' /m²');
+  if (e.laminado) extras.push('Laminado: ' + HW.fmtUsd(e.precioLaminado) + ' /metro lineal');
   if (e.diseno) extras.push('Diseño: ' + HW.fmtUsd(e.costoDiseno));
   if (e.corte) extras.push('Corte: ' + HW.fmtUsd(e.costoCorte));
   if (e.instalacion) extras.push('Instalación: ' + HW.fmtUsd(e.costoInstalacion));
