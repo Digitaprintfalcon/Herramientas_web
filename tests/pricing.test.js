@@ -12,21 +12,42 @@ function close(actual, expected, tolerance, message) {
   );
 }
 
-assert.equal(P.servicios.planchado, 1.5);
-assert.equal(P.servicios.instalacion, 10);
-assert.equal(P.accesorios.ojales.precio, 1);
-assert.equal(P.accesorios.bolsillos.precio, 2);
-assert.equal(P.accesorios.separadores.precio, 2);
-assert.equal(P.accesorios.ojales.cantidad, 4);
-assert.equal(P.accesorios.bolsillos.cantidad, 4);
-assert.equal(P.accesorios.separadores.cantidad, 4);
-close(pricing.total(P.accesorios.ojales.precio, P.accesorios.ojales.cantidad), 4);
-close(pricing.total(P.accesorios.bolsillos.precio, P.accesorios.bolsillos.cantidad), 8);
-close(pricing.total(P.accesorios.separadores.precio, P.accesorios.separadores.cantidad), 8);
+assert.equal(P.margen, 40);
+assert.equal(pricing.MARGEN_DEFAULT, 40);
+assert.equal(pricing.SERVICIOS.planchado.precio, 1.5);
+assert.equal(pricing.SERVICIOS.instalacion.precio, 10);
+assert.equal(pricing.SERVICIOS.diseno.precio, 5);
+assert.equal(pricing.SERVICIOS.corte.precio, 5);
+assert.equal(pricing.SERVICIOS.prenda.precio, 5);
+assert.equal(pricing.SERVICIOS.logistica.precio, 10);
+assert.equal(pricing.ACCESORIOS.ojales.precio, 1);
+assert.equal(pricing.ACCESORIOS.bolsillos.precio, 2);
+assert.equal(pricing.ACCESORIOS.separadores.precio, 2);
+assert.equal(pricing.ACCESORIOS.ojales.cantidad, 4);
+assert.equal(pricing.ACCESORIOS.separadores.cantidad, 4);
+assert.deepEqual(pricing.ACCESORIOS.ojales.aplicaA, ['banner']);
+assert.deepEqual(pricing.ACCESORIOS.separadores.aplicaA, ['pvc']);
+
+assert.equal(P.costos.vinilAdhesivoM2, 15);
+assert.equal(P.costos.bannerM2, 15);
+assert.equal(P.costos.dtfMl, 15);
+assert.equal(P.costos.vinilTextilMl, 3.5);
+assert.equal(P.costos.pvcHoja, 45);
+assert.equal(P.costos.pvcVinilM2, 15);
+assert.equal(P.costos.pvcLaminadoM2, 8);
+
+// El precio de venta con el margen único vuelve a los valores comerciales históricos.
+close(pricing.precioVenta(P.costos.vinilAdhesivoM2, P.margen), 25);
+close(pricing.precioVenta(P.costos.bannerM2, P.margen), 25);
+close(pricing.precioVenta(P.costos.dtfMl, P.margen), 25);
+
+// El metro cuadrado del vinil textil se deriva del ancho del rollo (50 cm).
+close(P.corte.costoM2, 7);
+close(P.corte.materialM2, 7);
 assert.equal(P.corte.margen, 40);
-assert.equal(P.pvc.margen, 33.33);
-assert.equal(P.pvc.vinilMargen, 37.5);
-assert.equal(P.pvc.laminadoMargen, 33.33);
+assert.equal(P.pvc.margen, 40);
+assert.equal(P.pvc.vinilMargen, 40);
+assert.equal(P.pvc.laminadoMargen, 40);
 
 close(pricing.areaM2(100, 135), 1.35);
 close(pricing.areaM2(10, 10), 0.01);
@@ -40,34 +61,39 @@ assert.equal(pricing.precioVenta(100, 100), 100, 'margen 100 no debe ser Infinit
 close(pricing.conServicios(10, [1.5, 10]), 21.5);
 close(pricing.total(11.85, 3), 35.55);
 
-// Vinil: 100 × 135 cm, $25/m², laminado $12/ml, diseño $5, corte $5, instalación $10.
+// Vinil adhesivo: mismo precio de venta por m² que el catálogo anterior.
 const vinilArea = pricing.areaM2(100, 135);
-const vinilUnit = pricing.conServicios(
-  pricing.costoArea(vinilArea, P.vinil.impresionM2) +
-  pricing.costoRollo(vinilArea, P.vinil.anchoRolloLaminadoCm, P.vinil.laminadoMl),
-  [P.vinil.diseno, P.vinil.corte, P.servicios.instalacion]
+const vinilMaterial = pricing.precioVenta(
+  pricing.costoArea(vinilArea, P.costos.vinilAdhesivoM2),
+  P.margen
 );
-close(vinilUnit, 65.75, 1e-9, 'vinil unitario');
+close(vinilMaterial, 33.75, 1e-9, 'vinil material');
 
-// Banner: 10 × 10 cm, $25/m², logística $10 total.
+// Banner: 10 × 10 cm.
 const bannerArea = pricing.areaM2(10, 10);
-const bannerUnit = pricing.conServicios(pricing.costoArea(bannerArea, P.banner.impresionM2), [P.banner.logistica]);
-close(bannerUnit, 10.25, 1e-9, 'banner unitario');
-
-// Corte: 20 × 15 cm, rollo 50 cm, $3.50/ml, margen 40%, planchado 1.50, instalación 10.
-const corteArea = pricing.areaM2(20, 15);
-const corteUnit = pricing.conServicios(
-  pricing.precioVenta(pricing.costoRollo(corteArea, P.corte.anchoRolloCm, P.corte.materialMl), P.corte.margen),
-  [P.servicios.planchado, P.servicios.instalacion]
+const bannerMaterial = pricing.precioVenta(
+  pricing.costoArea(bannerArea, P.costos.bannerM2),
+  P.margen
 );
-close(corteUnit, 11.85, 1e-9, 'corte unitario');
+close(bannerMaterial, 0.25, 1e-9, 'banner material');
 
-// DTF: 10 × 10 cm, rollo 57 cm, $25/ml.
+// Corte de vinil textil: 20 × 15 cm, rollo 50 cm, costo 3.50/ml.
+const corteArea = pricing.areaM2(20, 15);
+const corteMaterial = pricing.precioVenta(
+  pricing.costoRollo(corteArea, P.corte.anchoRolloCm, P.costos.vinilTextilMl),
+  P.margen
+);
+close(corteMaterial, 0.35, 1e-9, 'corte material');
+
+// DTF: 10 × 10 cm, rollo 57 cm, costo 15/ml.
 const dtfArea = pricing.areaM2(10, 10);
-const dtfSubtotal = pricing.costoRollo(dtfArea, P.dtf.anchoRolloCm, P.dtf.impresionMl);
-close(dtfSubtotal, 0.43859649122807015, 1e-12, 'dtf subtotal');
+const dtfMaterial = pricing.precioVenta(
+  pricing.costoRollo(dtfArea, P.dtf.anchoRolloCm, P.costos.dtfMl),
+  P.margen
+);
+close(dtfMaterial, 0.43859649122807015, 1e-12, 'dtf material');
 
-// PVC: 50 × 30 cm con lámina 244 × 122 cm de $45, merma 10%, margen 33.33%.
+// PVC: 50 × 30 cm con lámina 244 × 122 cm de $45, merma 10%, margen 40%.
 const pvcWorkArea = pricing.areaM2(50, 30);
 const pvcSheetArea = pricing.areaM2(P.pvc.baseLargoCm, P.pvc.baseAnchoCm);
 const pvcCostM2 = P.pvc.costoHoja / pvcSheetArea;
@@ -75,18 +101,7 @@ const pvc = pricing.precioVenta(
   pricing.aplicarMerma(pricing.costoArea(pvcWorkArea, pvcCostM2), P.pvc.merma),
   P.pvc.margen
 );
-const vinilPvc = pricing.precioVenta(
-  pricing.aplicarMerma(pricing.costoArea(pvcWorkArea, P.pvc.vinilCostoM2), P.pvc.vinilMerma),
-  P.pvc.vinilMargen
-);
-const laminadoPvc = pricing.precioVenta(
-  pricing.costoArea(pvcWorkArea, P.pvc.laminadoCostoM2),
-  P.pvc.laminadoMargen
-);
-close(pvc, 3.7414, 0.001, 'pvc');
-close(vinilPvc, 3.96, 1e-9, 'vinil pvc');
-close(laminadoPvc, 1.8, 0.001, 'laminado pvc');
-close(pvc + vinilPvc + laminadoPvc, 9.5014, 0.002, 'total pvc');
+close(pvc, 4.156, 0.002, 'pvc');
 
 // poblar no debe fallar si un input no existe.
 const values = {};
