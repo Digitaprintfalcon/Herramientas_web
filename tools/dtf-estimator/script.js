@@ -57,15 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
   dtfBcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
   dtfRestaurar();
-  // Precios por defecto centralizados (panel principal): mandan sobre el
-  // último estado guardado, así que no se persisten los precios.
-  if (window.HW && HW.precios) {
-    HW.precios.aplicar('dtf', {
-      precioMetro: 'precioImpresion',
-      costoPlanchado: 'costoPlanchado',
-      costoPrenda: 'costoPrenda'
-    });
-  }
   if (!dtfDisenos.length) {
     dtfDisenos.push({ id: dtfNuevoId(), etiqueta: '', ancho: 10, alto: 10, cantidad: 1 });
   }
@@ -296,16 +287,18 @@ function dtfCalcular() {
 // ===== Persistencia =====
 
 function dtfPersistir() {
-  // Los precios no se persisten: salen de los precios por defecto centralizados.
   HW.persist.set(DTF_PERSIST_KEY, {
     disenos: dtfDisenos,
     anchoImp: dtfDom.anchoImprimible.value,
+    precioMetro: dtfDom.precioImpresion.value,
     planchado: {
       on: dtfDom.incluirPlanchado.checked,
+      costo: dtfDom.costoPlanchado.value,
       tipo: dtfDom.tipoPlanchado.value
     },
     prenda: {
       on: dtfDom.incluirPrenda.checked,
+      costo: dtfDom.costoPrenda.value,
       tipo: dtfDom.tipoPrenda.value
     }
   });
@@ -316,14 +309,17 @@ function dtfRestaurar() {
   if (!est || typeof est !== 'object') return;
 
   if (est.anchoImp != null) dtfDom.anchoImprimible.value = est.anchoImp;
+  if (est.precioMetro != null) dtfDom.precioImpresion.value = est.precioMetro;
 
   const pl = est.planchado || {};
   dtfDom.incluirPlanchado.checked = !!pl.on;
+  if (pl.costo != null) dtfDom.costoPlanchado.value = pl.costo;
   if (pl.tipo) dtfDom.tipoPlanchado.value = pl.tipo;
   dtfDom.seccionPlanchado.style.display = pl.on ? 'flex' : 'none';
 
   const pr = est.prenda || {};
   dtfDom.incluirPrenda.checked = !!pr.on;
+  if (pr.costo != null) dtfDom.costoPrenda.value = pr.costo;
   if (pr.tipo) dtfDom.tipoPrenda.value = pr.tipo;
   dtfDom.seccionPrenda.style.display = pr.on ? 'flex' : 'none';
 

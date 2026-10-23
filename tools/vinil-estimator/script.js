@@ -153,17 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Precios por defecto centralizados (panel principal)
-  if (window.HW && HW.precios) {
-    HW.precios.aplicar('vinil', {
-      precioVinilM2: 'precioImpresion',
-      precioLaminadoM2: 'precioLaminado',
-      costoDiseno: 'costoDiseno',
-      costoCorte: 'costoCorte',
-      costoInstalacion: 'costoInstalacion'
-    });
-  }
-
   calcularPrecio();
 });
 

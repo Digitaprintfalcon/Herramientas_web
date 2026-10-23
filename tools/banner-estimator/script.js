@@ -68,14 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Precios por defecto centralizados (panel principal)
-  if (window.HW && HW.precios) {
-    HW.precios.aplicar('banner', {
-      precioM2: 'precioMetroCuadrado',
-      costoLogistica: 'costoLogistica'
-    });
-  }
-
   // Cálculo inicial
   calcular();
 });

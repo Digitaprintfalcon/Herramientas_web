@@ -172,17 +172,9 @@
           <p class="header-subtitle mb-0">Selecciona la utilidad que necesitas ejecutar</p>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <div class="dropdown">
-          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-gear me-1"></i>Configuración</button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#preciosConfigModal"><i class="bi bi-currency-dollar me-2"></i>Precios por defecto</button></li>
-          </ul>
-        </div>
-        <button class="hw-theme-toggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
-          <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
-        </button>
-      </div>
+      <button class="hw-theme-toggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
+        <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
+      </button>
     </header>
 
     <div class="search-wrapper">
@@ -203,8 +195,6 @@
   <!-- Utilidades compartidas del panel (tema y catálogo) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="tools/common.js"></script>
-  <script src="tools/prices-client.js"></script>
-  <script src="script.js"></script>
 
   <script>
     if (window.HW && HW.renderCatalog) HW.renderCatalog('toolsGrid');
@@ -223,76 +213,5 @@
       });
     }
   </script>
-
-  <!-- Modal Precios por defecto -->
-  <div class="modal fade" id="preciosConfigModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <div class="modal-content">
-        <div class="modal-header py-2">
-          <h5 class="modal-title"><i class="bi bi-currency-dollar me-1"></i>Precios por defecto</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <div class="text-muted small" id="preciosLastMod">Última modificación: -</div>
-            <div class="d-flex flex-wrap gap-2">
-              <button class="btn btn-outline-secondary btn-sm" id="btnPreciosExportar"><i class="bi bi-download me-1"></i>Exportar JSON</button>
-              <label class="btn btn-outline-secondary btn-sm mb-0"><i class="bi bi-upload me-1"></i>Importar JSON<input type="file" id="inputPreciosImportar" accept="application/json" hidden></label>
-              <button class="btn btn-outline-warning btn-sm" id="btnPreciosReset"><i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar valores por defecto</button>
-              <button class="btn btn-primary btn-sm" id="btnPreciosGuardar"><i class="bi bi-save me-1"></i>Guardar</button>
-            </div>
-          </div>
-          <ul class="nav nav-tabs" id="preciosTabs" role="tablist">
-            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-precios-vinil" type="button">Vinil</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-precios-banner" type="button">Banner</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-precios-cut" type="button">Cut</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-precios-dtf" type="button">DTF</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-precios-pvc" type="button">PVC</button></li>
-          </ul>
-          <div class="tab-content border border-top-0 p-3">
-            <div class="tab-pane fade show active" id="tab-precios-vinil">
-              <div class="row g-2">
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Precio Vinil ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-vinil-precioVinilM2"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Precio Laminado ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-vinil-precioLaminadoM2"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Diseño ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-vinil-costoDiseno"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Corte ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-vinil-costoCorte"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Instalación ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-vinil-costoInstalacion"></div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="tab-precios-banner">
-              <div class="row g-2">
-                <div class="col-12 col-md-6"><label class="form-label form-label-sm">Precio Banner ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-banner-precioM2"></div>
-                <div class="col-12 col-md-6"><label class="form-label form-label-sm">Costo Logístico ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-banner-costoLogistica"></div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="tab-precios-cut">
-              <div class="row g-2">
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Precio Material ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-cut-precioMaterialM2"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Planchado ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-cut-costoPlanchado"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Instalación ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-cut-costoInstalacion"></div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="tab-precios-dtf">
-              <div class="row g-2">
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Precio por metro ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-dtf-precioMetro"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Planchado ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-dtf-costoPlanchado"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Costo Prenda ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-dtf-costoPrenda"></div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="tab-precios-pvc">
-              <div class="row g-2">
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">PVC Hoja ($)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-pvc-precioPvcHoja"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Vinil ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-pvc-precioVinilM2"></div>
-                <div class="col-12 col-md-4"><label class="form-label form-label-sm">Laminado ($/m²)</label><input type="number" step="0.01" min="0" class="form-control form-control-sm" id="pr-pvc-precioLaminadoM2"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer py-2">
-          <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </body>
 </html>

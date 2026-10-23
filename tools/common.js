@@ -530,8 +530,8 @@
     } catch (e) { /* sin almacenamiento */ }
   }
 
-  // Merge (no reemplazo): otros módulos (cedula-client, prices-client) agregan
-  // sus propias claves a HW y deben sobrevivir a la carga de common.js.
+  // Merge (no reemplazo): otros módulos (cedula-client) agregan sus propias
+  // claves a HW y deben sobrevivir a la carga de common.js.
   global.HW = Object.assign(global.HW || (global.HW = {}), {
     fmtCurrency: fmtCurrency,
     fmtBs: fmtBs,
