@@ -60,6 +60,9 @@ Solo necesitás Python 3:
 - El margen es **sobre el precio de venta**: `precio = costo / (1 - margen/100)`.
   El pipeline es `costo base → merma → margen → servicios → cantidad`.
 - Planchado e instalación usan los valores únicos `$1.50` y `$10.00`.
+- Accesorios con precio fijo: ojales `$1` c/u y bolsillos `$2` c/u en pendones/banners;
+  separadores `$2` c/u solo cuando la pieza incluye PVC. Inician activos con 4 unidades
+  por pieza y se pueden desactivar o cambiar de cantidad. El vinil no ofrece accesorios.
 - Para probar las fórmulas compartidas: `node tests/pricing.test.js`.
 
 ## Referencias precargadas

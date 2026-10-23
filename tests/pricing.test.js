@@ -14,6 +14,15 @@ function close(actual, expected, tolerance, message) {
 
 assert.equal(P.servicios.planchado, 1.5);
 assert.equal(P.servicios.instalacion, 10);
+assert.equal(P.accesorios.ojales.precio, 1);
+assert.equal(P.accesorios.bolsillos.precio, 2);
+assert.equal(P.accesorios.separadores.precio, 2);
+assert.equal(P.accesorios.ojales.cantidad, 4);
+assert.equal(P.accesorios.bolsillos.cantidad, 4);
+assert.equal(P.accesorios.separadores.cantidad, 4);
+close(pricing.total(P.accesorios.ojales.precio, P.accesorios.ojales.cantidad), 4);
+close(pricing.total(P.accesorios.bolsillos.precio, P.accesorios.bolsillos.cantidad), 8);
+close(pricing.total(P.accesorios.separadores.precio, P.accesorios.separadores.cantidad), 8);
 assert.equal(P.corte.margen, 40);
 assert.equal(P.pvc.margen, 33.33);
 assert.equal(P.pvc.vinilMargen, 37.5);

@@ -8,6 +8,11 @@
       planchado: 1.5,
       instalacion: 10
     },
+    accesorios: {
+      ojales: { precio: 1, cantidad: 4 },
+      bolsillos: { precio: 2, cantidad: 4 },
+      separadores: { precio: 2, cantidad: 4 }
+    },
     vinil: {
       impresionM2: 25,
       laminadoMl: 12,

@@ -10,13 +10,27 @@
             'trabajoAncho', 'trabajoLargo', 'trabajoCantidad',
             'baseLargo', 'baseAncho', 'costoLamina', 'pvcMerma', 'pvcGanancia',
             'vinilCostoM2', 'vinilMerma', 'vinilGanancia',
-            'laminadoCostoM2', 'laminadoGanancia'
+            'laminadoCostoM2', 'laminadoGanancia', 'cantidadSeparadores'
         ];
 
         idsInputs.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.addEventListener('input', calcular);
         });
+
+        const checkSeparadoresEl = document.getElementById('checkSeparadores');
+        if (checkSeparadoresEl) {
+            checkSeparadoresEl.addEventListener('change', () => {
+                sincronizarSeparadores();
+                calcular();
+            });
+        }
+
+        function sincronizarSeparadores() {
+            const activo = checkSeparadoresEl && checkSeparadoresEl.checked;
+            const cantidad = document.getElementById('cantidadSeparadores');
+            if (cantidad) cantidad.disabled = !activo;
+        }
 
         function toggleUnifiedSection(contentId, switchId, containerId) {
             const contentEl = document.getElementById(contentId);
@@ -113,6 +127,7 @@
                 vinilGanancia: P.pvc.vinilMargen,
                 laminadoCostoM2: P.pvc.laminadoCostoM2,
                 laminadoGanancia: P.pvc.laminadoMargen,
+                cantidadSeparadores: P.accesorios.separadores.cantidad,
                 inputTasaManual: P.pvc.tasaFallback
             });
             tasaBCVOficial = P.pvc.tasaFallback;
@@ -155,6 +170,10 @@
 
             document.getElementById('laminadoCostoM2').value = P.pvc.laminadoCostoM2;
             document.getElementById('laminadoGanancia').value = P.pvc.laminadoMargen;
+
+            document.getElementById('checkSeparadores').checked = true;
+            document.getElementById('cantidadSeparadores').value = P.accesorios.separadores.cantidad;
+            sincronizarSeparadores();
             
             calcular();
         }
@@ -222,10 +241,18 @@
                 precioLaminadoFinal = P.precioVenta(costoBaseLam, lGanancia);
             }
 
+            // 4. Separadores (solo aplican si la pieza lleva PVC)
+            let precioSeparadoresFinal = 0;
+            const incluyeSeparadores = incluyePvc && checkSeparadoresEl && checkSeparadoresEl.checked;
+            if (incluyeSeparadores) {
+                const cantSeparadores = Math.max(0, parseInt(document.getElementById('cantidadSeparadores').value, 10) || 0);
+                precioSeparadoresFinal = P.total(P.PRECIOS.accesorios.separadores.precio, cantSeparadores);
+            }
+
             // Total general sumando componentes activos y multiplicando por unidades.
             // El precio de cada material es por unidad (una lámina por pieza), así que
             // la cantidad se aplica recién sobre el subtotal, no dentro del cálculo.
-            const precioTotalUSD = P.total(precioPvcFinal + precioVinilFinal + precioLaminadoFinal, cantidad);
+            const precioTotalUSD = P.total(precioPvcFinal + precioVinilFinal + precioLaminadoFinal + precioSeparadoresFinal, cantidad);
             const precioTotalBs = precioTotalUSD * tasaBCVOficial;
 
             // Alerta de exceso de dimensiones base PVC (se evalúa por unidad)
@@ -244,6 +271,7 @@
             document.getElementById('resSubVinil').innerText = incluyeVinil ? formatearUsd(precioVinilFinal * cantidad) : 'No incluido';
             document.getElementById('resVinilNota').innerText = (incluyeVinil && dobleLadoVinil) ? '2 caras' : '';
             document.getElementById('resSubLaminado').innerText = incluyeLaminado ? formatearUsd(precioLaminadoFinal * cantidad) : 'No incluido';
+            document.getElementById('resSubSeparadores').innerText = incluyeSeparadores ? formatearUsd(precioSeparadoresFinal * cantidad) : 'No incluido';
 
             document.getElementById('resPrecioFinal').innerText = formatearUsd(precioTotalUSD);
             document.getElementById('resPrecioBs').innerText = 'Bs. ' + precioTotalBs.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -259,10 +287,12 @@
                 incluyePvc,
                 incluyeVinil,
                 incluyeLaminado,
+                incluyeSeparadores,
                 dobleLado: dobleLadoVinil,
                 precioPvc: precioPvcFinal * cantidad,
                 precioVinil: precioVinilFinal * cantidad,
                 precioLaminado: precioLaminadoFinal * cantidad,
+                precioSeparadores: precioSeparadoresFinal * cantidad,
                 totalUsd: precioTotalUSD,
                 totalBs: precioTotalBs,
                 tasa: tasaBCVOficial,
@@ -284,6 +314,7 @@
             lineas.push(`• Lámina PVC: ${cot.incluyePvc ? formatearUsd(cot.precioPvc) : 'No incluido'}`);
             lineas.push(`• Impresión Vinil: ${cot.incluyeVinil ? formatearUsd(cot.precioVinil) : 'No incluido'}${cot.dobleLado ? ' (2 caras)' : ''}`);
             lineas.push(`• Laminado: ${cot.incluyeLaminado ? formatearUsd(cot.precioLaminado) : 'No incluido'}`);
+            lineas.push(`• Separadores: ${cot.incluyeSeparadores ? formatearUsd(cot.precioSeparadores) : 'No incluido'}`);
             lineas.push('');
             lineas.push(`*TOTAL: ${formatearUsd(cot.totalUsd)}*`);
             lineas.push(`Equivalente: Bs. ${cot.totalBs.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
@@ -353,6 +384,7 @@
 
         window.onload = function() {
             aplicarDefaultsPrecios();
+            sincronizarSeparadores();
             toggleUnifiedSection('pvcSubContent', 'checkPvc', 'cardPvcContainer');
             toggleUnifiedSection('vinilSubContent', 'checkVinil', 'cardVinilContainer');
             toggleUnifiedSection('laminadoSubContent', 'checkLaminado', 'cardLaminadoContainer');
