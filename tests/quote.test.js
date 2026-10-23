@@ -68,6 +68,22 @@ close(pvc.lineas[0].total, 4.1570833333333335, 1e-9);
 close(pvc.lineas[1].total, 2);
 close(pvc.total, 14.157083333333334, 1e-9);
 
+const disenos = quote.build({
+  titulo: 'DTF',
+  cantidad: 3,
+  materiales: [
+    { nombre: 'Diseño 1', costoBase: 60, cantidad: 1 },
+    { nombre: 'Diseño 2', costoBase: 30, cantidad: 2 }
+  ]
+});
+close(disenos.lineas[0].precioUnitario, 100, 1e-9);
+close(disenos.lineas[1].precioUnitario, 25, 1e-9);
+assert.equal(disenos.lineas[0].cantidad, 1);
+assert.equal(disenos.lineas[1].cantidad, 2);
+const draftDisenos = quote.borrador(disenos, { titulo: 'DTF' });
+assert.equal(draftDisenos.lineas[0].cant, 1);
+assert.equal(draftDisenos.lineas[1].cant, 2);
+
 const texto = quote.texto(corte, {
   titulo: 'Corte de vinil',
   detalle: ['2 unidades de 20 x 15 cm'],
@@ -83,6 +99,7 @@ const draft = quote.borrador(corte, { titulo: 'Corte de vinil' });
 assert.equal(draft.version, 1);
 assert.equal(draft.lineas.length, 3);
 assert.equal(draft.lineas[0].unidad, 'm²');
+assert.equal(draft.lineas[0].cant, 2);
 assert.ok(draft.lineas[0].precio > 0);
 assert.ok(draft.total > 0);
 

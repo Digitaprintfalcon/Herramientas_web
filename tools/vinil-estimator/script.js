@@ -154,7 +154,7 @@
       var materiales = [{
         nombre: nombreMaterial,
         detalle: detalleMaterial,
-        unidad: esLineal ? 'ml' : 'm²',
+        unidad: 'ud',
         costoBase: costoBase,
         mermaPct: 0,
         margenPct: margenPct
@@ -168,7 +168,7 @@
         materiales.push({
           nombre: 'Laminado',
           detalle: 'Cobertura por área',
-          unidad: 'm²',
+          unidad: 'ud',
           costoBase: costoLam * piezas,
           mermaPct: 0,
           margenPct: margenPct

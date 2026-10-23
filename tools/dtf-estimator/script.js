@@ -242,7 +242,8 @@
         return {
           nombre: diseno.etiqueta || ('Diseño ' + (indice + 1)),
           detalle: fmt(diseno.ancho, 1) + ' x ' + fmt(diseno.alto, 1) + ' cm × ' + fmt(cantidad, 0) + ' ud',
-          unidad: 'pieza',
+          unidad: 'ud',
+          cantidad: cantidad,
           costoBase: costoDiseno(diseno, anchoRollo, costoMl),
           mermaPct: 0,
           margenPct: margenPct

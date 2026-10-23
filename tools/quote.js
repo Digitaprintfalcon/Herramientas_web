@@ -39,13 +39,14 @@
       var costoConMerma = costoBase + merma;
       var precio = P ? P.precioVenta(costoConMerma, margenPct) : costoConMerma;
       var unidad = m.unidad || 'ud';
+      var lineCantidad = m.cantidad != null ? num(m.cantidad) : cantidad;
       return {
         tipo: 'material',
         nombre: m.nombre || 'Material',
         detalle: m.detalle || '',
         unidad: unidad,
-        cantidad: cantidad,
-        precioUnitario: cantidad > 0 ? precio / cantidad : 0,
+        cantidad: lineCantidad,
+        precioUnitario: lineCantidad > 0 ? precio / lineCantidad : 0,
         costoBase: costoBase,
         mermaPct: mermaPct,
         merma: merma,

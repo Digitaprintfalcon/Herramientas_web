@@ -66,7 +66,7 @@
       var materiales = [{
         nombre: 'Banner',
         detalle: fmt(area, 3) + ' m² × ' + fmt(piezas, 0) + ' ud',
-        unidad: 'm²',
+        unidad: 'ud',
         costoBase: costoBase,
         mermaPct: 0,
         margenPct: margenPct
