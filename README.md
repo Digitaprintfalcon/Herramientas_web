@@ -21,7 +21,8 @@ generadores de documentos (referencias y autorizaciones).
 ├── tools/
 │   ├── common.js              # Lógica compartida (tema, nav, helpers, catálogo)
 │   ├── common.css             # Tokens de diseño y estilos compartidos
-│   ├── pricing.js             # Catálogo de precios y fórmulas compartidas (HW.pricing)
+│   ├── pricing.js             # Catálogo de costos y fórmulas compartidas (HW.pricing)
+│   ├── quote.js               # Motor de cotización y resumen compartido (HW.quote)
 │   ├── cedula-client.js       # Cliente de consulta de cédulas (HW.cedula)
 │   ├── <herramienta>/index.html
 │   ├── <herramienta>/script.js
@@ -42,7 +43,7 @@ Solo necesitás Python 3:
 
 ## Catálogo y navegación
 
-- Las 11 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
+- Las 10 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
   El menú "Herramientas" de la barra superior y las tarjetas del panel principal se
   generan desde esa fuente: para agregar/quitar una herramienta se edita solo ahí.
 - Tema claro/oscuro: automático por dispositivo, con preferencia manual guardada en
@@ -50,20 +51,28 @@ Solo necesitás Python 3:
 
 ## Precios y cotizadores
 
-- Todos los precios y parámetros base viven en `tools/pricing.js` (`HW.pricing.PRECIOS`).
-  Los estimadores los cargan después de `common.js` y los usan para inicializar sus
-  campos; si el usuario edita un precio, se respeta durante la sesión.
-- El botón de limpiar/restablecer vuelve a los valores del catálogo. En DTF, la
-  cotización persistida en `localStorage` tiene prioridad sobre los defaults.
+- Los costos y parámetros base viven en `tools/pricing.js` (`HW.pricing.COSTOS`,
+  `SERVICIOS` y `ACCESORIOS`). Los estimadores los cargan después de `common.js` y los
+  usan para inicializar sus campos; si el usuario edita un valor, se respeta durante la
+  sesión.
+- `tools/quote.js` (`HW.quote`) calcula la cotización completa, arma el resumen visual,
+  copia el texto y genera el borrador que consume el generador de cotizaciones.
+- El botón de limpiar/restablecer vuelve a los valores del catálogo.
 - Las unidades importan: `$/m²` para área, `$/ml` para rollo/metro lineal y `$/unidad`
   para servicios. No se mezclan áreas con metros lineales.
 - El margen es **sobre el precio de venta**: `precio = costo / (1 - margen/100)`.
   El pipeline es `costo base → merma → margen → servicios → cantidad`.
+- El margen único por defecto es **40%**. Banner y vinil adhesivo quedan en `$25/m²`,
+  DTF en `$25/ml`; PVC y laminado de vinil se recalibraron con el mismo criterio.
 - Planchado e instalación usan los valores únicos `$1.50` y `$10.00`.
 - Accesorios con precio fijo: ojales `$1` c/u y bolsillos `$2` c/u en pendones/banners;
   separadores `$2` c/u solo cuando la pieza incluye PVC. Inician activos con 4 unidades
-  por pieza y se pueden desactivar o cambiar de cantidad. El vinil no ofrece accesorios.
-- Para probar las fórmulas compartidas: `node tests/pricing.test.js`.
+  por pieza y se pueden desactivar o cambiar de cantidad.
+- El cotizador de vinil unifica el vinil adhesivo y el textil (corte). La ruta antigua
+  `tools/cut-estimator/` redirige a `?tipo=textil`.
+- Para probar las fórmulas y el motor: `node tests/pricing.test.js` y
+  `node tests/quote.test.js`. El detalle de la arquitectura está en
+  [`docs/cotizadores.md`](docs/cotizadores.md).
 
 ## Referencias precargadas
 
