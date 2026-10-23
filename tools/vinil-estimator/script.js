@@ -1,196 +1,280 @@
-let vinilEstado = {
-  anchoCm: 0,
-  altoCm: 0,
-  precioVinil: 0,
-  cantidad: 1,
-  laminado: false,
-  precioLaminado: 0,
-  diseno: false,
-  costoDiseno: 0,
-  corte: false,
-  costoCorte: 0,
-  instalacion: false,
-  costoInstalacion: 0,
-  unitario: 0,
-  total: 0
-};
+(function () {
+  'use strict';
 
-let vinilBcv = null;
+  var estado = {
+    quote: null,
+    detalle: [],
+    bcv: null,
+    tipo: 'adhesivo'
+  };
 
-document.addEventListener('DOMContentLoaded', () => {
-  const anchoPieza = document.getElementById('anchoPieza');
-  const altoPieza = document.getElementById('altoPieza');
-  const precioImpresion = document.getElementById('precioImpresion');
+  function fmt(n, d) {
+    return Number(n).toLocaleString('es-ES', {
+      minimumFractionDigits: d || 0,
+      maximumFractionDigits: d || 0
+    });
+  }
 
-  const incluirLaminado = document.getElementById('incluirLaminado');
-  const seccionLaminado = document.getElementById('seccionLaminado');
-  const anchoLaminado = document.getElementById('anchoLaminado');
-  const precioLaminado = document.getElementById('precioLaminado');
+  function val(id) {
+    return parseFloat(document.getElementById(id).value) || 0;
+  }
 
-  const incluirDiseno = document.getElementById('incluirDiseno');
-  const seccionDiseno = document.getElementById('seccionDiseno');
-  const costoDiseno = document.getElementById('costoDiseno');
+  function checked(id) {
+    return document.getElementById(id).checked;
+  }
 
-  const incluirCorte = document.getElementById('incluirCorte');
-  const seccionCorte = document.getElementById('seccionCorte');
-  const costoCorte = document.getElementById('costoCorte');
+  function alternarCuerpo(idCuerpo, activo) {
+    document.getElementById(idCuerpo).classList.toggle('d-none', !activo);
+  }
 
-  const incluirInstalacion = document.getElementById('incluirInstalacion');
-  const seccionInstalacion = document.getElementById('seccionInstalacion');
-  const costoInstalacion = document.getElementById('costoInstalacion');
+  document.addEventListener('DOMContentLoaded', function () {
+    var P = HW.pricing.PRECIOS;
+    var C = HW.pricing.COSTOS;
+    var S = HW.pricing.SERVICIOS;
 
-  const cantidadPiezas = document.getElementById('cantidadPiezas');
-  const resultadoUnitario = document.getElementById('resultadoUnitario');
-  const resultado = document.getElementById('resultado');
+    var tipo = document.getElementById('tipoTrabajo');
+    var metodo = document.getElementById('metodo');
+    var ancho = document.getElementById('anchoPieza');
+    var alto = document.getElementById('altoPieza');
+    var cantidad = document.getElementById('cantidadPiezas');
+    var costoMaterial = document.getElementById('costoMaterial');
+    var margen = document.getElementById('margen');
+    var anchoRollo = document.getElementById('anchoRollo');
+    var incluirLaminado = document.getElementById('incluirLaminado');
+    var anchoLaminado = document.getElementById('anchoLaminado');
+    var costoLaminado = document.getElementById('costoLaminado');
 
-  vinilBcv = HW.bcv.mount(document.getElementById('bcvBox'));
+    var servicios = [
+      { id: 'incluirDiseno', precio: 'precioDiseno', catalogo: S.diseno },
+      { id: 'incluirCorte', precio: 'precioCorte', catalogo: S.corte },
+      { id: 'incluirInstalacion', precio: 'precioInstalacion', catalogo: S.instalacion },
+      { id: 'incluirPlanchado', precio: 'precioPlanchado', catalogo: S.planchado }
+    ];
 
-  const P = HW.pricing.PRECIOS;
-  HW.pricing.poblar({
-    precioImpresion: P.vinil.impresionM2,
-    anchoLaminado: P.vinil.anchoRolloLaminadoCm,
-    precioLaminado: P.vinil.laminadoMl,
-    costoDiseno: P.vinil.diseno,
-    costoCorte: P.vinil.corte,
-    costoInstalacion: P.servicios.instalacion
-  });
+    estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
-  // Eventos para mostrar/ocultar secciones opcionales
-  incluirLaminado.addEventListener('change', () => {
-    seccionLaminado.style.display = incluirLaminado.checked ? 'flex' : 'none';
-    calcularPrecio();
-  });
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('tipo') === 'textil') tipo.value = 'textil';
 
-  incluirDiseno.addEventListener('change', () => {
-    seccionDiseno.style.display = incluirDiseno.checked ? 'block' : 'none';
-    calcularPrecio();
-  });
+    servicios.forEach(function (servicio) {
+      document.getElementById('precio' + servicio.id.slice(7)).value = servicio.catalogo.precio;
+    });
 
-  incluirCorte.addEventListener('change', () => {
-    seccionCorte.style.display = incluirCorte.checked ? 'block' : 'none';
-    calcularPrecio();
-  });
+    function defaultsTipo() {
+      var esTextil = tipo.value === 'textil';
+      ancho.value = esTextil ? '20' : '100';
+      alto.value = esTextil ? '15' : '135';
+      cantidad.value = '1';
+      margen.value = String(P.margen);
+      metodo.value = 'lineal';
+      anchoRollo.value = String(P.corte.anchoRolloCm);
+      anchoLaminado.value = String(P.vinil.anchoRolloLaminadoCm);
+      costoLaminado.value = String(C.laminadoVinilMl);
 
-  incluirInstalacion.addEventListener('change', () => {
-    seccionInstalacion.style.display = incluirInstalacion.checked ? 'block' : 'none';
-    calcularPrecio();
-  });
+      if (esTextil) {
+        costoMaterial.value = String(C.vinilTextilMl);
+      } else {
+        costoMaterial.value = String(C.vinilAdhesivoM2);
+      }
 
-  function calcularPrecio() {
-    const aPieza = parseFloat(anchoPieza.value) || 0;
-    const hPieza = parseFloat(altoPieza.value) || 0;
-    const precioVinil = parseFloat(precioImpresion.value) || 0;
-    const cantidad = parseInt(cantidadPiezas.value) || 1;
+      incluirLaminado.checked = false;
+      servicios.forEach(function (servicio) {
+        document.getElementById(servicio.id).checked = false;
+      });
 
-    vinilEstado.anchoCm = aPieza;
-    vinilEstado.altoCm = hPieza;
-    vinilEstado.precioVinil = precioVinil;
-    vinilEstado.cantidad = cantidad;
-    vinilEstado.laminado = incluirLaminado.checked;
-    vinilEstado.precioLaminado = parseFloat(precioLaminado.value) || 0;
-    vinilEstado.diseno = incluirDiseno.checked;
-    vinilEstado.costoDiseno = parseFloat(costoDiseno.value) || 0;
-    vinilEstado.corte = incluirCorte.checked;
-    vinilEstado.costoCorte = parseFloat(costoCorte.value) || 0;
-    vinilEstado.instalacion = incluirInstalacion.checked;
-    vinilEstado.costoInstalacion = parseFloat(costoInstalacion.value) || 0;
+      actualizarTipo();
+    }
 
-    // Parte 1: Calcular el precio unitario del vinil
-    const areaPiezaM2 = HW.pricing.areaM2(aPieza, hPieza);
-    const costoVinilUnitario = HW.pricing.costoArea(areaPiezaM2, precioVinil);
+    function actualizarTipo() {
+      var esTextil = tipo.value === 'textil';
+      estado.tipo = tipo.value;
+      document.getElementById('navSubtitulo').textContent = esTextil
+        ? 'Corte de vinil textil: rollo, m², planchado e instalación'
+        : 'Vinil adhesivo de gran formato: m², laminado e instalación';
 
-    // Parte 2: Calcular el precio unitario del laminado (si está activo)
-    let costoLamUnitario = 0;
-    if (incluirLaminado.checked) {
-      const aLam = parseFloat(anchoLaminado.value) || P.vinil.anchoRolloLaminadoCm;
-      const precioLam = parseFloat(precioLaminado.value) || 0;
-      if (aLam > 0) {
-        costoLamUnitario = HW.pricing.costoRollo(areaPiezaM2, aLam, precioLam);
+      document.querySelectorAll('.solo-textil').forEach(function (el) {
+        el.classList.toggle('d-none', !esTextil);
+      });
+      document.querySelectorAll('.solo-adhesivo').forEach(function (el) {
+        el.classList.toggle('d-none', esTextil);
+      });
+
+      if (!esTextil) {
+        document.getElementById('incluirPlanchado').checked = false;
+        alternarCuerpo('cuerpoPlanchado', false);
+      }
+
+      actualizarCostoMaterial();
+      alternarCuerpo('cuerpoLaminado', !esTextil && incluirLaminado.checked);
+    }
+
+    function actualizarCostoMaterial() {
+      var esTextil = tipo.value === 'textil';
+      var esLineal = esTextil && metodo.value === 'lineal';
+      var label = document.getElementById('labelCostoMaterial');
+
+      if (!esTextil) {
+        label.textContent = 'Costo del vinil adhesivo';
+        document.getElementById('unidadCosto').textContent = '$/m²';
+        costoMaterial.value = String(C.vinilAdhesivoM2);
+      } else if (esLineal) {
+        label.textContent = 'Costo del vinil textil';
+        document.getElementById('unidadCosto').textContent = '$/ml';
+        costoMaterial.value = String(C.vinilTextilMl);
+      } else {
+        label.textContent = 'Costo del vinil textil';
+        document.getElementById('unidadCosto').textContent = '$/m²';
+        costoMaterial.value = String(P.corte.costoM2);
       }
     }
 
-    // Parte 3: Costo unitario opcional de diseño (si está activo)
-    let costoDisUnitario = 0;
-    if (incluirDiseno.checked) {
-      costoDisUnitario = parseFloat(costoDiseno.value) || 0;
+    function calcular() {
+      var piezas = Math.max(0, parseFloat(cantidad.value) || 0);
+      var area = HW.pricing.areaM2(val('anchoPieza'), val('altoPieza'));
+      var esTextil = tipo.value === 'textil';
+      var esLineal = esTextil && metodo.value === 'lineal';
+      var margenPct = Math.max(0, val('margen'));
+      var costoBase = 0;
+      var detalleMaterial = '';
+      var nombreMaterial = esTextil ? 'Vinil textil' : 'Vinil adhesivo';
+
+      if (!esTextil) {
+        costoBase = HW.pricing.costoArea(area, Math.max(0, val('costoMaterial'))) * piezas;
+        detalleMaterial = fmt(area, 3) + ' m² × ' + fmt(piezas, 0) + ' ud';
+      } else if (esLineal) {
+        var rollo = Math.max(0, val('anchoRollo'));
+        var metros = rollo > 0 ? HW.pricing.metrosLineales(area, rollo) : 0;
+        costoBase = (rollo > 0 ? HW.pricing.costoRollo(area, rollo, Math.max(0, val('costoMaterial'))) : 0) * piezas;
+        detalleMaterial = fmt(metros, 3) + ' ml × ' + fmt(piezas, 0) + ' ud (rollo ' + fmt(rollo, 1) + ' cm)';
+      } else {
+        costoBase = HW.pricing.costoArea(area, Math.max(0, val('costoMaterial'))) * piezas;
+        detalleMaterial = fmt(area, 3) + ' m² × ' + fmt(piezas, 0) + ' ud';
+      }
+
+      var materiales = [{
+        nombre: nombreMaterial,
+        detalle: detalleMaterial,
+        unidad: 'ud',
+        costoBase: costoBase,
+        mermaPct: 0,
+        margenPct: margenPct
+      }];
+
+      if (!esTextil && incluirLaminado.checked) {
+        var rolloLaminado = Math.max(0, val('anchoLaminado'));
+        var costoLam = rolloLaminado > 0
+          ? HW.pricing.costoRollo(area, rolloLaminado, Math.max(0, val('costoLaminado')))
+          : 0;
+        materiales.push({
+          nombre: 'Laminado',
+          detalle: 'Cobertura por área',
+          unidad: 'ud',
+          costoBase: costoLam * piezas,
+          mermaPct: 0,
+          margenPct: margenPct
+        });
+      }
+
+      var serviciosSeleccionados = [];
+      servicios.forEach(function (servicio) {
+        if (esTextil || servicio.id !== 'incluirPlanchado') {
+          var activo = document.getElementById(servicio.id).checked;
+          if (activo) {
+            var precio = Math.max(0, val(servicio.precio));
+            serviciosSeleccionados.push({
+              nombre: servicio.catalogo.nombre,
+              precio: precio,
+              modo: 'pieza',
+              detalle: '$' + fmt(precio, 2) + ' por pieza'
+            });
+          }
+        }
+      });
+
+      estado.detalle = [
+        fmt(piezas, 0) + ' ' + (piezas === 1 ? 'unidad' : 'unidades') + ' de ' +
+          fmt(val('anchoPieza'), 1) + ' x ' + fmt(val('altoPieza'), 1) + ' cm',
+        'Área por unidad: ' + fmt(area, 3) + ' m²'
+      ];
+
+      estado.quote = HW.quote.build({
+        titulo: esTextil ? 'Vinil textil' : 'Vinil adhesivo',
+        cantidad: piezas,
+        detalle: estado.detalle,
+        materiales: materiales,
+        servicios: serviciosSeleccionados,
+        margenPct: margenPct
+      });
+
+      HW.quote.renderResumen(document.getElementById('resumen'), estado.quote);
+      if (estado.bcv) estado.bcv.setUsd(estado.quote.total);
     }
 
-    // Parte 4: Costo unitario opcional de corte (si está activo)
-    let costoCorUnitario = 0;
-    if (incluirCorte.checked) {
-      costoCorUnitario = parseFloat(costoCorte.value) || 0;
+    function sincronizarCuerpos() {
+      servicios.forEach(function (servicio) {
+        var cuerpo = 'cuerpo' + servicio.id.slice(7);
+        alternarCuerpo(cuerpo, document.getElementById(servicio.id).checked);
+      });
+      alternarCuerpo('cuerpoLaminado', !esTextilActual() && incluirLaminado.checked);
     }
 
-    // Parte 5: Costo unitario opcional de instalación (si está activo)
-    let costoInstUnitario = 0;
-    if (incluirInstalacion.checked) {
-      costoInstUnitario = parseFloat(costoInstalacion.value) || 0;
+    function esTextilActual() {
+      return tipo.value === 'textil';
     }
 
-    // Sumar todos los costos por pieza y multiplicar por la cantidad total
-    const costoUnitarioTotal = HW.pricing.conServicios(costoVinilUnitario + costoLamUnitario, [
-      costoDisUnitario, costoCorUnitario, costoInstUnitario
-    ]);
-    const precioFinal = HW.pricing.total(costoUnitarioTotal, cantidad > 0 ? cantidad : 1);
+    [ancho, alto, cantidad, margen, anchoRollo, anchoLaminado, costoLaminado].forEach(function (el) {
+      el.addEventListener('input', calcular);
+    });
 
-    vinilEstado.unitario = costoUnitarioTotal;
-    vinilEstado.total = precioFinal;
+    costoMaterial.addEventListener('input', calcular);
 
-    resultadoUnitario.textContent = HW.fmtCurrency(costoUnitarioTotal);
-    resultado.textContent = HW.fmtCurrency(precioFinal);
-    if (vinilBcv) vinilBcv.setUsd(precioFinal);
-  }
+    tipo.addEventListener('change', function () {
+      actualizarTipo();
+      calcular();
+    });
 
-  const inputsMonitoreados = [
-    anchoPieza, altoPieza, precioImpresion,
-    anchoLaminado, precioLaminado, costoDiseno, costoCorte,
-    costoInstalacion, cantidadPiezas
-  ];
+    metodo.addEventListener('change', function () {
+      actualizarCostoMaterial();
+      calcular();
+    });
 
-  inputsMonitoreados.forEach(element => {
-    if (element) {
-      element.addEventListener('input', calcularPrecio);
-    }
+    incluirLaminado.addEventListener('change', function () {
+      alternarCuerpo('cuerpoLaminado', incluirLaminado.checked);
+      calcular();
+    });
+
+    servicios.forEach(function (servicio) {
+      document.getElementById(servicio.id).addEventListener('change', function () {
+        sincronizarCuerpos();
+        calcular();
+      });
+      document.getElementById(servicio.precio).addEventListener('input', calcular);
+    });
+
+    document.getElementById('btnReiniciar').addEventListener('click', function () {
+      defaultsTipo();
+      sincronizarCuerpos();
+      calcular();
+    });
+    document.getElementById('btnCopiar').addEventListener('click', function () {
+      HW.quote.copiar(estado.quote, {
+        titulo: esTextilActual() ? 'Vinil textil' : 'Vinil adhesivo',
+        detalle: estado.detalle,
+        tasa: estado.bcv ? estado.bcv.getTasa() : 0
+      });
+    });
+    document.getElementById('btnCopiarTotal').addEventListener('click', function () {
+      HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
+    });
+    document.getElementById('btnGenerador').addEventListener('click', function () {
+      HW.quote.enviarAlGenerador(estado.quote, {
+        titulo: esTextilActual() ? 'Vinil textil' : 'Vinil adhesivo',
+        detalle: estado.detalle
+      });
+    });
+
+    defaultsTipo();
+    sincronizarCuerpos();
+    calcular();
   });
-
-  calcularPrecio();
-});
-
-function vinilFmt(n, d) {
-  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
-}
-
-function copiarCotizacion() {
-  const e = vinilEstado;
-  if (!(e.total > 0)) {
-    HW.toast('Ingresa las medidas para cotizar', true);
-    return;
-  }
-  const lineas = [];
-  lineas.push('*COTIZACIÓN VINIL*');
-  lineas.push(e.cantidad + ' ' + (e.cantidad === 1 ? 'unidad' : 'unidades') + ' de ' + vinilFmt(e.anchoCm, 1) + ' x ' + vinilFmt(e.altoCm, 1) + ' cm');
-  lineas.push('Vinil: ' + HW.fmtUsd(e.precioVinil) + ' /m²');
-  const extras = [];
-  if (e.laminado) extras.push('Laminado: ' + HW.fmtUsd(e.precioLaminado) + ' /metro lineal');
-  if (e.diseno) extras.push('Diseño: ' + HW.fmtUsd(e.costoDiseno));
-  if (e.corte) extras.push('Corte: ' + HW.fmtUsd(e.costoCorte));
-  if (e.instalacion) extras.push('Instalación: ' + HW.fmtUsd(e.costoInstalacion));
-  extras.forEach(function (x) { lineas.push('• ' + x); });
-  lineas.push('Precio unitario: ' + HW.fmtUsd(e.unitario));
-  lineas.push('');
-  lineas.push('*TOTAL: ' + HW.fmtUsd(e.total) + '*');
-  const tasa = vinilBcv ? vinilBcv.getTasa() : 0;
-  if (tasa > 0) {
-    lineas.push('Equivalente: ' + HW.fmtBs(e.total * tasa));
-    lineas.push('Tasa BCV: ' + vinilFmt(tasa, 2) + ' Bs/$');
-  }
-  HW.copyResult(lineas.join('\n'), 'Cotización copiada al portapapeles');
-}
-
-function copiarTotal() {
-  const tasa = vinilBcv ? vinilBcv.getTasa() : 0;
-  HW.copyTotal(vinilEstado.total, tasa, 'Total copiado al portapapeles');
-}
-
-window.copiarCotizacion = copiarCotizacion;
-window.copiarTotal = copiarTotal;
+})();

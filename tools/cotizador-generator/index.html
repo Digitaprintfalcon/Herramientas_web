@@ -105,7 +105,10 @@
               <thead><tr><th style="width:30px">#</th><th>Descripción</th><th style="width:64px">Cant.</th><th style="width:78px">Unidad</th><th style="width:92px">P. USDT</th><th style="width:100px">Imp. USDT</th><th style="width:100px">Bs</th><th style="width:38px"></th></tr></thead>
               <tbody id="lineasTbody"></tbody>
             </table>
-            <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarLinea()"><i class="bi bi-plus-lg me-1"></i>Agregar línea</button>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarLinea()"><i class="bi bi-plus-lg me-1"></i>Agregar línea</button>
+              <button type="button" class="btn btn-outline-success btn-sm" onclick="importarBorrador()"><i class="bi bi-download me-1"></i>Importar borrador</button>
+            </div>
           </div>
           <h5 class="hw-section-title">5. Totales</h5>
           <div class="bg-light border rounded-3 p-3 mb-3">

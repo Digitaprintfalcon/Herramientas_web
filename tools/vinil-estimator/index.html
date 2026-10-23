@@ -3,184 +3,244 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Precio - Vinil por Medida</title>
+  <title>Cotizador de Vinil adhesivo y textil</title>
 
-<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-<link rel="icon" href="../../favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="../../favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" href="../../apple-touch-icon.png" sizes="180x180">
-<link rel="manifest" href="../../site.webmanifest">
-<meta name="theme-color" content="#059669" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
-  <!-- Bootstrap 5 CSS -->
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../../favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="../../favicon-16x16.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta name="theme-color" content="#059669" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- Estilos comunes del panel -->
   <link rel="stylesheet" href="../common.css">
 </head>
-<body class="bg-body-tertiary d-flex flex-column align-items-center min-vh-100">
+<body class="bg-body-tertiary min-vh-100">
 
   <div class="tool-nav">
     <a class="tool-nav-back" href="../../index.html"><i class="bi bi-arrow-left"></i> Volver al panel</a>
     <div class="tool-nav-titles">
-      <h1 class="tool-nav-title">Cotizador de Vinil</h1>
-      <p class="tool-nav-sub">Precio por dimensiones, laminado, diseño, corte, instalación y cantidad</p>
+      <h1 class="tool-nav-title" id="navTitulo">Cotizador de Vinil</h1>
+      <p class="tool-nav-sub" id="navSubtitulo">Vinil adhesivo y textil con costos, margen y servicios</p>
     </div>
   </div>
 
-  <div class="container my-auto py-4">
-    <div class="card shadow-sm border-0 p-4 mx-auto" style="max-width: 520px;">
-    <h2 class="hw-card-title h5 mb-1"><i class="bi bi-layers-fill text-primary me-2"></i>Calculadora de Precio - Vinil</h2>
-    <p class="hw-card-subtitle mb-4"><i class="bi bi-calculator me-1"></i>Cálculo por dimensiones y opcionales</p>
-
-    <!-- Medidas de la Pieza de Vinil -->
-    <div class="row g-2 mb-3">
-      <div class="col-4">
-        <label for="anchoPieza" class="form-label fw-semibold small text-secondary">Ancho de Pieza</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="anchoPieza" placeholder="100" value="100" step="0.1" min="0">
-          <span class="input-group-text bg-light text-muted">cm</span>
-        </div>
-      </div>
-
-      <div class="col-4">
-        <label for="altoPieza" class="form-label fw-semibold small text-secondary">Alto / Largo de Pieza</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="altoPieza" placeholder="135" value="135" step="0.1" min="0">
-          <span class="input-group-text bg-light text-muted">cm</span>
-        </div>
-      </div>
-
-      <div class="col-4">
-        <label for="cantidadPiezas" class="form-label fw-semibold small text-secondary">Cantidad de Piezas</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="cantidadPiezas" placeholder="1" value="1" step="1" min="1">
-          <span class="input-group-text bg-light text-muted">pz</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Precio Base -->
-    <p class="hw-section-title">Precio del Material</p>
-    <div class="mb-3">
-      <label for="precioImpresion" class="form-label fw-semibold small text-secondary">Precio Metro Cuadrado de Vinil ($/m²)</label>
-      <div class="input-group input-group-sm">
-        <input type="number" class="form-control" id="precioImpresion" placeholder="25.00" step="0.01" min="0">
-        <span class="input-group-text bg-light text-muted">$</span>
-      </div>
-    </div>
-
-    <!-- Sección de Laminado -->
-    <p class="hw-section-title">Servicios Opcionales</p>
-    <div class="card bg-white border p-3 rounded-3 mb-3">
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="incluirLaminado">
-        <label class="form-check-label fw-semibold small text-dark" for="incluirLaminado">
-          <i class="bi bi-shield-check text-primary me-1"></i>Agregar Laminado (Protección)
-        </label>
-      </div>
-      <div id="seccionLaminado" class="row g-2" style="display: none;">
-        <div class="col-6">
-          <label for="anchoLaminado" class="form-label fw-semibold small text-secondary">Ancho Máx. Laminado</label>
-          <div class="input-group input-group-sm">
-            <input type="number" class="form-control" id="anchoLaminado" step="0.1" min="0">
-            <span class="input-group-text bg-light text-muted">cm</span>
+  <main class="container hw-quote-container py-4">
+    <div class="row g-4 hw-quote-layout">
+      <div class="col-lg-7">
+        <div class="card p-4 mb-4">
+          <div class="hw-section-head">
+            <span class="hw-step">1</span>
+            <h2>Trabajo, medidas y cantidad</h2>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-12">
+              <div class="hw-field">
+                <label for="tipoTrabajo" class="form-label">Tipo de trabajo</label>
+                <select class="form-select" id="tipoTrabajo">
+                  <option value="adhesivo">Vinil adhesivo / gran formato</option>
+                  <option value="textil">Vinil textil / corte</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="hw-field">
+                <label for="anchoPieza" class="form-label">Ancho</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="anchoPieza" value="100" step="0.1" min="0">
+                  <span class="input-group-text">cm</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="hw-field">
+                <label for="altoPieza" class="form-label">Alto / largo</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="altoPieza" value="135" step="0.1" min="0">
+                  <span class="input-group-text">cm</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="hw-field">
+                <label for="cantidadPiezas" class="form-label">Cantidad</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="cantidadPiezas" value="1" step="1" min="1">
+                  <span class="input-group-text">ud</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-6">
-          <label for="precioLaminado" class="form-label fw-semibold small text-secondary">Precio Metro Laminado ($)</label>
-          <div class="input-group input-group-sm">
-            <input type="number" class="form-control" id="precioLaminado" step="0.01" min="0">
-            <span class="input-group-text bg-light text-muted">$</span>
+
+        <div class="card p-4 mb-4">
+          <div class="hw-section-head">
+            <span class="hw-step">2</span>
+            <h2>Material</h2>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-6 solo-textil" id="seccionMetodo">
+              <div class="hw-field">
+                <label for="metodo" class="form-label">Método de material</label>
+                <select class="form-select" id="metodo">
+                  <option value="lineal">Por metro lineal de rollo</option>
+                  <option value="area">Por metro cuadrado</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-6 solo-textil" id="seccionRollo">
+              <div class="hw-field">
+                <label for="anchoRollo" class="form-label">Ancho del rollo</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="anchoRollo" step="0.1" min="0">
+                  <span class="input-group-text">cm</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="hw-field">
+                <label for="costoMaterial" class="form-label" id="labelCostoMaterial">Costo del vinil</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="costoMaterial" step="0.01" min="0">
+                  <span class="input-group-text" id="unidadCosto">$/m²</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="hw-field">
+                <label for="margen" class="form-label">Margen de ganancia</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="margen" step="0.1" min="0" max="99">
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hw-switch-card mt-3 solo-adhesivo" id="cardLaminado">
+            <div class="hw-switch-row">
+              <label for="incluirLaminado"><i class="bi bi-shield-check me-1 text-primary"></i>Agregar laminado</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirLaminado">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoLaminado">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label for="anchoLaminado" class="form-label small text-muted">Ancho del laminado</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="anchoLaminado" step="0.1" min="0">
+                    <span class="input-group-text">cm</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="costoLaminado" class="form-label small text-muted">Costo del laminado</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" id="costoLaminado" step="0.01" min="0">
+                    <span class="input-group-text">$/ml</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+          <div class="hw-section-head">
+            <span class="hw-step">3</span>
+            <h2>Servicios</h2>
+          </div>
+          <p class="hw-section-help">Los servicios son precios fijos por pieza y no reciben margen.</p>
+
+          <div class="hw-switch-card" id="cardDiseno">
+            <div class="hw-switch-row">
+              <label for="incluirDiseno"><i class="bi bi-palette me-1 text-primary"></i>Diseño</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirDiseno">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoDiseno">
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="precioDiseno" step="0.01" min="0">
+                <span class="input-group-text">$ por pieza</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hw-switch-card" id="cardCorte">
+            <div class="hw-switch-row">
+              <label for="incluirCorte"><i class="bi bi-scissors me-1 text-primary"></i>Corte / troquelado</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirCorte">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoCorte">
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="precioCorte" step="0.01" min="0">
+                <span class="input-group-text">$ por pieza</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hw-switch-card" id="cardInstalacion">
+            <div class="hw-switch-row">
+              <label for="incluirInstalacion"><i class="bi bi-tools me-1 text-primary"></i>Instalación</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirInstalacion">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoInstalacion">
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="precioInstalacion" step="0.01" min="0">
+                <span class="input-group-text">$ por pieza</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hw-switch-card solo-textil" id="cardPlanchado">
+            <div class="hw-switch-row">
+              <label for="incluirPlanchado"><i class="bi bi-thermometer-half me-1 text-primary"></i>Planchado</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirPlanchado">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoPlanchado">
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="precioPlanchado" step="0.01" min="0">
+                <span class="input-group-text">$ por pieza</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hw-formula">
+          <strong>Cómo se calcula:</strong> costo del vinil × área o metros lineales → merma → margen.
+          El laminado se suma como material; diseño, corte, instalación y planchado se suman por pieza.
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="hw-quote-side">
+          <div class="card p-4">
+            <h2 class="hw-section-title">Resumen de la cotización</h2>
+            <div id="resumen" aria-live="polite"></div>
+            <div class="hw-actions">
+              <button type="button" class="btn btn-outline-secondary" id="btnReiniciar"><i class="bi bi-arrow-counterclockwise me-1"></i>Reiniciar</button>
+              <button type="button" class="btn btn-outline-primary" id="btnCopiar"><i class="bi bi-clipboard me-1"></i>Cotización</button>
+              <button type="button" class="btn btn-outline-success" id="btnCopiarTotal"><i class="bi bi-clipboard-check me-1"></i>Copiar total</button>
+              <button type="button" class="btn btn-primary hw-action-wide" id="btnGenerador"><i class="bi bi-receipt me-1"></i>Enviar al generador</button>
+            </div>
+            <div id="bcvBox"></div>
           </div>
         </div>
       </div>
     </div>
+  </main>
 
-    <!-- Sección de Diseño -->
-    <div class="card bg-white border p-3 rounded-3 mb-3">
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="incluirDiseno">
-        <label class="form-check-label fw-semibold small text-dark" for="incluirDiseno">
-          <i class="bi bi-palette text-primary me-1"></i>Agregar Costo de Diseño
-        </label>
-      </div>
-      <div id="seccionDiseno" style="display: none;">
-        <label for="costoDiseno" class="form-label fw-semibold small text-secondary">Costo Total de Diseño ($)</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="costoDiseno" placeholder="5.00" step="0.01" min="0">
-          <span class="input-group-text bg-light text-muted">$</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección de Corte -->
-    <div class="card bg-white border p-3 rounded-3 mb-3">
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="incluirCorte">
-        <label class="form-check-label fw-semibold small text-dark" for="incluirCorte">
-          <i class="bi bi-scissors text-primary me-1"></i>Agregar Costo de Corte Especial / Troquelado
-        </label>
-      </div>
-      <div id="seccionCorte" style="display: none;">
-        <label for="costoCorte" class="form-label fw-semibold small text-secondary">Costo Total de Corte ($)</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="costoCorte" placeholder="5.00" step="0.01" min="0">
-          <span class="input-group-text bg-light text-muted">$</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección de Instalación -->
-    <div class="card bg-white border p-3 rounded-3 mb-3">
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="incluirInstalacion">
-        <label class="form-check-label fw-semibold small text-dark" for="incluirInstalacion">
-          <i class="bi bi-tools text-primary me-1"></i>Agregar Costo de Instalación
-        </label>
-      </div>
-      <div id="seccionInstalacion" style="display: none;">
-        <label for="costoInstalacion" class="form-label fw-semibold small text-secondary">Costo Total de Instalación ($)</label>
-        <div class="input-group input-group-sm">
-          <input type="number" class="form-control" id="costoInstalacion" placeholder="10.00" step="0.01" min="0">
-          <span class="input-group-text bg-light text-muted">$</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Resultados: Unitario y Total -->
-    <div class="row g-2 mt-3">
-      <div class="col-6">
-        <div class="hw-result neutral h-100">
-          <span class="hw-result-label">Precio Unitario</span>
-          <span class="hw-result-value" id="resultadoUnitario">$0.00</span>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="hw-result accent h-100">
-          <span class="hw-result-label">Precio Total</span>
-          <span class="hw-result-value" id="resultado">$0.00</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="d-flex gap-2 mt-3 flex-wrap">
-      <button type="button" class="btn btn-outline-primary btn-sm flex-fill" onclick="copiarCotizacion()"><i class="bi bi-clipboard me-1"></i>Copiar Cotización</button>
-      <button type="button" class="btn btn-outline-success btn-sm flex-fill" onclick="copiarTotal()"><i class="bi bi-clipboard-check me-1"></i>Copiar Total</button>
-    </div>
-
-    <div id="bcvBox"></div>
-
-    <div class="text-muted mt-3" style="font-size: 0.75rem; line-height: 1.4;">
-      Fórmula: <code class="text-dark">[(Área de Pieza × Precio Vinil $/m²) + Opcionales] × Cantidad</code>
-    </div>
-  </div>
-  </div>
-
-  <!-- Script Lógica JavaScript -->
   <script src="../common.js"></script>
   <script src="../pricing.js"></script>
+  <script src="../quote.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

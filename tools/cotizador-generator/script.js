@@ -7,6 +7,7 @@
   var PERS_ULTIMA = 'hw_cot_ultima';
   var PERS_HISTORIAL = 'hw_cot_historial';
   var PERS_TASA = 'hw_cot_tasa';
+  var PERS_BORRADOR = 'hw_cot_borrador';
 
   var EMP = (window.HW_EMPRESA && typeof window.HW_EMPRESA === 'object') ? window.HW_EMPRESA : {};
 
@@ -238,6 +239,39 @@
     var tbody = document.getElementById('lineasTbody');
     tbody.appendChild(lineaFilaHtml());
     recalcular();
+  }
+
+  // Importa una cotización creada por los estimadores (HW.quote.borrador).
+  function importarBorrador(avisar) {
+    if (!Hw()) return false;
+    var borrador = Hw().persist.get(PERS_BORRADOR, null);
+    if (!borrador || !Array.isArray(borrador.lineas) || !borrador.lineas.length) {
+      if (avisar !== false) Hw().toast('No hay un borrador de cotizador para importar', true);
+      return false;
+    }
+
+    var tbody = document.getElementById('lineasTbody');
+    tbody.innerHTML = '';
+    borrador.lineas.forEach(function (linea) {
+      var tr = lineaFilaHtml();
+      tr.querySelector('.l-desc').value = linea.desc || linea.nombre || 'Ítem';
+      tr.querySelector('.l-cant').value = linea.cant > 0 ? linea.cant : 1;
+      tr.querySelector('.l-unidad').value = linea.unidad || 'ud';
+      tr.querySelector('.l-precio').value = linea.precio > 0 ? linea.precio : '';
+      tbody.appendChild(tr);
+    });
+
+    var notas = document.getElementById('inputNotas');
+    if (notas && !notas.value.trim() && Array.isArray(borrador.detalle) && borrador.detalle.length) {
+      notas.value = borrador.detalle.join('\n');
+      notas.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    Hw().persist.remove(PERS_BORRADOR);
+    aplicarBindings();
+    recalcular();
+    if (avisar !== false) Hw().toast('Borrador de ' + (borrador.titulo || 'cotizador') + ' importado');
+    return true;
   }
 
   // ===== Datos de empresa y bindings del documento =====
@@ -627,7 +661,15 @@
     }
 
     if (!cargarTasaGuardada()) sincronizarTasa();
-    cargarUltima();
+
+    var importar = false;
+    try {
+      importar = new URLSearchParams(window.location.search).get('importar') === '1';
+    } catch (e) { /* navegador sin URLSearchParams */ }
+
+    if (!(importar && importarBorrador(false))) {
+      cargarUltima();
+    }
     renderHistorial();
     aplicarBindings();
     recalcular();
@@ -644,6 +686,7 @@
   window.abrirPreview = abrirPreview;
   window.togglePreview = abrirPreview;
   window.agregarLinea = agregarLinea;
+  window.importarBorrador = importarBorrador;
   window.sincronizarTasa = sincronizarTasa;
   window.guardarCotizacion = guardarCotizacion;
   window.copiarCotizacion = copiarCotizacion;

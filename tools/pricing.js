@@ -1,52 +1,99 @@
 (function (root) {
   'use strict';
 
-  // Catálogo único de precios. Las unidades están indicadas en cada clave.
-  // Los servicios duplicados (planchado e instalación) usan el precio más alto.
+  // Margen único sobre el precio de venta para todos los materiales.
+  // El catálogo separa costos de precios de venta: los servicios y accesorios
+  // ya son precios fijos y no reciben margen.
+  var MARGEN_DEFAULT = 40;
+
+  var COSTOS = {
+    vinilAdhesivoM2: 15,
+    vinilTextilMl: 3.5,
+    vinilTextilAnchoRolloCm: 50,
+    laminadoVinilMl: 12,
+    laminadoVinilAnchoRolloCm: 135,
+    bannerM2: 15,
+    dtfMl: 15,
+    dtfAnchoRolloCm: 57,
+    dtfAltoRolloCm: 100,
+    pvcHoja: 45,
+    pvcBaseLargoCm: 244,
+    pvcBaseAnchoCm: 122,
+    pvcMerma: 10,
+    pvcVinilM2: 15,
+    pvcVinilMerma: 10,
+    pvcLaminadoM2: 8
+  };
+
+  var SERVICIOS = {
+    diseno: { precio: 5, unidad: 'pieza' },
+    corte: { precio: 5, unidad: 'pieza' },
+    planchado: { precio: 1.5, unidad: 'pieza' },
+    instalacion: { precio: 10, unidad: 'pieza' },
+    prenda: { precio: 5, unidad: 'pieza' },
+    logistica: { precio: 10, unidad: 'lote' }
+  };
+
+  var ACCESORIOS = {
+    ojales: { precio: 1, cantidad: 4, unidad: 'ud', aplicaA: ['banner'] },
+    bolsillos: { precio: 2, cantidad: 4, unidad: 'ud', aplicaA: ['banner'] },
+    separadores: { precio: 2, cantidad: 4, unidad: 'ud', aplicaA: ['pvc'] }
+  };
+
+  // Compatibilidad temporal con las claves que usaban los estimadores viejos.
+  // Las nuevas herramientas consumen COSTOS, SERVICIOS y ACCESORIOS.
   var PRECIOS = {
+    margen: MARGEN_DEFAULT,
+    costos: COSTOS,
     servicios: {
-      planchado: 1.5,
-      instalacion: 10
+      planchado: SERVICIOS.planchado.precio,
+      instalacion: SERVICIOS.instalacion.precio,
+      diseno: SERVICIOS.diseno.precio,
+      corte: SERVICIOS.corte.precio,
+      prenda: SERVICIOS.prenda.precio,
+      logistica: SERVICIOS.logistica.precio
     },
-    accesorios: {
-      ojales: { precio: 1, cantidad: 4 },
-      bolsillos: { precio: 2, cantidad: 4 },
-      separadores: { precio: 2, cantidad: 4 }
-    },
+    accesorios: ACCESORIOS,
     vinil: {
+      costoM2: COSTOS.vinilAdhesivoM2,
       impresionM2: 25,
-      laminadoMl: 12,
-      anchoRolloLaminadoCm: 135,
-      diseno: 5,
-      corte: 5
+      costoLaminadoMl: COSTOS.laminadoVinilMl,
+      laminadoMl: COSTOS.laminadoVinilMl,
+      anchoRolloLaminadoCm: COSTOS.laminadoVinilAnchoRolloCm,
+      diseno: SERVICIOS.diseno.precio,
+      corte: SERVICIOS.corte.precio
     },
     banner: {
+      costoM2: COSTOS.bannerM2,
       impresionM2: 25,
-      logistica: 10
+      logistica: SERVICIOS.logistica.precio
     },
     corte: {
-      materialMl: 3.5,
-      materialM2: 3.5,
-      anchoRolloCm: 50,
-      margen: 40
+      costoMl: COSTOS.vinilTextilMl,
+      costoM2: COSTOS.vinilTextilMl / (COSTOS.vinilTextilAnchoRolloCm / 100),
+      materialMl: COSTOS.vinilTextilMl,
+      materialM2: COSTOS.vinilTextilMl / (COSTOS.vinilTextilAnchoRolloCm / 100),
+      anchoRolloCm: COSTOS.vinilTextilAnchoRolloCm,
+      margen: MARGEN_DEFAULT
     },
     dtf: {
+      costoMl: COSTOS.dtfMl,
       impresionMl: 25,
-      anchoRolloCm: 57,
-      altoRolloCm: 100,
-      prenda: 5
+      anchoRolloCm: COSTOS.dtfAnchoRolloCm,
+      altoRolloCm: COSTOS.dtfAltoRolloCm,
+      prenda: SERVICIOS.prenda.precio
     },
     pvc: {
-      baseLargoCm: 244,
-      baseAnchoCm: 122,
-      costoHoja: 45,
-      merma: 10,
-      margen: 33.33,
-      vinilCostoM2: 15,
-      vinilMerma: 10,
-      vinilMargen: 37.5,
-      laminadoCostoM2: 8,
-      laminadoMargen: 33.33,
+      baseLargoCm: COSTOS.pvcBaseLargoCm,
+      baseAnchoCm: COSTOS.pvcBaseAnchoCm,
+      costoHoja: COSTOS.pvcHoja,
+      merma: COSTOS.pvcMerma,
+      margen: MARGEN_DEFAULT,
+      vinilCostoM2: COSTOS.pvcVinilM2,
+      vinilMerma: COSTOS.pvcVinilMerma,
+      vinilMargen: MARGEN_DEFAULT,
+      laminadoCostoM2: COSTOS.pvcLaminadoM2,
+      laminadoMargen: MARGEN_DEFAULT,
       tasaFallback: 857.01
     }
   };
@@ -117,7 +164,11 @@
   }
 
   var api = {
+    MARGEN_DEFAULT: MARGEN_DEFAULT,
     PRECIOS: PRECIOS,
+    COSTOS: COSTOS,
+    SERVICIOS: SERVICIOS,
+    ACCESORIOS: ACCESORIOS,
     num: num,
     redondear: redondear,
     areaM2: areaM2,
