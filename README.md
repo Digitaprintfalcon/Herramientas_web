@@ -2,7 +2,7 @@
 
 Panel de utilidades para una imprenta/señalización: cotizadores (PVC, vinil, DTF, pendones),
 calculadoras con tasa BCV en tiempo real, generador de QR, consulta de cédula (DNI) y
-generadores de documentos (referencias y autorizaciones).
+generadores de documentos (referencias, autorizaciones y currículums).
 
 ## Estructura
 
@@ -43,7 +43,7 @@ Solo necesitás Python 3:
 
 ## Catálogo y navegación
 
-- Las 10 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
+- Las 11 herramientas están definidas una sola vez en `HW_TOOLS` (`tools/common.js`).
   El menú "Herramientas" de la barra superior y las tarjetas del panel principal se
   generan desde esa fuente: para agregar/quitar una herramienta se edita solo ahí.
 - Tema claro/oscuro: automático por dispositivo, con preferencia manual guardada en
@@ -73,6 +73,17 @@ Solo necesitás Python 3:
 - Para probar las fórmulas y el motor: `node tests/pricing.test.js` y
   `node tests/quote.test.js`. El detalle de la arquitectura está en
   [`docs/cotizadores.md`](docs/cotizadores.md).
+
+## Generador de CV
+
+La herramienta `tools/cv-generator/` crea currículums en hojas A4 con cinco plantillas,
+foto opcional, colores personalizados y exportación a PDF o impresión. Incluye importación
+y exportación de borradores en JSON, además de un historial de versiones local.
+
+- Estado actual: `hw_cv_data`.
+- Borradores guardados: `hw_cv_drafts` (máximo 15).
+- La primera vez carga un CV de ejemplo; el botón "Limpiar todo" deja el formulario vacío.
+- La foto se redimensiona y comprime antes de guardarse para no agotar `localStorage`.
 
 ## Referencias precargadas
 

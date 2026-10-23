@@ -329,6 +329,14 @@
           keywords: 'generador referencias personales comerciales cartas formato'
         },
         {
+          nombre: 'Generador de CV',
+          icon: 'file-earmark-person',
+          href: '../cv-generator/index.html',
+          desc: 'Currículums profesionales en A4 con plantillas, foto y exportación a PDF.',
+          keywords: 'generador cv curriculum vitae hoja de vida pdf plantillas',
+          estado: 'En desarrollo'
+        },
+        {
           nombre: 'Generador de Autorizaciones',
           icon: 'file-earmark-check',
           href: '../authorization-generator/index.html',
@@ -391,7 +399,8 @@
         const a = global.document.createElement('a');
         a.className = 'hw-nav-link';
         a.href = tool.href;
-        a.innerHTML = '<i class="bi bi-' + tool.icon + '"></i><span>' + tool.nombre + '</span>';
+        a.innerHTML = '<i class="bi bi-' + tool.icon + '"></i><span>' + tool.nombre + '</span>' +
+          (tool.estado ? '<span class="hw-status-badge hw-status-badge--nav">' + tool.estado + '</span>' : '');
 
         const candidato = '/tools/' + tool.href.replace(/^\.\.\//, '');
         if (path.endsWith(candidato)) {
@@ -442,6 +451,7 @@
             '<div>' +
               '<div class="card-meta">' +
                 '<span class="category-badge ' + badge + '">' + grupo.categoria + '</span>' +
+                (tool.estado ? '<span class="hw-status-badge">' + tool.estado + '</span>' : '') +
               '</div>' +
               '<h2 class="tool-title"><i class="bi bi-' + tool.icon + '"></i>' + tool.nombre + '</h2>' +
               '<p class="tool-description">' + tool.desc + '</p>' +
