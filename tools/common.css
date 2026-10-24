@@ -680,6 +680,23 @@ html.dark .form-select {
   border-radius: 1rem;
 }
 
+/* Elementos del historial de cotizaciones */
+.hist-item {
+  width: 100%;
+  border: 1px solid var(--hw-border);
+  background: none;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--hw-text-main);
+  transition: border-color 0.2s ease;
+}
+
+.hist-item:hover {
+  border-color: var(--hw-accent);
+}
+
 /* Etiqueta de sección en mayúsculas */
 .hw-uppercase-label {
   font-size: 0.72rem;

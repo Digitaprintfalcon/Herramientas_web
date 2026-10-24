@@ -269,6 +269,162 @@
     document.getElementById('btnCopiarTotal').addEventListener('click', function () {
       HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
     });
+    var CLAVE_HIST_VINIL = 'hw_hist_vinil';
+    var MAX_HIST_VINIL = 20;
+
+    function obtenerHistorialVinil() {
+      if (window.HW && HW.persist && HW.persist.get) {
+        var v = HW.persist.get(CLAVE_HIST_VINIL, []);
+        return Array.isArray(v) ? v : [];
+      }
+      try {
+        var raw = localStorage.getItem(CLAVE_HIST_VINIL);
+        var v2 = raw ? JSON.parse(raw) : [];
+        return Array.isArray(v2) ? v2 : [];
+      } catch (e) { return []; }
+    }
+
+    function guardarHistorialVinilArr(arr) {
+      if (window.HW && HW.persist && HW.persist.set) {
+        HW.persist.set(CLAVE_HIST_VINIL, arr);
+        return;
+      }
+      try { localStorage.setItem(CLAVE_HIST_VINIL, JSON.stringify(arr)); } catch (e) {}
+    }
+
+    function generarResumenCortoVinil() {
+      try {
+        var tipo = document.getElementById('tipoTrabajo').value;
+        var metodo = document.getElementById('metodo');
+        var detalleMetodo = tipo === 'textil' && metodo && metodo.value === 'lineal' ? ' · lineal' : '';
+        return (tipo === 'textil' ? 'Vinil textil' : 'Vinil adhesivo') + detalleMetodo + ' · ' + (val('anchoPieza')||0) + ' x ' + (val('altoPieza')||0) + ' cm · ' + (val('cantidadPiezas')||1) + ' ud';
+      } catch (e) { return ''; }
+    }
+
+    function obtenerSnapshotVinil() {
+      return {
+        tipoTrabajo: document.getElementById('tipoTrabajo').value,
+        metodo: document.getElementById('metodo').value,
+        anchoPieza: val('anchoPieza'),
+        altoPieza: val('altoPieza'),
+        cantidadPiezas: val('cantidadPiezas'),
+        anchoRollo: val('anchoRollo'),
+        costoMaterial: val('costoMaterial'),
+        margen: val('margen'),
+        incluirLaminado: document.getElementById('incluirLaminado').checked,
+        anchoLaminado: val('anchoLaminado'),
+        costoLaminado: val('costoLaminado'),
+        incluirDiseno: document.getElementById('incluirDiseno').checked,
+        precioDiseno: val('precioDiseno'),
+        incluirCorte: document.getElementById('incluirCorte').checked,
+        precioCorte: val('precioCorte'),
+        incluirInstalacion: document.getElementById('incluirInstalacion').checked,
+        precioInstalacion: val('precioInstalacion'),
+        incluirPlanchado: document.getElementById('incluirPlanchado').checked,
+        precioPlanchado: val('precioPlanchado')
+      };
+    }
+
+    function cargarDesdeHistorialVinil(h) {
+      if (!h || !h.datos) return;
+      var d = h.datos;
+      var tipo = document.getElementById('tipoTrabajo');
+      var metodo = document.getElementById('metodo');
+      if (d.tipoTrabajo) {
+        tipo.value = d.tipoTrabajo;
+        tipo.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (d.metodo) {
+        metodo.value = d.metodo;
+        metodo.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      document.getElementById('anchoPieza').value = d.anchoPieza != null ? d.anchoPieza : '';
+      document.getElementById('altoPieza').value = d.altoPieza != null ? d.altoPieza : '';
+      document.getElementById('cantidadPiezas').value = d.cantidadPiezas != null ? d.cantidadPiezas : (d.cantidad != null ? d.cantidad : 1);
+      document.getElementById('anchoRollo').value = d.anchoRollo != null ? d.anchoRollo : '';
+      document.getElementById('costoMaterial').value = d.costoMaterial != null ? d.costoMaterial : '';
+      document.getElementById('margen').value = d.margen != null ? d.margen : 40;
+      document.getElementById('incluirLaminado').checked = !!d.incluirLaminado;
+      document.getElementById('anchoLaminado').value = d.anchoLaminado != null ? d.anchoLaminado : '';
+      document.getElementById('costoLaminado').value = d.costoLaminado != null ? d.costoLaminado : '';
+      document.getElementById('incluirDiseno').checked = !!d.incluirDiseno;
+      document.getElementById('precioDiseno').value = d.precioDiseno != null ? d.precioDiseno : (d.costoDiseno != null ? d.costoDiseno : 5);
+      document.getElementById('incluirCorte').checked = !!d.incluirCorte;
+      document.getElementById('precioCorte').value = d.precioCorte != null ? d.precioCorte : (d.costoCorte != null ? d.costoCorte : 5);
+      document.getElementById('incluirInstalacion').checked = !!d.incluirInstalacion;
+      document.getElementById('precioInstalacion').value = d.precioInstalacion != null ? d.precioInstalacion : (d.costoInstalacion != null ? d.costoInstalacion : 10);
+      document.getElementById('incluirPlanchado').checked = !!d.incluirPlanchado;
+      document.getElementById('precioPlanchado').value = d.precioPlanchado != null ? d.precioPlanchado : (d.costoPlanchado != null ? d.costoPlanchado : 1.5);
+      sincronizarCuerpos();
+      calcular();
+      if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
+    }
+
+    function renderHistorialVinil() {
+      var hist = obtenerHistorialVinil();
+      var box = document.getElementById('histVinil');
+      if (!box) return;
+      if (!hist.length) {
+        box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
+        return;
+      }
+      box.innerHTML = '';
+      hist.forEach(function(h) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
+        var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
+        var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function (v) { return String(v == null ? '' : v); };
+        var titulo = h.nombre || h.fecha || '';
+        var lineaFecha = h.nombre ? '<small class="text-muted d-block">' + esc(h.fecha || '') + '</small>' : '';
+        btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + esc(titulo) + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
+                        '<small class="text-muted d-block">' + esc(h.resumen || '') + '</small>' +
+                        (h.nota ? '<small class="text-muted d-block fst-italic">' + esc(h.nota) + '</small>' : '') +
+                        lineaFecha;
+        btn.addEventListener('click', function(){ cargarDesdeHistorialVinil(h); });
+        box.appendChild(btn);
+      });
+    }
+
+    function guardarHistorialVinil() {
+      if (!window.estadoVinil || !window.estadoVinil.quote || !(window.estadoVinil.quote.total > 0)) {
+        if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
+        return;
+      }
+      var hist = obtenerHistorialVinil();
+      var nombreEl = document.getElementById('histNombreVinil');
+      var notaEl = document.getElementById('histNotaVinil');
+      var nombre = nombreEl ? nombreEl.value.trim() : '';
+      var nota = notaEl ? notaEl.value.trim() : '';
+      var item = {
+        id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+        ts: Date.now(),
+        fecha: new Date().toLocaleString('es-VE'),
+        titulo: 'Vinil',
+        nombre: nombre,
+        nota: nota,
+        total: window.estadoVinil.quote.total,
+        unitario: window.estadoVinil.quote.unitario,
+        cantidad: window.estadoVinil.quote.cantidad,
+        resumen: generarResumenCortoVinil(),
+        datos: obtenerSnapshotVinil()
+      };
+      hist.unshift(item);
+      hist = hist.slice(0, MAX_HIST_VINIL);
+      guardarHistorialVinilArr(hist);
+      renderHistorialVinil();
+      if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
+      if (nombreEl) nombreEl.value = '';
+      if (notaEl) notaEl.value = '';
+    }
+
+    function limpiarHistorialVinil() {
+      if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
+      guardarHistorialVinilArr([]);
+      renderHistorialVinil();
+      if (window.HW && HW.toast) HW.toast('Historial limpiado');
+    }
+
     var btnGuardarHistVinil = document.getElementById('btnGuardarHistVinil');
     var btnLimpiarHistVinil = document.getElementById('btnLimpiarHistVinil');
     if (btnGuardarHistVinil) btnGuardarHistVinil.addEventListener('click', guardarHistorialVinil);
@@ -287,141 +443,3 @@
     calcular();
   });
 })();
-
-
-  var CLAVE_HIST_VINIL = 'hw_hist_vinil';
-  var MAX_HIST_VINIL = 20;
-
-  function obtenerHistorialVinil() {
-    if (window.HW && HW.persist && HW.persist.get) {
-      var v = HW.persist.get(CLAVE_HIST_VINIL, []);
-      return Array.isArray(v) ? v : [];
-    }
-    try {
-      var raw = localStorage.getItem(CLAVE_HIST_VINIL);
-      var v2 = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v2) ? v2 : [];
-    } catch (e) { return []; }
-  }
-
-  function guardarHistorialVinilArr(arr) {
-    if (window.HW && HW.persist && HW.persist.set) {
-      HW.persist.set(CLAVE_HIST_VINIL, arr);
-      return;
-    }
-    try { localStorage.setItem(CLAVE_HIST_VINIL, JSON.stringify(arr)); } catch (e) {}
-  }
-
-  function generarResumenCortoVinil() {
-    try {
-      var tipo = document.getElementById('tipoTrabajo').value;
-      return (tipo === 'textil' ? 'Vinil textil' : 'Vinil adhesivo') + ' · ' + (val('anchoPieza')||0) + ' x ' + (val('altoPieza')||0) + ' cm · ' + (val('cantidad')||1) + ' ud';
-    } catch (e) { return ''; }
-  }
-
-  function obtenerSnapshotVinil() {
-    return {
-      tipoTrabajo: document.getElementById('tipoTrabajo').value,
-      anchoPieza: val('anchoPieza'),
-      altoPieza: val('altoPieza'),
-      cantidad: val('cantidad'),
-      anchoRollo: val('anchoRollo'),
-      costoMaterial: val('costoMaterial'),
-      margen: val('margen'),
-      incluirDiseno: document.getElementById('incluirDiseno').checked,
-      costoDiseno: val('costoDiseno'),
-      tipoDiseno: document.getElementById('tipoDiseno').value,
-      incluirCorte: document.getElementById('incluirCorte').checked,
-      costoCorte: val('costoCorte'),
-      tipoCorte: document.getElementById('tipoCorte').value,
-      incluirInstalacion: document.getElementById('incluirInstalacion').checked,
-      costoInstalacion: val('costoInstalacion'),
-      tipoInstalacion: document.getElementById('tipoInstalacion').value,
-      incluirPlanchado: document.getElementById('incluirPlanchado').checked,
-      costoPlanchado: val('costoPlanchado'),
-      tipoPlanchado: document.getElementById('tipoPlanchado').value
-    };
-  }
-
-  function cargarDesdeHistorialVinil(h) {
-    if (!h || !h.datos) return;
-    var d = h.datos;
-    if (d.tipoTrabajo) {
-      var tipo = document.getElementById('tipoTrabajo');
-      tipo.value = d.tipoTrabajo;
-      tipo.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    document.getElementById('anchoPieza').value = d.anchoPieza != null ? d.anchoPieza : '';
-    document.getElementById('altoPieza').value = d.altoPieza != null ? d.altoPieza : '';
-    document.getElementById('cantidad').value = d.cantidad != null ? d.cantidad : 1;
-    document.getElementById('anchoRollo').value = d.anchoRollo != null ? d.anchoRollo : '';
-    document.getElementById('costoMaterial').value = d.costoMaterial != null ? d.costoMaterial : '';
-    document.getElementById('margen').value = d.margen != null ? d.margen : 40;
-    document.getElementById('incluirDiseno').checked = !!d.incluirDiseno;
-    document.getElementById('costoDiseno').value = d.costoDiseno != null ? d.costoDiseno : 5;
-    document.getElementById('tipoDiseno').value = d.tipoDiseno || 'pieza';
-    document.getElementById('incluirCorte').checked = !!d.incluirCorte;
-    document.getElementById('costoCorte').value = d.costoCorte != null ? d.costoCorte : 5;
-    document.getElementById('tipoCorte').value = d.tipoCorte || 'pieza';
-    document.getElementById('incluirInstalacion').checked = !!d.incluirInstalacion;
-    document.getElementById('costoInstalacion').value = d.costoInstalacion != null ? d.costoInstalacion : 10;
-    document.getElementById('tipoInstalacion').value = d.tipoInstalacion || 'pieza';
-    document.getElementById('incluirPlanchado').checked = !!d.incluirPlanchado;
-    document.getElementById('costoPlanchado').value = d.costoPlanchado != null ? d.costoPlanchado : 1.5;
-    document.getElementById('tipoPlanchado').value = d.tipoPlanchado || 'pieza';
-    ['incluirDiseno','incluirCorte','incluirInstalacion','incluirPlanchado'].forEach(function(id){ var el=document.getElementById(id); if(el) el.dispatchEvent(new Event('change',{bubbles:true})); });
-    if (typeof calcular === 'function') calcular();
-    if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
-  }
-
-  function renderHistorialVinil() {
-    var hist = obtenerHistorialVinil();
-    var box = document.getElementById('histVinil');
-    if (!box) return;
-    if (!hist.length) {
-      box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
-      return;
-    }
-    box.innerHTML = '';
-    hist.forEach(function(h) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
-      var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
-      btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + (h.fecha || '') + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
-                      '<small class="text-muted">' + (h.resumen || '') + '</small>';
-      btn.addEventListener('click', function(){ cargarDesdeHistorialVinil(h); });
-      box.appendChild(btn);
-    });
-  }
-
-  function guardarHistorialVinil() {
-    if (!window.estadoVinil || !window.estadoVinil.quote || !(window.estadoVinil.quote.total > 0)) {
-      if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
-      return;
-    }
-    var hist = obtenerHistorialVinil();
-    var item = {
-      id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
-      ts: Date.now(),
-      fecha: new Date().toLocaleString('es-VE'),
-      titulo: 'Vinil',
-      total: window.estadoVinil.quote.total,
-      unitario: window.estadoVinil.quote.unitario,
-      cantidad: window.estadoVinil.quote.cantidad,
-      resumen: generarResumenCortoVinil(),
-      datos: obtenerSnapshotVinil()
-    };
-    hist.unshift(item);
-    hist = hist.slice(0, MAX_HIST_VINIL);
-    guardarHistorialVinilArr(hist);
-    renderHistorialVinil();
-    if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
-  }
-
-  function limpiarHistorialVinil() {
-    if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
-    guardarHistorialVinilArr([]);
-    renderHistorialVinil();
-    if (window.HW && HW.toast) HW.toast('Historial limpiado');
-  }

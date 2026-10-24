@@ -208,6 +208,154 @@
       });
     });
 
+    var CLAVE_HIST_BANNER = 'hw_hist_banner';
+    var MAX_HIST_BANNER = 20;
+
+    function obtenerHistorialBanner() {
+      if (window.HW && HW.persist && HW.persist.get) {
+        var v = HW.persist.get(CLAVE_HIST_BANNER, []);
+        return Array.isArray(v) ? v : [];
+      }
+      try {
+        var raw = localStorage.getItem(CLAVE_HIST_BANNER);
+        var v2 = raw ? JSON.parse(raw) : [];
+        return Array.isArray(v2) ? v2 : [];
+      } catch (e) { return []; }
+    }
+
+    function guardarHistorialBannerArr(arr) {
+      if (window.HW && HW.persist && HW.persist.set) {
+        HW.persist.set(CLAVE_HIST_BANNER, arr);
+        return;
+      }
+      try { localStorage.setItem(CLAVE_HIST_BANNER, JSON.stringify(arr)); } catch (e) {}
+    }
+
+    function generarResumenCortoBanner() {
+      try {
+        var a = val('anchoDiseno');
+        var al = val('altoDiseno');
+        var c = val('cantidadPiezas');
+        var p = [];
+        if (document.getElementById('incluirBolsillos').checked) p.push('Bolsillos');
+        if (document.getElementById('incluirOjales').checked) p.push('Ojales');
+        if (document.getElementById('incluirLogistica').checked) p.push('Logística');
+        return a + ' x ' + al + ' cm · ' + c + ' ud' + (p.length ? ' · ' + p.join(' + ') : '');
+      } catch (e) { return ''; }
+    }
+
+    function obtenerSnapshotBanner() {
+      return {
+        ancho: val('anchoDiseno'),
+        alto: val('altoDiseno'),
+        cantidad: val('cantidadPiezas'),
+        costoM2: val('costoM2'),
+        margen: val('margen'),
+        incluirLogistica: document.getElementById('incluirLogistica').checked,
+        modoLogistica: document.getElementById('modoLogistica').value,
+        costoLogistica: val('costoLogistica'),
+        incluirOjales: document.getElementById('incluirOjales').checked,
+        cantidadOjales: val('cantidadOjales'),
+        costoOjal: val('costoOjal'),
+        incluirBolsillos: document.getElementById('incluirBolsillos').checked,
+        cantidadBolsillos: val('cantidadBolsillos'),
+        costoBolsillo: val('costoBolsillo'),
+        costoTubos: val('costoTubos')
+      };
+    }
+
+    function cargarDesdeHistorialBanner(h) {
+      if (!h || !h.datos) return;
+      var d = h.datos;
+      document.getElementById('anchoDiseno').value = d.ancho != null ? d.ancho : 10;
+      document.getElementById('altoDiseno').value = d.alto != null ? d.alto : 10;
+      document.getElementById('cantidadPiezas').value = d.cantidad != null ? d.cantidad : 1;
+      document.getElementById('costoM2').value = d.costoM2 != null ? d.costoM2 : '';
+      document.getElementById('margen').value = d.margen != null ? d.margen : '';
+      document.getElementById('costoLogistica').value = d.costoLogistica != null ? d.costoLogistica : 0;
+      if (document.getElementById('modoLogistica')) document.getElementById('modoLogistica').value = d.modoLogistica || 'lote';
+      document.getElementById('incluirLogistica').checked = !!d.incluirLogistica;
+      document.getElementById('incluirOjales').checked = !!d.incluirOjales;
+      document.getElementById('cantidadOjales').value = d.cantidadOjales != null ? d.cantidadOjales : 4;
+      if (document.getElementById('costoOjal')) document.getElementById('costoOjal').value = d.costoOjal != null ? d.costoOjal : 1;
+      document.getElementById('incluirBolsillos').checked = !!d.incluirBolsillos;
+      document.getElementById('cantidadBolsillos').value = d.cantidadBolsillos != null ? d.cantidadBolsillos : 2;
+      document.getElementById('costoBolsillo').value = d.costoBolsillo != null ? d.costoBolsillo : 2;
+      document.getElementById('costoTubos').value = d.costoTubos != null ? d.costoTubos : 10;
+      if (typeof aplicarExclusividad === 'function') {
+        if (document.getElementById('incluirOjales').checked) aplicarExclusividad(document.getElementById('incluirOjales'));
+        else if (document.getElementById('incluirBolsillos').checked) aplicarExclusividad(document.getElementById('incluirBolsillos'));
+      }
+      if (typeof sincronizarAccesorios === 'function') sincronizarAccesorios();
+      if (typeof calcular === 'function') calcular();
+      if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
+    }
+
+    function renderHistorialBanner() {
+      var hist = obtenerHistorialBanner();
+      var box = document.getElementById('histBanner');
+      if (!box) return;
+      if (!hist.length) {
+        box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
+        return;
+      }
+      box.innerHTML = '';
+      hist.forEach(function(h) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
+        var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
+        var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function (v) { return String(v == null ? '' : v); };
+        var titulo = h.nombre || h.fecha || '';
+        var lineaFecha = h.nombre ? '<small class="text-muted d-block">' + esc(h.fecha || '') + '</small>' : '';
+        btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + esc(titulo) + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
+                        '<small class="text-muted d-block">' + esc(h.resumen || '') + '</small>' +
+                        (h.nota ? '<small class="text-muted d-block fst-italic">' + esc(h.nota) + '</small>' : '') +
+                        lineaFecha;
+        btn.addEventListener('click', function(){ cargarDesdeHistorialBanner(h); });
+        box.appendChild(btn);
+      });
+    }
+
+    function guardarHistorialBanner() {
+      if (!window.estadoBanner || !window.estadoBanner.quote || !(window.estadoBanner.quote.total > 0)) {
+        if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
+        return;
+      }
+      var hist = obtenerHistorialBanner();
+      var nombreEl = document.getElementById('histNombreBanner');
+      var notaEl = document.getElementById('histNotaBanner');
+      var nombre = nombreEl ? nombreEl.value.trim() : '';
+      var nota = notaEl ? notaEl.value.trim() : '';
+      var item = {
+        id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+        ts: Date.now(),
+        fecha: new Date().toLocaleString('es-VE'),
+        titulo: 'Pendones',
+        nombre: nombre,
+        nota: nota,
+        total: window.estadoBanner.quote.total,
+        unitario: window.estadoBanner.quote.unitario,
+        cantidad: window.estadoBanner.quote.cantidad,
+        resumen: generarResumenCortoBanner(),
+        datos: obtenerSnapshotBanner()
+      };
+      hist.unshift(item);
+      hist = hist.slice(0, MAX_HIST_BANNER);
+      guardarHistorialBannerArr(hist);
+      renderHistorialBanner();
+      if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
+      if (nombreEl) nombreEl.value = '';
+      if (notaEl) notaEl.value = '';
+    }
+
+    function limpiarHistorialBanner() {
+      if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
+      guardarHistorialBannerArr([]);
+      renderHistorialBanner();
+      if (window.HW && HW.toast) HW.toast('Historial limpiado');
+    }
+
     var btnGuardarHistBanner = document.getElementById('btnGuardarHistBanner');
     var btnLimpiarHistBanner = document.getElementById('btnLimpiarHistBanner');
     if (btnGuardarHistBanner) btnGuardarHistBanner.addEventListener('click', guardarHistorialBanner);
@@ -225,139 +373,3 @@
     calcular();
   });
 })();
-
-
-  var CLAVE_HIST_BANNER = 'hw_hist_banner';
-  var MAX_HIST_BANNER = 20;
-
-  function obtenerHistorialBanner() {
-    if (window.HW && HW.persist && HW.persist.get) {
-      var v = HW.persist.get(CLAVE_HIST_BANNER, []);
-      return Array.isArray(v) ? v : [];
-    }
-    try {
-      var raw = localStorage.getItem(CLAVE_HIST_BANNER);
-      var v2 = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v2) ? v2 : [];
-    } catch (e) { return []; }
-  }
-
-  function guardarHistorialBannerArr(arr) {
-    if (window.HW && HW.persist && HW.persist.set) {
-      HW.persist.set(CLAVE_HIST_BANNER, arr);
-      return;
-    }
-    try { localStorage.setItem(CLAVE_HIST_BANNER, JSON.stringify(arr)); } catch (e) {}
-  }
-
-  function generarResumenCortoBanner() {
-    try {
-      var a = val('anchoDiseno');
-      var al = val('altoDiseno');
-      var c = val('cantidadPiezas');
-      var p = [];
-      if (document.getElementById('incluirBolsillos').checked) p.push('Bolsillos');
-      if (document.getElementById('incluirOjales').checked) p.push('Ojales');
-      if (document.getElementById('incluirLogistica').checked) p.push('Logística');
-      return a + ' x ' + al + ' cm · ' + c + ' ud' + (p.length ? ' · ' + p.join(' + ') : '');
-    } catch (e) { return ''; }
-  }
-
-  function obtenerSnapshotBanner() {
-    return {
-      ancho: val('anchoDiseno'),
-      alto: val('altoDiseno'),
-      cantidad: val('cantidadPiezas'),
-      costoM2: val('costoM2'),
-      margen: val('margen'),
-      incluirLogistica: document.getElementById('incluirLogistica').checked,
-      modoLogistica: document.getElementById('modoLogistica').value,
-      costoLogistica: val('costoLogistica'),
-      incluirOjales: document.getElementById('incluirOjales').checked,
-      cantidadOjales: val('cantidadOjales'),
-      costoOjal: val('costoOjal'),
-      incluirBolsillos: document.getElementById('incluirBolsillos').checked,
-      cantidadBolsillos: val('cantidadBolsillos'),
-      costoBolsillo: val('costoBolsillo'),
-      costoTubos: val('costoTubos')
-    };
-  }
-
-  function cargarDesdeHistorialBanner(h) {
-    if (!h || !h.datos) return;
-    var d = h.datos;
-    document.getElementById('anchoDiseno').value = d.ancho != null ? d.ancho : 10;
-    document.getElementById('altoDiseno').value = d.alto != null ? d.alto : 10;
-    document.getElementById('cantidadPiezas').value = d.cantidad != null ? d.cantidad : 1;
-    document.getElementById('costoM2').value = d.costoM2 != null ? d.costoM2 : '';
-    document.getElementById('margen').value = d.margen != null ? d.margen : '';
-    document.getElementById('costoLogistica').value = d.costoLogistica != null ? d.costoLogistica : 0;
-    if (document.getElementById('modoLogistica')) document.getElementById('modoLogistica').value = d.modoLogistica || 'lote';
-    document.getElementById('incluirLogistica').checked = !!d.incluirLogistica;
-    document.getElementById('incluirOjales').checked = !!d.incluirOjales;
-    document.getElementById('cantidadOjales').value = d.cantidadOjales != null ? d.cantidadOjales : 4;
-    if (document.getElementById('costoOjal')) document.getElementById('costoOjal').value = d.costoOjal != null ? d.costoOjal : 1;
-    document.getElementById('incluirBolsillos').checked = !!d.incluirBolsillos;
-    document.getElementById('cantidadBolsillos').value = d.cantidadBolsillos != null ? d.cantidadBolsillos : 2;
-    document.getElementById('costoBolsillo').value = d.costoBolsillo != null ? d.costoBolsillo : 2;
-    document.getElementById('costoTubos').value = d.costoTubos != null ? d.costoTubos : 10;
-    if (typeof aplicarExclusividad === 'function') {
-      if (document.getElementById('incluirOjales').checked) aplicarExclusividad(document.getElementById('incluirOjales'));
-      else if (document.getElementById('incluirBolsillos').checked) aplicarExclusividad(document.getElementById('incluirBolsillos'));
-    }
-    if (typeof sincronizarAccesorios === 'function') sincronizarAccesorios();
-    if (typeof calcular === 'function') calcular();
-    if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
-  }
-
-  function renderHistorialBanner() {
-    var hist = obtenerHistorialBanner();
-    var box = document.getElementById('histBanner');
-    if (!box) return;
-    if (!hist.length) {
-      box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
-      return;
-    }
-    box.innerHTML = '';
-    hist.forEach(function(h) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
-      var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
-      btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + (h.fecha || '') + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
-                      '<small class="text-muted">' + (h.resumen || '') + '</small>';
-      btn.addEventListener('click', function(){ cargarDesdeHistorialBanner(h); });
-      box.appendChild(btn);
-    });
-  }
-
-  function guardarHistorialBanner() {
-    if (!window.estadoBanner || !window.estadoBanner.quote || !(window.estadoBanner.quote.total > 0)) {
-      if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
-      return;
-    }
-    var hist = obtenerHistorialBanner();
-    var item = {
-      id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
-      ts: Date.now(),
-      fecha: new Date().toLocaleString('es-VE'),
-      titulo: 'Pendones',
-      total: window.estadoBanner.quote.total,
-      unitario: window.estadoBanner.quote.unitario,
-      cantidad: window.estadoBanner.quote.cantidad,
-      resumen: generarResumenCortoBanner(),
-      datos: obtenerSnapshotBanner()
-    };
-    hist.unshift(item);
-    hist = hist.slice(0, MAX_HIST_BANNER);
-    guardarHistorialBannerArr(hist);
-    renderHistorialBanner();
-    if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
-  }
-
-  function limpiarHistorialBanner() {
-    if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
-    guardarHistorialBannerArr([]);
-    renderHistorialBanner();
-    if (window.HW && HW.toast) HW.toast('Historial limpiado');
-  }

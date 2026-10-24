@@ -459,6 +459,146 @@
     document.getElementById('btnCopiarTotal').addEventListener('click', function () {
       HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
     });
+    var CLAVE_HIST_DTF = 'hw_hist_dtf';
+    var MAX_HIST_DTF = 20;
+
+    function obtenerHistorialDtf() {
+      if (window.HW && HW.persist && HW.persist.get) {
+        var v = HW.persist.get(CLAVE_HIST_DTF, []);
+        return Array.isArray(v) ? v : [];
+      }
+      try {
+        var raw = localStorage.getItem(CLAVE_HIST_DTF);
+        var v2 = raw ? JSON.parse(raw) : [];
+        return Array.isArray(v2) ? v2 : [];
+      } catch (e) { return []; }
+    }
+
+    function guardarHistorialDtfArr(arr) {
+      if (window.HW && HW.persist && HW.persist.set) {
+        HW.persist.set(CLAVE_HIST_DTF, arr);
+        return;
+      }
+      try { localStorage.setItem(CLAVE_HIST_DTF, JSON.stringify(arr)); } catch (e) {}
+    }
+
+    function generarResumenCortoDtf() {
+      try {
+        var totalP = 0;
+        window.estadoDtf.disenos.forEach(function(d){ totalP += (parseInt(d.cantidad,10)||0); });
+        var p = [];
+        if (document.getElementById('incluirPlanchado').checked) p.push('Planchado');
+        if (document.getElementById('incluirPrenda').checked) p.push('Prenda');
+        return totalP + ' pzas · ' + val('anchoImprimible') + ' cm rollo' + (p.length ? ' · ' + p.join(' + ') : '');
+      } catch (e) { return ''; }
+    }
+
+    function obtenerSnapshotDtf() {
+      return {
+        anchoImprimible: val('anchoImprimible'),
+        costoImpresion: val('costoImpresion'),
+        margen: val('margen'),
+        incluirPlanchado: document.getElementById('incluirPlanchado').checked,
+        costoPlanchado: val('costoPlanchado'),
+        tipoPlanchado: document.getElementById('tipoPlanchado').value,
+        incluirPrenda: document.getElementById('incluirPrenda').checked,
+        costoPrenda: val('costoPrenda'),
+        tipoPrenda: document.getElementById('tipoPrenda').value,
+        disenos: window.estadoDtf.disenos.map(function(d){ return { etiqueta: d.etiqueta, ancho: d.ancho, alto: d.alto, cantidad: d.cantidad }; })
+      };
+    }
+
+    function cargarDesdeHistorialDtf(h) {
+      if (!h || !h.datos) return;
+      var d = h.datos;
+      document.getElementById('anchoImprimible').value = d.anchoImprimible != null ? d.anchoImprimible : 57;
+      document.getElementById('costoImpresion').value = d.costoImpresion != null ? d.costoImpresion : '';
+      document.getElementById('margen').value = d.margen != null ? d.margen : 40;
+      document.getElementById('incluirPlanchado').checked = !!d.incluirPlanchado;
+      document.getElementById('costoPlanchado').value = d.costoPlanchado != null ? d.costoPlanchado : 1.5;
+      document.getElementById('tipoPlanchado').value = d.tipoPlanchado || 'pieza';
+      document.getElementById('incluirPrenda').checked = !!d.incluirPrenda;
+      document.getElementById('costoPrenda').value = d.costoPrenda != null ? d.costoPrenda : 5;
+      document.getElementById('tipoPrenda').value = d.tipoPrenda || 'pieza';
+      if (typeof sincronizarCuerpos === 'function') sincronizarCuerpos();
+      window.estadoDtf.disenos = [];
+      if (Array.isArray(d.disenos)) {
+        d.disenos.forEach(function(ds){
+          estado.disenos.push({ id: nuevoId(), etiqueta: ds.etiqueta || '', ancho: ds.ancho || 0, alto: ds.alto || 0, cantidad: ds.cantidad || 1 });
+        });
+      }
+      if (!window.estadoDtf.disenos.length) agregarDisenoValores();
+      if (typeof ajustarAnchoImprimible === 'function') ajustarAnchoImprimible();
+      renderDisenos();
+      if (typeof calcular === 'function') calcular();
+      if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
+    }
+
+    function renderHistorialDtf() {
+      var hist = obtenerHistorialDtf();
+      var box = document.getElementById('histDtf');
+      if (!box) return;
+      if (!hist.length) {
+        box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
+        return;
+      }
+      box.innerHTML = '';
+      hist.forEach(function(h) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
+        var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
+        var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function (v) { return String(v == null ? '' : v); };
+        var titulo = h.nombre || h.fecha || '';
+        var lineaFecha = h.nombre ? '<small class="text-muted d-block">' + esc(h.fecha || '') + '</small>' : '';
+        btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + esc(titulo) + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
+                        '<small class="text-muted d-block">' + esc(h.resumen || '') + '</small>' +
+                        (h.nota ? '<small class="text-muted d-block fst-italic">' + esc(h.nota) + '</small>' : '') +
+                        lineaFecha;
+        btn.addEventListener('click', function(){ cargarDesdeHistorialDtf(h); });
+        box.appendChild(btn);
+      });
+    }
+
+    function guardarHistorialDtf() {
+      if (!window.estadoDtf || !window.estadoDtf.quote || !(window.estadoDtf.quote.total > 0)) {
+        if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
+        return;
+      }
+      var hist = obtenerHistorialDtf();
+      var nombreEl = document.getElementById('histNombreDtf');
+      var notaEl = document.getElementById('histNotaDtf');
+      var nombre = nombreEl ? nombreEl.value.trim() : '';
+      var nota = notaEl ? notaEl.value.trim() : '';
+      var item = {
+        id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+        ts: Date.now(),
+        fecha: new Date().toLocaleString('es-VE'),
+        titulo: 'DTF',
+        nombre: nombre,
+        nota: nota,
+        total: window.estadoDtf.quote.total,
+        unitario: window.estadoDtf.quote.unitario,
+        cantidad: window.estadoDtf.quote.cantidad,
+        resumen: generarResumenCortoDtf(),
+        datos: obtenerSnapshotDtf()
+      };
+      hist.unshift(item);
+      hist = hist.slice(0, MAX_HIST_DTF);
+      guardarHistorialDtfArr(hist);
+      renderHistorialDtf();
+      if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
+      if (nombreEl) nombreEl.value = '';
+      if (notaEl) notaEl.value = '';
+    }
+
+    function limpiarHistorialDtf() {
+      if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
+      guardarHistorialDtfArr([]);
+      renderHistorialDtf();
+      if (window.HW && HW.toast) HW.toast('Historial limpiado');
+    }
+
     var btnGuardarHistDtf = document.getElementById('btnGuardarHistDtf');
     var btnLimpiarHistDtf = document.getElementById('btnLimpiarHistDtf');
     if (btnGuardarHistDtf) btnGuardarHistDtf.addEventListener('click', guardarHistorialDtf);
@@ -480,131 +620,3 @@
     calcular();
   });
 })();
-
-
-  var CLAVE_HIST_DTF = 'hw_hist_dtf';
-  var MAX_HIST_DTF = 20;
-
-  function obtenerHistorialDtf() {
-    if (window.HW && HW.persist && HW.persist.get) {
-      var v = HW.persist.get(CLAVE_HIST_DTF, []);
-      return Array.isArray(v) ? v : [];
-    }
-    try {
-      var raw = localStorage.getItem(CLAVE_HIST_DTF);
-      var v2 = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v2) ? v2 : [];
-    } catch (e) { return []; }
-  }
-
-  function guardarHistorialDtfArr(arr) {
-    if (window.HW && HW.persist && HW.persist.set) {
-      HW.persist.set(CLAVE_HIST_DTF, arr);
-      return;
-    }
-    try { localStorage.setItem(CLAVE_HIST_DTF, JSON.stringify(arr)); } catch (e) {}
-  }
-
-  function generarResumenCortoDtf() {
-    try {
-      var totalP = 0;
-      window.estadoDtf.disenos.forEach(function(d){ totalP += (parseInt(d.cantidad,10)||0); });
-      var p = [];
-      if (document.getElementById('incluirPlanchado').checked) p.push('Planchado');
-      if (document.getElementById('incluirPrenda').checked) p.push('Prenda');
-      return totalP + ' pzas · ' + val('anchoImprimible') + ' cm rollo' + (p.length ? ' · ' + p.join(' + ') : '');
-    } catch (e) { return ''; }
-  }
-
-  function obtenerSnapshotDtf() {
-    return {
-      anchoImprimible: val('anchoImprimible'),
-      costoImpresion: val('costoImpresion'),
-      margen: val('margen'),
-      incluirPlanchado: document.getElementById('incluirPlanchado').checked,
-      costoPlanchado: val('costoPlanchado'),
-      tipoPlanchado: document.getElementById('tipoPlanchado').value,
-      incluirPrenda: document.getElementById('incluirPrenda').checked,
-      costoPrenda: val('costoPrenda'),
-      tipoPrenda: document.getElementById('tipoPrenda').value,
-      disenos: window.estadoDtf.disenos.map(function(d){ return { etiqueta: d.etiqueta, ancho: d.ancho, alto: d.alto, cantidad: d.cantidad }; })
-    };
-  }
-
-  function cargarDesdeHistorialDtf(h) {
-    if (!h || !h.datos) return;
-    var d = h.datos;
-    document.getElementById('anchoImprimible').value = d.anchoImprimible != null ? d.anchoImprimible : 57;
-    document.getElementById('costoImpresion').value = d.costoImpresion != null ? d.costoImpresion : '';
-    document.getElementById('margen').value = d.margen != null ? d.margen : 40;
-    document.getElementById('incluirPlanchado').checked = !!d.incluirPlanchado;
-    document.getElementById('costoPlanchado').value = d.costoPlanchado != null ? d.costoPlanchado : 1.5;
-    document.getElementById('tipoPlanchado').value = d.tipoPlanchado || 'pieza';
-    document.getElementById('incluirPrenda').checked = !!d.incluirPrenda;
-    document.getElementById('costoPrenda').value = d.costoPrenda != null ? d.costoPrenda : 5;
-    document.getElementById('tipoPrenda').value = d.tipoPrenda || 'pieza';
-    if (typeof sincronizarCuerpos === 'function') sincronizarCuerpos();
-    window.estadoDtf.disenos = [];
-    if (Array.isArray(d.disenos)) {
-      d.disenos.forEach(function(ds){
-        estado.disenos.push({ id: nuevoId(), etiqueta: ds.etiqueta || '', ancho: ds.ancho || 0, alto: ds.alto || 0, cantidad: ds.cantidad || 1 });
-      });
-    }
-    if (!window.estadoDtf.disenos.length) agregarDisenoValores();
-    if (typeof ajustarAnchoImprimible === 'function') ajustarAnchoImprimible();
-    renderDisenos();
-    if (typeof calcular === 'function') calcular();
-    if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
-  }
-
-  function renderHistorialDtf() {
-    var hist = obtenerHistorialDtf();
-    var box = document.getElementById('histDtf');
-    if (!box) return;
-    if (!hist.length) {
-      box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
-      return;
-    }
-    box.innerHTML = '';
-    hist.forEach(function(h) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
-      var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
-      btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + (h.fecha || '') + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
-                      '<small class="text-muted">' + (h.resumen || '') + '</small>';
-      btn.addEventListener('click', function(){ cargarDesdeHistorialDtf(h); });
-      box.appendChild(btn);
-    });
-  }
-
-  function guardarHistorialDtf() {
-    if (!window.estadoDtf || !window.estadoDtf.quote || !(window.estadoDtf.quote.total > 0)) {
-      if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
-      return;
-    }
-    var hist = obtenerHistorialDtf();
-    var item = {
-      id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
-      ts: Date.now(),
-      fecha: new Date().toLocaleString('es-VE'),
-      titulo: 'DTF',
-      total: window.estadoDtf.quote.total,
-      unitario: window.estadoDtf.quote.unitario,
-      cantidad: window.estadoDtf.quote.cantidad,
-      resumen: generarResumenCortoDtf(),
-      datos: obtenerSnapshotDtf()
-    };
-    hist.unshift(item);
-    hist = hist.slice(0, MAX_HIST_DTF);
-    guardarHistorialDtfArr(hist);
-    renderHistorialDtf();
-    if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
-  }
-
-  function limpiarHistorialDtf() {
-    if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
-    guardarHistorialDtfArr([]);
-    renderHistorialDtf();
-    if (window.HW && HW.toast) HW.toast('Historial limpiado');
-  }
