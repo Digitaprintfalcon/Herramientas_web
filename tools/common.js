@@ -228,21 +228,25 @@
   function hwAccentInit() {
     hwApplyAccent();
 
-    // Manejar menú en index.html
-    const accentToggle = global.document.getElementById('hw-accent-toggle') || global.document.querySelector('.hw-accent-toggle');
-    const accentMenu = global.document.getElementById('hw-accent-menu') || (accentToggle ? accentToggle.parentElement.querySelector('.hw-accent-menu') : null);
-    const accentPicker = global.document.getElementById('hw-accent-picker-index') || (accentMenu ? accentMenu.querySelector('.hw-accent-picker') : null);
-    if (accentToggle && accentMenu) {
+    // Manejar menú en index.html (HTML inline)
+    const accentToggleInline = global.document.getElementById('hw-accent-toggle');
+    const accentMenuInline = global.document.getElementById('hw-accent-menu');
+    const accentPickerInline = global.document.getElementById('hw-accent-picker-index');
+    if (accentToggleInline && accentMenuInline && !accentToggleInline.dataset.accentInit) {
+      accentToggleInline.dataset.accentInit = '1';
       const saved = hwSavedAccent();
       if (saved.custom && saved.custom.match(/^#[0-9a-fA-F]{6}$/)) {
-        if (accentPicker) accentPicker.value = saved.custom;
+        if (accentPickerInline) accentPickerInline.value = saved.custom;
       } else if (saved.scheme) {
-        const swatch = accentMenu.querySelector('.hw-accent-swatch[data-accent-scheme="' + saved.scheme + '"]');
+        const swatch = accentMenuInline.querySelector('.hw-accent-swatch[data-accent-scheme="' + saved.scheme + '"]');
         if (swatch) swatch.classList.add('active');
       }
-      accentMenu.querySelectorAll('.hw-accent-swatch').forEach(function (swatch) {
-        swatch.addEventListener('click', function () {
-          accentMenu.querySelectorAll('.hw-accent-swatch').forEach(function (s2) { s2.classList.remove('active'); });
+      accentMenuInline.querySelectorAll('.hw-accent-swatch').forEach(function (swatch) {
+        if (swatch.dataset.accentInit) return;
+        swatch.dataset.accentInit = '1';
+        swatch.addEventListener('click', function (e) {
+          e.stopPropagation();
+          accentMenuInline.querySelectorAll('.hw-accent-swatch').forEach(function (s2) { s2.classList.remove('active'); });
           swatch.classList.add('active');
           try {
             global.localStorage.setItem('hw_accent_scheme', swatch.getAttribute('data-accent-scheme'));
@@ -251,25 +255,34 @@
           hwApplyAccent();
         });
       });
-      if (accentPicker) {
-        accentPicker.addEventListener('input', function () {
-          accentMenu.querySelectorAll('.hw-accent-swatch').forEach(function (s2) { s2.classList.remove('active'); });
+      if (accentPickerInline && !accentPickerInline.dataset.accentInit) {
+        accentPickerInline.dataset.accentInit = '1';
+        accentPickerInline.addEventListener('input', function (e) {
+          e.stopPropagation();
+          accentMenuInline.querySelectorAll('.hw-accent-swatch').forEach(function (s2) { s2.classList.remove('active'); });
           try {
-            global.localStorage.setItem('hw_accent_custom', accentPicker.value);
+            global.localStorage.setItem('hw_accent_custom', accentPickerInline.value);
             global.localStorage.removeItem('hw_accent_scheme');
           } catch (e) {}
           hwApplyAccent();
         });
       }
-      accentToggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-        accentMenu.classList.toggle('open');
-      });
-      document.addEventListener('click', function (e) {
-        if (!accentToggle.parentElement.contains(e.target)) {
-          accentMenu.classList.remove('open');
-        }
-      });
+      if (!accentToggleInline.dataset.accentClick) {
+        accentToggleInline.dataset.accentClick = '1';
+        accentToggleInline.addEventListener('click', function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          accentMenuInline.classList.toggle('open');
+        });
+      }
+      if (!global.document.documentElement.dataset.accentDocClick) {
+        global.document.documentElement.dataset.accentDocClick = '1';
+        document.addEventListener('click', function (e) {
+          if (accentToggleInline && accentMenuInline && !accentToggleInline.parentElement.contains(e.target)) {
+            accentMenuInline.classList.remove('open');
+          }
+        });
+      }
     }
 
     const nav = global.document.querySelector('.tool-nav');
