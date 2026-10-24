@@ -195,39 +195,71 @@
   function renderResumen(el, quote, opts) {
     if (!el || !quote) return;
     opts = opts || {};
-    var html = '';
-    html += '<div class="hw-summary-unit">' +
-      '<span class="hw-summary-label">Precio unitario</span>' +
-      '<span class="hw-summary-value">' + escape(money(quote.unitario)) + '</span>' +
-      '</div>';
-    html += '<div class="hw-summary-total">' +
-      '<span class="hw-summary-label">Total del trabajo</span>' +
-      '<span class="hw-summary-value">' + escape(money(quote.total)) + '</span>' +
-      '</div>';
+    el.innerHTML = '';
+    var esc = escape;
 
-    html += '<div class="hw-breakdown">';
+    var unit = document.createElement('div');
+    unit.className = 'hw-summary-unit';
+    var unitLabel = document.createElement('span');
+    unitLabel.className = 'hw-summary-label';
+    unitLabel.textContent = 'Precio unitario';
+    var unitValue = document.createElement('span');
+    unitValue.className = 'hw-summary-value';
+    unitValue.textContent = (HW.fmtUsd ? HW.fmtUsd(quote.unitario) : money(quote.unitario));
+    unit.appendChild(unitLabel);
+    unit.appendChild(unitValue);
+    el.appendChild(unit);
+
+    var total = document.createElement('div');
+    total.className = 'hw-summary-total';
+    var totalLabel = document.createElement('span');
+    totalLabel.className = 'hw-summary-label';
+    totalLabel.textContent = 'Total del trabajo';
+    var totalValue = document.createElement('span');
+    totalValue.className = 'hw-summary-value';
+    totalValue.textContent = (HW.fmtUsd ? HW.fmtUsd(quote.total) : money(quote.total));
+    total.appendChild(totalLabel);
+    total.appendChild(totalValue);
+    el.appendChild(total);
+
+    var breakdown = document.createElement('div');
+    breakdown.className = 'hw-breakdown';
     quote.lineas.forEach(function (l) {
       var detalle = l.detalle || '';
       if (l.tipo !== 'material' && l.cantidad > 0 && l.unidad !== 'lote') {
         detalle = (detalle ? detalle + ' · ' : '') + l.cantidad + ' ' + (l.unidad || 'ud');
       }
-      html += '<div class="hw-breakdown-row">' +
-        '<span class="hw-breakdown-name">' + escape(l.nombre) +
-          (detalle ? '<small>' + escape(detalle) + '</small>' : '') +
-        '</span>' +
-        '<span class="hw-breakdown-value">' + escape(money(l.total)) + '</span>' +
-        '</div>';
+      var row = document.createElement('div');
+      row.className = 'hw-breakdown-row';
+      var name = document.createElement('span');
+      name.className = 'hw-breakdown-name';
+      name.textContent = l.nombre || '';
+      if (detalle) {
+        var small = document.createElement('small');
+        small.textContent = detalle;
+        name.appendChild(small);
+      }
+      var val = document.createElement('span');
+      val.className = 'hw-breakdown-value';
+      val.textContent = (HW.fmtUsd ? HW.fmtUsd(l.total) : money(l.total));
+      row.appendChild(name);
+      row.appendChild(val);
+      breakdown.appendChild(row);
     });
-    html += '</div>';
+    el.appendChild(breakdown);
 
     if (quote.margenPct != null && opts.mostrarMargen !== false) {
-      html += '<div class="hw-summary-note">Margen aplicado: ' +
-        escape(quote.margenPct.toLocaleString('es-ES', { maximumFractionDigits: 2 })) + '%</div>';
+      var note = document.createElement('div');
+      note.className = 'hw-summary-note';
+      note.textContent = 'Margen aplicado: ' + Number(quote.margenPct).toLocaleString('es-ES', { maximumFractionDigits: 2 }) + '%';
+      el.appendChild(note);
     }
     if (opts.nota) {
-      html += '<div class="hw-summary-note">' + escape(opts.nota) + '</div>';
+      var note2 = document.createElement('div');
+      note2.className = 'hw-summary-note';
+      note2.textContent = String(opts.nota);
+      el.appendChild(note2);
     }
-    el.innerHTML = html;
   }
 
   var api = {
