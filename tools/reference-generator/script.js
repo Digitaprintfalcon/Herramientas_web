@@ -463,6 +463,14 @@ window.togglePreview = abrirPreview;
 })();
 
 
+  function limpiarBase(){
+    if (!confirm('¿Borrar toda la base de referencias?')) return;
+    if (!guardarBase([])){ if (window.HW.toast) window.HW.toast('No se pudo guardar la base', true); return; }
+    renderAdminList();
+    renderReferenteSelect();
+    if (window.HW.toast) window.HW.toast('Base de referencias borrada');
+  }
+
 // Base editable de referencias (solo Precargadas) + importar/exportar JSON
 (function(){
   var LS_KEY = 'hw_ref_base';
@@ -484,8 +492,11 @@ window.togglePreview = abrirPreview;
   function obtenerReferentes(){
     var raw = leerBase();
     if (raw === null){
-      guardarBase(SEED);
-      return SEED.slice();
+      try {
+        if (window.HW && window.HW.persist) window.HW.persist.set(LS_KEY, []);
+        else localStorage.setItem(LS_KEY, JSON.stringify([]));
+      } catch(e){}
+      return [];
     }
     return raw.filter(function(x){ return x && x.id && x.nombre && x.cedula; });
   }
@@ -577,6 +588,10 @@ window.togglePreview = abrirPreview;
     if (window.HW.toast) window.HW.toast('Referencia eliminada');
   }
 
+  function normalizarCedulaKey(v){
+    return String(v || '').replace(/[^0-9]/g, '');
+  }
+
   function guardar(){
     var id = document.getElementById('refBaseId').value || ('ref_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
     var nombre = (document.getElementById('refBaseNombre').value || '').trim();
@@ -586,9 +601,10 @@ window.togglePreview = abrirPreview;
     if (!nombre || !ced){ if (window.HW.toast) window.HW.toast('Nombre y cédula son obligatorios', true); return; }
     var arr = obtenerReferentes();
     var idx = arr.findIndex(function(x){ return x.id === id; });
-    var cedKey = ced.replace(/\D/g, '');
+    var cedKey = normalizarCedulaKey(ced);
+    if (!cedKey){ if (window.HW.toast) window.HW.toast('Cédula inválida', true); return; }
     var duplicada = arr.some(function(x){
-      return x.id !== id && String(x.cedula || '').replace(/\D/g, '') === cedKey;
+      return x.id !== id && normalizarCedulaKey(x.cedula) === cedKey;
     });
     if (duplicada){ if (window.HW.toast) window.HW.toast('Ya existe una referencia con esa cédula', true); return; }
     var obj = { id: id, nombre: nombre.toUpperCase(), nacionalidad: nac, cedula: ced, telefono: tel, creado: idx >=0 && arr[idx].creado ? arr[idx].creado : new Date().toISOString(), actualizado: new Date().toISOString() };
@@ -608,6 +624,10 @@ window.togglePreview = abrirPreview;
     a.href = url; a.download = 'referencias-base.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   }
 
+  function normalizarCedulaKey(v){
+    return String(v || '').replace(/[^0-9]/g, '');
+  }
+
   function importarBase(file){
     if (!file) return;
     var fr = new FileReader();
@@ -620,7 +640,9 @@ window.togglePreview = abrirPreview;
         data.forEach(function(x){
           if (!x || !x.nombre || !x.cedula) return;
           var id = x.id || ('ref_imp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6));
-          if (arr.find(function(y){ return y.id === id || y.cedula === x.cedula; })) return;
+          var nk = normalizarCedulaKey(x.cedula);
+          if (!nk) return;
+          if (arr.find(function(y){ return y.id === id || normalizarCedulaKey(y.cedula) === nk; })) return;
           arr.push({ id: id, nombre: String(x.nombre).toUpperCase(), nacionalidad: x.nacionalidad || 'Venezolano', cedula: x.cedula, telefono: x.telefono || '', creado: new Date().toISOString(), actualizado: new Date().toISOString() });
           added++;
         });
@@ -636,17 +658,20 @@ window.togglePreview = abrirPreview;
   }
 
   function restaurar(){
-    if (!confirm('¿Restaurar ejemplos a la base? Se agregarán ejemplos si no existen.')) return;
+    if (!confirm('¿Agregar ejemplos a la base? Se agregarán solo si no existen.')) return;
     var arr = obtenerReferentes();
     SEED.forEach(function(s){
-      if (!arr.find(function(x){ return x.cedula === s.cedula; })){
-        arr.push({ id: 'ref_seed_' + Date.now() + '_' + Math.random().toString(36).slice(2,4), nombre: s.nombre, nacionalidad: s.nacionalidad, cedula: s.cedula, telefono: s.telefono, creado: new Date().toISOString(), actualizado: new Date().toISOString() });
+      var nk = normalizarCedulaKey(s.cedula);
+      if (!nk) return;
+      if (arr.find(function(x){ return normalizarCedulaKey(x.cedula) === nk; })){
+        return;
       }
+      arr.push({ id: 'ref_seed_' + Date.now() + '_' + Math.random().toString(36).slice(2,4), nombre: s.nombre, nacionalidad: s.nacionalidad, cedula: s.cedula, telefono: s.telefono, creado: new Date().toISOString(), actualizado: new Date().toISOString() });
     });
     guardarBase(arr);
     renderAdminList();
     renderReferenteSelect();
-    if (window.HW.toast) window.HW.toast('Ejemplos restaurados');
+    if (window.HW.toast) window.HW.toast('Ejemplos agregados');
   }
 
   function setup(){
@@ -656,6 +681,7 @@ window.togglePreview = abrirPreview;
     var btnE = document.getElementById('btnRefExportar'); if (btnE) btnE.onclick = exportarBase;
     var inp = document.getElementById('inputRefImportar'); if (inp) inp.onchange = function(){ importarBase(this.files[0]); this.value=''; };
     var btnR = document.getElementById('btnRefRestaurar'); if (btnR) btnR.onclick = restaurar;
+    var btnCl = document.getElementById('btnRefLimpiar'); if (btnCl) btnCl.onclick = limpiarBase;
     var modal = document.getElementById('refBaseModal');
     if (modal) modal.addEventListener('show.bs.modal', function(){ renderAdminList(); hideForm(); });
     renderReferenteSelect();
