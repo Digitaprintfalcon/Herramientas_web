@@ -100,7 +100,7 @@
           nombre: 'Lámina de PVC',
           detalle: fmt(tAncho, 1) + ' x ' + fmt(tAlto, 1) + ' cm',
           unidad: 'ud',
-          costoBase: HW.pricing.costoArea(area, costoM2),
+          costoBase: HW.pricing.costoArea(area, costoM2) * piezas,
           mermaPct: Math.max(0, val('pvcMerma')),
           margenPct: margenPct
         });
@@ -114,7 +114,7 @@
           nombre: 'Impresión en vinil',
           detalle: dobleLado.checked ? '2 caras' : '1 cara',
           unidad: 'ud',
-          costoBase: costoVinil,
+          costoBase: costoVinil * piezas,
           mermaPct: Math.max(0, val('vinilMerma')),
           margenPct: margenPct
         });
@@ -125,7 +125,7 @@
           nombre: 'Laminado',
           detalle: 'Cobertura por área',
           unidad: 'ud',
-          costoBase: HW.pricing.costoArea(area, Math.max(0, val('laminadoCostoM2'))),
+          costoBase: HW.pricing.costoArea(area, Math.max(0, val('laminadoCostoM2'))) * piezas,
           mermaPct: 0,
           margenPct: margenPct
         });
