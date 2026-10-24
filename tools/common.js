@@ -54,9 +54,18 @@
     }
   }
 
+  async   function fetchWithTimeout(url, ms) {
+    if (typeof AbortController === 'undefined') {
+      return fetch(url, { cache: 'no-cache' });
+    }
+    var ctrl = new AbortController();
+    var t = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, ms || 8000);
+    return fetch(url, { cache: 'no-cache', signal: ctrl.signal }).finally(function () { clearTimeout(t); });
+  }
+
   async function bcvFetchTasa() {
     try {
-      const r = await fetch('https://rates.dolarvzla.com/bcv/current.json');
+      const r = await fetchWithTimeout('https://rates.dolarvzla.com/bcv/current.json', 8000);
       if (r.ok) {
         const d = await r.json();
         const usd = d && d.current && Number(d.current.usd) > 0
@@ -64,7 +73,7 @@
           : d && Number(d.usd) > 0 ? Number(d.usd) : 0;
         if (usd > 0) return usd;
       }
-      const r2 = await fetch('https://bcv-api.rafnixg.dev/v1/exchange-rates/latest/USD');
+      const r2 = await fetchWithTimeout('https://bcv-api.rafnixg.dev/v1/exchange-rates/latest/USD', 8000);
       if (r2.ok) {
         const d2 = await r2.json();
         if (d2 && Number(d2.rate) > 0) return Number(d2.rate);
@@ -124,11 +133,18 @@
       const v = parseFloat(input.value);
       if (isFinite(v) && v > 0) aplicarTasa(v);
     });
+    var syncing = false;
     sync.addEventListener('click', function () {
+      if (syncing) return;
+      syncing = true;
       ico.classList.add('hw-bcv-spin');
       bcvFetchTasa().then(function (t) {
         ico.classList.remove('hw-bcv-spin');
+        syncing = false;
         aplicarTasa(t);
+      }).catch(function () {
+        ico.classList.remove('hw-bcv-spin');
+        syncing = false;
       });
     });
 
