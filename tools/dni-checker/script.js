@@ -220,10 +220,11 @@
                     var info = document.createElement('span');
                     info.className = 'small';
                     var nac = (e.nac || 'v').toUpperCase();
+                    var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function(v){ return String(v==null?'':v); };
                     info.innerHTML =
-                        '<span class="fw-bold" style="color: var(--hw-accent);">' + nac + '-' + e.cedula + '</span> · ' +
-                        HW.escapeHtml(e.nombre || '') +
-                        '<br><span class="text-muted">' + formatearHora(e.ts) + '</span>';
+                        '<span class="fw-bold" style="color: var(--hw-accent);">' + esc(nac) + '-' + esc(e.cedula || '') + '</span> · ' +
+                        esc(e.nombre || '') +
+                        '<br><span class="text-muted">' + esc(formatearHora(e.ts)) + '</span>';
 
                     var ico = document.createElement('i');
                     ico.className = 'bi bi-search';
