@@ -195,7 +195,11 @@ function setupImageUpload(inputId, containerId) {
       reader.onload = function (event) {
         const container = document.getElementById(containerId);
         if (container) {
-          container.innerHTML = `<img src="${event.target.result}" alt="Imagen de Cédula">`;
+          container.innerHTML = '';
+          var img = document.createElement('img');
+          img.src = event.target.result;
+          img.alt = 'Imagen de Cédula';
+          container.appendChild(img);
         }
       };
       reader.readAsDataURL(file);
@@ -237,7 +241,14 @@ function validarYReportar() {
   const alerta = document.getElementById('authAlert');
   if (!alerta) return faltan.length === 0;
   if (faltan.length > 0) {
-    alerta.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i><strong>Completa:</strong> ' + faltan.join(', ') + '.';
+    alerta.innerHTML = '';
+    var icon = document.createElement('i');
+    icon.className = 'bi bi-exclamation-triangle me-1';
+    var strong = document.createElement('strong');
+    strong.textContent = 'Completa:';
+    alerta.appendChild(icon);
+    alerta.appendChild(strong);
+    alerta.appendChild(document.createTextNode(' ' + faltan.join(', ') + '.'));
     alerta.classList.remove('d-none');
     alerta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     return false;
