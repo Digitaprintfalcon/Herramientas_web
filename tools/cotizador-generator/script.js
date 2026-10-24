@@ -412,9 +412,16 @@
       item.type = 'button';
       item.className = 'hist-item d-flex justify-content-between align-items-center gap-2 text-start';
       var left = document.createElement('span');
-      left.innerHTML = '<strong>' + (h.nro || '—') + '</strong> · ' + (h.clienteNombre || 'Sin cliente');
+      var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function(v){ return String(v==null?'':v); };
+      var leftStrong = document.createElement('strong');
+      leftStrong.textContent = h.nro || '—';
+      left.appendChild(leftStrong);
+      left.appendChild(document.createTextNode(' · ' + esc(h.clienteNombre || 'Sin cliente')));
       var right = document.createElement('span');
-      right.innerHTML = '<span class="text-success">' + fmtBs(h.totalBs || 0) + '</span>';
+      var rightSpan = document.createElement('span');
+      rightSpan.className = 'text-success';
+      rightSpan.textContent = fmtBs(h.totalBs || 0);
+      right.appendChild(rightSpan);
       item.appendChild(left);
       item.appendChild(right);
       item.addEventListener('click', function () { cargarCotizacion(h); });
