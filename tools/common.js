@@ -385,7 +385,15 @@
     html.classList.toggle('dark', dark);
     hwApplyBsTheme(dark);
 
-    let btn = global.document.querySelector('.hw-theme-toggle');
+    let btn = null;
+    // Buscar botón de tema (no el de acento)
+    const buttons = global.document.querySelectorAll('.hw-theme-toggle');
+    for (let i = 0; i < buttons.length; i++) {
+      if (buttons[i].id === 'hw-accent-toggle') continue;
+      if (buttons[i].querySelector('.bi-palette')) continue;
+      btn = buttons[i];
+      break;
+    }
     if (!btn) {
       const nav = global.document.querySelector('.tool-nav');
       if (!nav) return;
@@ -399,7 +407,8 @@
     }
 
     hwThemeIcons(btn, dark);
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
       const next = html.classList.toggle('dark');
       hwApplyBsTheme(next);
       hwThemeIcons(btn, next);
