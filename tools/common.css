@@ -27,6 +27,12 @@
   --hw-accent-soft: rgba(5, 150, 105, 0.12);
   --hw-blue: #1e40af;             /* blue-800 */
   --hw-blue-hover: #1d4ed8;       /* blue-700 */
+  /* Esquema de color personalizado */
+  --hw-accent-override: var(--hw-accent);
+  --hw-accent-override-bright: var(--hw-accent-bright);
+  --hw-accent-override-dark: var(--hw-accent-dark);
+  --hw-accent-override-soft: var(--hw-accent-soft);
+  --bs-primary-override: var(--bs-primary);
 }
 
 html.dark {
@@ -47,6 +53,10 @@ html.dark {
   --hw-text-muted: #94a3b8;       /* slate-400 */
   --hw-accent: #10b981;
   --hw-accent-dark: #059669;
+  --hw-accent-override: var(--hw-accent);
+  --hw-accent-override-bright: #34d399;
+  --hw-accent-override-dark: var(--hw-accent-dark);
+  --hw-accent-override-soft: rgba(16, 185, 129, 0.18);
 }
 
 * {
@@ -58,6 +68,80 @@ body {
   background-color: var(--hw-bg);
   color: var(--hw-text-main);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* ===== Esquema de color personalizado ===== */
+html[data-hw-accent] {
+  --bs-primary: var(--hw-accent-override);
+  --bs-primary-rgb: var(--hw-accent-override-rgb, 5, 150, 105);
+  --hw-accent: var(--hw-accent-override);
+  --hw-accent-bright: var(--hw-accent-override-bright);
+  --hw-accent-dark: var(--hw-accent-override-dark);
+  --hw-accent-soft: var(--hw-accent-override-soft);
+}
+
+.hw-accent-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--hw-border);
+  cursor: pointer;
+  padding: 0;
+}
+
+.hw-accent-swatch.active {
+  border-color: var(--hw-text-main);
+  box-shadow: 0 0 0 2px var(--hw-accent-soft);
+}
+
+.hw-accent-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--hw-card);
+  border: 1px solid var(--hw-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  z-index: 1100;
+  display: none;
+  min-width: 220px;
+}
+
+.hw-accent-menu.open {
+  display: block;
+}
+
+.hw-accent-menu-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hw-text-muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hw-accent-menu-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.hw-accent-picker {
+  width: 100%;
+  height: 32px;
+  border: 1px solid var(--hw-border);
+  border-radius: 0.5rem;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hw-accent-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ===== Barra superior: Volver + título de la herramienta ===== */

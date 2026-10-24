@@ -172,9 +172,26 @@
           <p class="header-subtitle mb-0">Selecciona la utilidad que necesitas ejecutar</p>
         </div>
       </div>
-      <button class="hw-theme-toggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
-        <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <div class="hw-accent-wrapper">
+          <button class="hw-theme-toggle" type="button" id="hw-accent-toggle" title="Cambiar esquema de color" aria-label="Cambiar esquema de color">
+            <i class="bi bi-palette"></i>
+          </button>
+          <div class="hw-accent-menu" id="hw-accent-menu">
+            <div class="hw-accent-menu-header">Esquema de color</div>
+            <div class="hw-accent-menu-row mb-2">
+              <button type="button" class="hw-accent-swatch" data-accent-scheme="cmyk-cyan" style="background:#00bcd4" title="Cian (C)"></button>
+              <button type="button" class="hw-accent-swatch" data-accent-scheme="cmyk-magenta" style="background:#d63384" title="Magenta (M)"></button>
+              <button type="button" class="hw-accent-swatch" data-accent-scheme="cmyk-yellow" style="background:#ffc107" title="Amarillo (Y)"></button>
+            </div>
+            <div class="hw-accent-menu-header">Color personalizado</div>
+            <input type="color" class="hw-accent-picker" id="hw-accent-picker-index" value="#059669">
+          </div>
+        </div>
+        <button class="hw-theme-toggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
+          <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
+        </button>
+      </div>
     </header>
 
     <div class="search-wrapper">
