@@ -211,6 +211,8 @@
                     return;
                 }
 
+                var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function(v){ return String(v==null?'':v); };
+
                 historial.forEach(function (e) {
                     var celda = document.createElement('button');
                     celda.type = 'button';
@@ -220,7 +222,6 @@
                     var info = document.createElement('span');
                     info.className = 'small';
                     var nac = (e.nac || 'v').toUpperCase();
-                    var esc = (window.HW && HW.escapeHtml) ? HW.escapeHtml : function(v){ return String(v==null?'':v); };
                     info.innerHTML =
                         '<span class="fw-bold" style="color: var(--hw-accent);">' + esc(nac) + '-' + esc(e.cedula || '') + '</span> · ' +
                         esc(e.nombre || '') +
@@ -240,6 +241,24 @@
 
                     lista.appendChild(celda);
                 });
+
+                var clearWrap = document.createElement('div');
+                clearWrap.className = 'px-3 py-2 border-top';
+                var clearBtn = document.createElement('button');
+                clearBtn.type = 'button';
+                clearBtn.className = 'btn btn-sm btn-outline-danger w-100';
+                clearBtn.innerHTML = '<i class="bi bi-trash"></i> Borrar historial';
+                clearBtn.addEventListener('click', function () {
+                    if (!confirm('¿Borrar todo el historial de consultas?')) return;
+                    try {
+                        if (window.HW && HW.persist && HW.persist.remove) HW.persist.remove(HIST_KEY);
+                        else localStorage.removeItem(HIST_KEY);
+                    } catch (e) {}
+                    renderHistoria();
+                    if (window.HW && HW.toast) HW.toast('Historial borrado');
+                });
+                clearWrap.appendChild(clearBtn);
+                lista.appendChild(clearWrap);
             }
 
             function setCargando(activo) {
