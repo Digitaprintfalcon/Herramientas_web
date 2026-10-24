@@ -282,9 +282,10 @@
       document.getElementById('cantidadBolsillos').value = d.cantidadBolsillos != null ? d.cantidadBolsillos : 2;
       document.getElementById('costoBolsillo').value = d.costoBolsillo != null ? d.costoBolsillo : 2;
       document.getElementById('costoTubos').value = d.costoTubos != null ? d.costoTubos : 10;
+      if (typeof sincronizarAccesorios === 'function') sincronizarAccesorios();
       if (typeof aplicarExclusividad === 'function') {
-        if (document.getElementById('incluirOjales').checked) aplicarExclusividad(document.getElementById('incluirOjales'));
-        else if (document.getElementById('incluirBolsillos').checked) aplicarExclusividad(document.getElementById('incluirBolsillos'));
+        if (document.getElementById('incluirOjales').checked && !document.getElementById('incluirBolsillos').checked) aplicarExclusividad(document.getElementById('incluirOjales'));
+        else if (document.getElementById('incluirBolsillos').checked && !document.getElementById('incluirOjales').checked) aplicarExclusividad(document.getElementById('incluirBolsillos'));
       }
       if (typeof sincronizarAccesorios === 'function') sincronizarAccesorios();
       if (typeof calcular === 'function') calcular();
