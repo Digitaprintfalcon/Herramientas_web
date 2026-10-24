@@ -16,7 +16,9 @@
   }
 
   function val(id) {
-    return parseFloat(document.getElementById(id).value) || 0;
+    var el = document.getElementById(id);
+    if (!el) return 0;
+    return parseFloat(el.value) || 0;
   }
 
   function checked(id) {
