@@ -208,7 +208,8 @@ html[data-hw-accent] {
 }
 
 /* Botón de tema (inyectado por common.js o presente en el HTML) */
-.hw-theme-toggle {
+.hw-theme-toggle,
+.hw-accent-toggle {
   flex-shrink: 0;
   width: 2.25rem;
   height: 2.25rem;
@@ -224,7 +225,8 @@ html[data-hw-accent] {
   transition: all 0.2s ease;
 }
 
-.hw-theme-toggle:hover {
+.hw-theme-toggle:hover,
+.hw-accent-toggle:hover {
   color: var(--hw-accent);
   border-color: var(--hw-accent);
 }

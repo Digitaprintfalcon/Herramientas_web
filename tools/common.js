@@ -229,9 +229,9 @@
     hwApplyAccent();
 
     // Manejar menú en index.html
-    const accentToggle = global.document.getElementById('hw-accent-toggle');
-    const accentMenu = global.document.getElementById('hw-accent-menu');
-    const accentPicker = global.document.getElementById('hw-accent-picker-index');
+    const accentToggle = global.document.getElementById('hw-accent-toggle') || global.document.querySelector('.hw-accent-toggle');
+    const accentMenu = global.document.getElementById('hw-accent-menu') || (accentToggle ? accentToggle.parentElement.querySelector('.hw-accent-menu') : null);
+    const accentPicker = global.document.getElementById('hw-accent-picker-index') || (accentMenu ? accentMenu.querySelector('.hw-accent-picker') : null);
     if (accentToggle && accentMenu) {
       const saved = hwSavedAccent();
       if (saved.custom && saved.custom.match(/^#[0-9a-fA-F]{6}$/)) {
@@ -390,6 +390,7 @@
     const buttons = global.document.querySelectorAll('.hw-theme-toggle');
     for (let i = 0; i < buttons.length; i++) {
       if (buttons[i].id === 'hw-accent-toggle') continue;
+      if (buttons[i].classList.contains('hw-accent-toggle')) continue;
       if (buttons[i].querySelector('.bi-palette')) continue;
       btn = buttons[i];
       break;
