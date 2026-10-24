@@ -198,6 +198,12 @@
     document.getElementById('btnCopiarTotal').addEventListener('click', function () {
       HW.quote.copiarTotal(estado.quote, { tasa: estado.bcv ? estado.bcv.getTasa() : 0 });
     });
+    var btnGuardarHistPvc = document.getElementById('btnGuardarHistPvc');
+    var btnLimpiarHistPvc = document.getElementById('btnLimpiarHistPvc');
+    if (btnGuardarHistPvc) btnGuardarHistPvc.addEventListener('click', guardarHistorialPvc);
+    if (btnLimpiarHistPvc) btnLimpiarHistPvc.addEventListener('click', limpiarHistorialPvc);
+    renderHistorialPvc();
+
     document.getElementById('btnGenerador').addEventListener('click', function () {
       HW.quote.enviarAlGenerador(estado.quote, {
         titulo: 'PVC · Vinil · Laminado',
@@ -209,3 +215,139 @@
     calcular();
   });
 })();
+
+
+  var CLAVE_HIST_PVC = 'hw_hist_pvc';
+  var MAX_HIST_PVC = 20;
+
+  function obtenerHistorialPvc() {
+    if (window.HW && HW.persist && HW.persist.get) {
+      var v = HW.persist.get(CLAVE_HIST_PVC, []);
+      return Array.isArray(v) ? v : [];
+    }
+    try {
+      var raw = localStorage.getItem(CLAVE_HIST_PVC);
+      var v2 = raw ? JSON.parse(raw) : [];
+      return Array.isArray(v2) ? v2 : [];
+    } catch (e) { return []; }
+  }
+
+  function guardarHistorialPvcArr(arr) {
+    if (window.HW && HW.persist && HW.persist.set) {
+      HW.persist.set(CLAVE_HIST_PVC, arr);
+      return;
+    }
+    try { localStorage.setItem(CLAVE_HIST_PVC, JSON.stringify(arr)); } catch (e) {}
+  }
+
+  function generarResumenCortoPvc() {
+    try {
+      var p = [];
+      if (document.getElementById('checkPvc').checked) p.push('PVC');
+      if (document.getElementById('checkVinil').checked) p.push('Vinil');
+      if (document.getElementById('checkLaminado').checked) p.push('Laminado');
+      if (document.getElementById('checkSeparadores').checked && document.getElementById('checkPvc').checked) p.push('Sep.');
+      return (val('trabajoAncho')||0) + ' x ' + (val('trabajoLargo')||0) + ' cm · ' + (val('trabajoCantidad')||1) + ' ud' + (p.length ? ' · ' + p.join(' + ') : '');
+    } catch (e) { return ''; }
+  }
+
+  function obtenerSnapshotPvc() {
+    return {
+      trabajoAncho: val('trabajoAncho'),
+      trabajoLargo: val('trabajoLargo'),
+      trabajoCantidad: val('trabajoCantidad'),
+      margen: val('margen'),
+      checkPvc: document.getElementById('checkPvc').checked,
+      checkVinil: document.getElementById('checkVinil').checked,
+      checkLaminado: document.getElementById('checkLaminado').checked,
+      checkSeparadores: document.getElementById('checkSeparadores').checked,
+      checkVinilDobleLado: document.getElementById('checkVinilDobleLado').checked,
+      baseLargo: val('baseLargo'),
+      baseAncho: val('baseAncho'),
+      costoLamina: val('costoLamina'),
+      pvcMerma: val('pvcMerma'),
+      vinilCostoM2: val('vinilCostoM2'),
+      vinilMerma: val('vinilMerma'),
+      laminadoCostoM2: val('laminadoCostoM2'),
+      cantidadSeparadores: val('cantidadSeparadores'),
+      costoSeparador: val('costoSeparador')
+    };
+  }
+
+  function cargarDesdeHistorialPvc(h) {
+    if (!h || !h.datos) return;
+    var d = h.datos;
+    document.getElementById('trabajoAncho').value = d.trabajoAncho != null ? d.trabajoAncho : 50;
+    document.getElementById('trabajoLargo').value = d.trabajoLargo != null ? d.trabajoLargo : 30;
+    document.getElementById('trabajoCantidad').value = d.trabajoCantidad != null ? d.trabajoCantidad : 1;
+    document.getElementById('margen').value = d.margen != null ? d.margen : 40;
+    document.getElementById('checkPvc').checked = d.checkPvc !== false;
+    document.getElementById('checkVinil').checked = d.checkVinil !== false;
+    document.getElementById('checkLaminado').checked = !!d.checkLaminado;
+    document.getElementById('checkSeparadores').checked = d.checkSeparadores !== false;
+    document.getElementById('checkVinilDobleLado').checked = !!d.checkVinilDobleLado;
+    document.getElementById('baseLargo').value = d.baseLargo != null ? d.baseLargo : 244;
+    document.getElementById('baseAncho').value = d.baseAncho != null ? d.baseAncho : 122;
+    document.getElementById('costoLamina').value = d.costoLamina != null ? d.costoLamina : 45;
+    document.getElementById('pvcMerma').value = d.pvcMerma != null ? d.pvcMerma : 10;
+    document.getElementById('vinilCostoM2').value = d.vinilCostoM2 != null ? d.vinilCostoM2 : 15;
+    document.getElementById('vinilMerma').value = d.vinilMerma != null ? d.vinilMerma : 10;
+    document.getElementById('laminadoCostoM2').value = d.laminadoCostoM2 != null ? d.laminadoCostoM2 : 8;
+    document.getElementById('cantidadSeparadores').value = d.cantidadSeparadores != null ? d.cantidadSeparadores : 4;
+    if (document.getElementById('costoSeparador')) document.getElementById('costoSeparador').value = d.costoSeparador != null ? d.costoSeparador : 2;
+    if (typeof sincronizarCuerpos === 'function') sincronizarCuerpos();
+    if (typeof calcular === 'function') calcular();
+    if (window.HW && HW.toast) HW.toast('Cotización cargada del historial');
+  }
+
+  function renderHistorialPvc() {
+    var hist = obtenerHistorialPvc();
+    var box = document.getElementById('histPvc');
+    if (!box) return;
+    if (!hist.length) {
+      box.innerHTML = '<div class="text-center small py-3 text-muted">Sin cotizaciones guardadas.</div>';
+      return;
+    }
+    box.innerHTML = '';
+    hist.forEach(function(h) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'hist-item d-flex flex-column align-items-start text-start w-100 mb-1';
+      var totalTxt = window.HW && HW.fmtUsd ? HW.fmtUsd(h.total || 0) : ('$' + (h.total||0));
+      btn.innerHTML = '<div class="d-flex justify-content-between w-100"><strong>' + (h.fecha || '') + '</strong><span class="text-success">' + totalTxt + '</span></div>' +
+                      '<small class="text-muted">' + (h.resumen || '') + '</small>';
+      btn.addEventListener('click', function(){ cargarDesdeHistorialPvc(h); });
+      box.appendChild(btn);
+    });
+  }
+
+  function guardarHistorialPvc() {
+    if (!estado.quote || !(estado.quote.total > 0)) {
+      if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
+      return;
+    }
+    var hist = obtenerHistorialPvc();
+    var item = {
+      id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+      ts: Date.now(),
+      fecha: new Date().toLocaleString('es-VE'),
+      titulo: 'PVC',
+      total: estado.quote.total,
+      unitario: estado.quote.unitario,
+      cantidad: estado.quote.cantidad,
+      resumen: generarResumenCortoPvc(),
+      datos: obtenerSnapshotPvc()
+    };
+    hist.unshift(item);
+    hist = hist.slice(0, MAX_HIST_PVC);
+    guardarHistorialPvcArr(hist);
+    renderHistorialPvc();
+    if (window.HW && HW.toast) HW.toast('Cotización guardada en historial');
+  }
+
+  function limpiarHistorialPvc() {
+    if (!confirm('¿Limpiar todo el historial de este cotizador?')) return;
+    guardarHistorialPvcArr([]);
+    renderHistorialPvc();
+    if (window.HW && HW.toast) HW.toast('Historial limpiado');
+  }
