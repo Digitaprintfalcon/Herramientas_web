@@ -9,6 +9,7 @@
     detalle: [],
     bcv: null
   };
+  window.estadoDtf = estado;
   var dom = {};
 
   function fmt(n, d) {
@@ -105,7 +106,7 @@
     function ajustarAnchoDisenos() {
       var maximo = ajustarAnchoImprimible();
       if (maximo > 0) {
-        estado.disenos.forEach(function (diseno) {
+        window.estadoDtf.disenos.forEach(function (diseno) {
           diseno.ancho = limitarAncho(diseno.ancho, maximo);
         });
       }
@@ -126,7 +127,7 @@
 
     function reiniciar() {
       defaults();
-      estado.disenos = [];
+      window.estadoDtf.disenos = [];
       agregarDisenoValores();
       renderDisenos();
       calcular();
@@ -135,7 +136,7 @@
     function renderDisenos() {
       dom.listaDisenos.innerHTML = '';
 
-      if (!estado.disenos.length) {
+      if (!window.estadoDtf.disenos.length) {
         var vacio = document.createElement('p');
         vacio.className = 'text-muted small text-center border rounded-3 py-3 mb-0';
         vacio.innerHTML = '<i class="bi bi-inbox me-1"></i>Sin diseños. Agrega uno para cotizar.';
@@ -143,7 +144,7 @@
         return;
       }
 
-      estado.disenos.forEach(function (diseno, indice) {
+      window.estadoDtf.disenos.forEach(function (diseno, indice) {
         dom.listaDisenos.appendChild(crearFila(diseno, indice));
       });
     }
@@ -176,7 +177,7 @@
       btnEliminar.title = 'Eliminar diseño';
       btnEliminar.innerHTML = '<i class="bi bi-trash"></i>';
       btnEliminar.addEventListener('click', function () {
-        estado.disenos = estado.disenos.filter(function (d) { return d.id !== diseno.id; });
+        window.estadoDtf.disenos = window.estadoDtf.disenos.filter(function (d) { return d.id !== diseno.id; });
         renderDisenos();
         calcular();
       });
@@ -278,7 +279,7 @@
       var costoMl = val('costoImpresion');
       var margenPct = val('margen');
 
-      estado.disenos.forEach(function (diseno) {
+      window.estadoDtf.disenos.forEach(function (diseno) {
         var venta = HW.pricing.precioVenta(
           costoDiseno(diseno, anchoRollo, costoMl),
           margenPct
@@ -296,7 +297,7 @@
       var margenPct = Math.max(0, val('margen'));
       var totalPiezas = 0;
 
-      var materiales = estado.disenos.map(function (diseno, indice) {
+      var materiales = window.estadoDtf.disenos.map(function (diseno, indice) {
         var cantidad = Math.max(0, diseno.cantidad || 0);
         totalPiezas += cantidad;
         return {
@@ -351,7 +352,7 @@
     function persistir() {
       HW.persist.set(CLAVE_ESTADO, {
         version: 2,
-        disenos: estado.disenos,
+        disenos: window.estadoDtf.disenos,
         anchoImp: dom.anchoImprimible.value,
         costoMl: dom.costoImpresion.value,
         margen: dom.margen.value,
@@ -398,7 +399,7 @@
 
       if (Array.isArray(est.disenos)) {
         var maximo = val('anchoImprimible');
-        estado.disenos = est.disenos
+        window.estadoDtf.disenos = est.disenos
           .filter(function (d) { return d && typeof d === 'object'; })
           .map(function (d) {
             return {
@@ -471,7 +472,7 @@
 
     defaults();
     restaurar();
-    if (!estado.disenos.length) agregarDisenoValores();
+    if (!window.estadoDtf.disenos.length) agregarDisenoValores();
     renderDisenos();
     sincronizarCuerpos();
     calcular();
@@ -505,7 +506,7 @@
   function generarResumenCortoDtf() {
     try {
       var totalP = 0;
-      estado.disenos.forEach(function(d){ totalP += (parseInt(d.cantidad,10)||0); });
+      window.estadoDtf.disenos.forEach(function(d){ totalP += (parseInt(d.cantidad,10)||0); });
       var p = [];
       if (document.getElementById('incluirPlanchado').checked) p.push('Planchado');
       if (document.getElementById('incluirPrenda').checked) p.push('Prenda');
@@ -524,7 +525,7 @@
       incluirPrenda: document.getElementById('incluirPrenda').checked,
       costoPrenda: val('costoPrenda'),
       tipoPrenda: document.getElementById('tipoPrenda').value,
-      disenos: estado.disenos.map(function(d){ return { etiqueta: d.etiqueta, ancho: d.ancho, alto: d.alto, cantidad: d.cantidad }; })
+      disenos: window.estadoDtf.disenos.map(function(d){ return { etiqueta: d.etiqueta, ancho: d.ancho, alto: d.alto, cantidad: d.cantidad }; })
     };
   }
 
@@ -541,13 +542,13 @@
     document.getElementById('costoPrenda').value = d.costoPrenda != null ? d.costoPrenda : 5;
     document.getElementById('tipoPrenda').value = d.tipoPrenda || 'pieza';
     if (typeof sincronizarCuerpos === 'function') sincronizarCuerpos();
-    estado.disenos = [];
+    window.estadoDtf.disenos = [];
     if (Array.isArray(d.disenos)) {
       d.disenos.forEach(function(ds){
         estado.disenos.push({ id: nuevoId(), etiqueta: ds.etiqueta || '', ancho: ds.ancho || 0, alto: ds.alto || 0, cantidad: ds.cantidad || 1 });
       });
     }
-    if (!estado.disenos.length) agregarDisenoValores();
+    if (!window.estadoDtf.disenos.length) agregarDisenoValores();
     if (typeof ajustarAnchoImprimible === 'function') ajustarAnchoImprimible();
     renderDisenos();
     if (typeof calcular === 'function') calcular();
@@ -576,7 +577,7 @@
   }
 
   function guardarHistorialDtf() {
-    if (!estado.quote || !(estado.quote.total > 0)) {
+    if (!window.estadoDtf || !window.estadoDtf.quote || !(window.estadoDtf.quote.total > 0)) {
       if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
       return;
     }
@@ -586,9 +587,9 @@
       ts: Date.now(),
       fecha: new Date().toLocaleString('es-VE'),
       titulo: 'DTF',
-      total: estado.quote.total,
-      unitario: estado.quote.unitario,
-      cantidad: estado.quote.cantidad,
+      total: window.estadoDtf.quote.total,
+      unitario: window.estadoDtf.quote.unitario,
+      cantidad: window.estadoDtf.quote.cantidad,
       resumen: generarResumenCortoDtf(),
       datos: obtenerSnapshotDtf()
     };

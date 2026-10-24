@@ -6,6 +6,7 @@
     detalle: [],
     bcv: null
   };
+  window.estadoBanner = estado;
 
   function fmt(n, d) {
     return Number(n).toLocaleString('es-ES', {
@@ -329,7 +330,7 @@
   }
 
   function guardarHistorialBanner() {
-    if (!estado.quote || !(estado.quote.total > 0)) {
+    if (!window.estadoBanner || !window.estadoBanner.quote || !(window.estadoBanner.quote.total > 0)) {
       if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
       return;
     }
@@ -339,9 +340,9 @@
       ts: Date.now(),
       fecha: new Date().toLocaleString('es-VE'),
       titulo: 'Pendones',
-      total: estado.quote.total,
-      unitario: estado.quote.unitario,
-      cantidad: estado.quote.cantidad,
+      total: window.estadoBanner.quote.total,
+      unitario: window.estadoBanner.quote.unitario,
+      cantidad: window.estadoBanner.quote.cantidad,
       resumen: generarResumenCortoBanner(),
       datos: obtenerSnapshotBanner()
     };

@@ -393,7 +393,7 @@
   }
 
   function guardarHistorialVinil() {
-    if (!estado.quote || !(estado.quote.total > 0)) {
+    if (!window.estadoVinil || !window.estadoVinil.quote || !(window.estadoVinil.quote.total > 0)) {
       if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
       return;
     }
@@ -403,9 +403,9 @@
       ts: Date.now(),
       fecha: new Date().toLocaleString('es-VE'),
       titulo: 'Vinil',
-      total: estado.quote.total,
-      unitario: estado.quote.unitario,
-      cantidad: estado.quote.cantidad,
+      total: window.estadoVinil.quote.total,
+      unitario: window.estadoVinil.quote.unitario,
+      cantidad: window.estadoVinil.quote.cantidad,
       resumen: generarResumenCortoVinil(),
       datos: obtenerSnapshotVinil()
     };

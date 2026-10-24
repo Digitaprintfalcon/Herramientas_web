@@ -6,6 +6,7 @@
     detalle: [],
     bcv: null
   };
+  window.estadoPvc = estado;
 
   function fmt(n, d) {
     return Number(n).toLocaleString('es-ES', {
@@ -322,7 +323,7 @@
   }
 
   function guardarHistorialPvc() {
-    if (!estado.quote || !(estado.quote.total > 0)) {
+    if (!window.estadoPvc || !window.estadoPvc.quote || !(window.estadoPvc.quote.total > 0)) {
       if (window.HW && HW.toast) HW.toast('No hay cotización válida para guardar', true);
       return;
     }
@@ -332,9 +333,9 @@
       ts: Date.now(),
       fecha: new Date().toLocaleString('es-VE'),
       titulo: 'PVC',
-      total: estado.quote.total,
-      unitario: estado.quote.unitario,
-      cantidad: estado.quote.cantidad,
+      total: window.estadoPvc.quote.total,
+      unitario: window.estadoPvc.quote.unitario,
+      cantidad: window.estadoPvc.quote.cantidad,
       resumen: generarResumenCortoPvc(),
       datos: obtenerSnapshotPvc()
     };
