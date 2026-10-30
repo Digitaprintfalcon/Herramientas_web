@@ -457,6 +457,7 @@ window.togglePreview = abrirPreview;
         });
       });
     });
+    if (window.HW.cedula.setupEnterLookup) window.HW.cedula.setupEnterLookup();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
   else setupCedulaLookup();

@@ -130,6 +130,26 @@
       });
   }
 
+  // Permite disparar la búsqueda con Enter desde el campo de cédula,
+  // reutilizando el mismo clic que ya tiene cada botón [data-lookup-cedula].
+  function setupEnterLookup(root) {
+    var doc = root || global.document;
+    if (!doc || !doc.querySelectorAll) return;
+    Array.prototype.forEach.call(doc.querySelectorAll('[data-lookup-cedula]'), function (btn) {
+      var inputId = btn.getAttribute('data-cedula-input');
+      if (!inputId) return;
+      var input = doc.getElementById(inputId);
+      if (!input || input.getAttribute('data-cedula-enter-bound') === '1') return;
+      input.setAttribute('data-cedula-enter-bound', '1');
+      input.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== 'NumpadEnter') return;
+        if (event.isComposing || event.repeat) return;
+        event.preventDefault();
+        btn.click();
+      });
+    });
+  }
+
   HW.cedula = {
     configFalta: configFalta,
     avisoConfigFalta: avisoConfigFalta,
@@ -138,7 +158,8 @@
     nombreCompleto: nombreCompleto,
     mensajeApi: mensajeApi,
     derivarNacionalidad: derivarNacionalidadDesdeInput,
-    getConfig: getConfig
+    getConfig: getConfig,
+    setupEnterLookup: setupEnterLookup
   };
 
 })(window);
