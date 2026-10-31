@@ -33,6 +33,7 @@
     var P = HW.pricing.PRECIOS;
     var A = HW.pricing.ACCESORIOS;
     var C = HW.pricing.COSTOS;
+    var S = HW.pricing.SERVICIOS;
 
     var ancho = document.getElementById('trabajoAncho');
     var alto = document.getElementById('trabajoLargo');
@@ -44,6 +45,8 @@
     var checkSeparadores = document.getElementById('checkSeparadores');
     var costoSeparador = document.getElementById('costoSeparador');
     var dobleLado = document.getElementById('checkVinilDobleLado');
+    var incluirInstalacion = document.getElementById('incluirInstalacion');
+    var precioInstalacion = document.getElementById('precioInstalacion');
 
     estado.bcv = HW.bcv.mount(document.getElementById('bcvBox'));
 
@@ -68,6 +71,8 @@
       checkLaminado.checked = false;
       checkSeparadores.checked = true;
       dobleLado.checked = false;
+      incluirInstalacion.checked = false;
+      precioInstalacion.value = S.instalacion.precio;
       sincronizarCuerpos();
     }
 
@@ -75,6 +80,7 @@
       alternarCuerpo('cuerpoPvc', checkPvc.checked);
       alternarCuerpo('cuerpoVinil', checkVinil.checked);
       alternarCuerpo('cuerpoLaminado', checkLaminado.checked);
+      alternarCuerpo('cuerpoInstalacion', incluirInstalacion.checked);
       checkSeparadores.disabled = !checkPvc.checked;
       if (costoSeparador) costoSeparador.disabled = !(checkPvc.checked && checkSeparadores.checked);
       alternarCuerpo('cuerpoSeparadores', checkPvc.checked && checkSeparadores.checked);
@@ -142,6 +148,17 @@
         });
       }
 
+      var servicios = [];
+      if (incluirInstalacion.checked) {
+        var precioInst = Math.max(0, val('precioInstalacion'));
+        servicios.push({
+          nombre: S.instalacion.nombre || 'Instalación',
+          precio: precioInst,
+          modo: 'pieza',
+          detalle: '$' + fmt(precioInst, 2) + ' por pieza'
+        });
+      }
+
       estado.detalle = [
         fmt(piezas, 0) + ' ' + (piezas === 1 ? 'unidad' : 'unidades') + ' de ' +
           fmt(tAncho, 1) + ' x ' + fmt(tAlto, 1) + ' cm',
@@ -153,6 +170,7 @@
         cantidad: piezas,
         detalle: estado.detalle,
         materiales: materiales,
+        servicios: servicios,
         accesorios: accesorios,
         margenPct: margenPct
       });
@@ -171,11 +189,11 @@
       document.getElementById('baseAncho'), document.getElementById('costoLamina'),
       document.getElementById('pvcMerma'), document.getElementById('vinilCostoM2'),
       document.getElementById('vinilMerma'), document.getElementById('laminadoCostoM2'),
-      document.getElementById('cantidadSeparadores'), costoSeparador].forEach(function (el) {
+      document.getElementById('cantidadSeparadores'), costoSeparador, precioInstalacion].forEach(function (el) {
       if (el) el.addEventListener('input', calcular);
     });
 
-    [checkPvc, checkVinil, checkLaminado, checkVinilDobleLado, checkSeparadores].forEach(function (el) {
+    [checkPvc, checkVinil, checkLaminado, checkVinilDobleLado, checkSeparadores, incluirInstalacion].forEach(function (el) {
       el.addEventListener('change', function () {
         sincronizarCuerpos();
         calcular();
@@ -230,6 +248,7 @@
         if (document.getElementById('checkPvc').checked) p.push('PVC');
         if (document.getElementById('checkVinil').checked) p.push('Vinil');
         if (document.getElementById('checkLaminado').checked) p.push('Laminado');
+        if (document.getElementById('incluirInstalacion').checked) p.push('Instalación');
         if (document.getElementById('checkSeparadores').checked && document.getElementById('checkPvc').checked) p.push('Sep.');
         return (val('trabajoAncho')||0) + ' x ' + (val('trabajoLargo')||0) + ' cm · ' + (val('trabajoCantidad')||1) + ' ud' + (p.length ? ' · ' + p.join(' + ') : '');
       } catch (e) { return ''; }
@@ -246,6 +265,8 @@
         checkLaminado: document.getElementById('checkLaminado').checked,
         checkSeparadores: document.getElementById('checkSeparadores').checked,
         checkVinilDobleLado: document.getElementById('checkVinilDobleLado').checked,
+        incluirInstalacion: document.getElementById('incluirInstalacion').checked,
+        precioInstalacion: val('precioInstalacion'),
         baseLargo: val('baseLargo'),
         baseAncho: val('baseAncho'),
         costoLamina: val('costoLamina'),
@@ -270,6 +291,8 @@
       document.getElementById('checkLaminado').checked = !!d.checkLaminado;
       document.getElementById('checkSeparadores').checked = d.checkSeparadores !== false;
       document.getElementById('checkVinilDobleLado').checked = !!d.checkVinilDobleLado;
+      document.getElementById('incluirInstalacion').checked = !!d.incluirInstalacion;
+      document.getElementById('precioInstalacion').value = d.precioInstalacion != null ? d.precioInstalacion : S.instalacion.precio;
       document.getElementById('baseLargo').value = d.baseLargo != null ? d.baseLargo : 244;
       document.getElementById('baseAncho').value = d.baseAncho != null ? d.baseAncho : 122;
       document.getElementById('costoLamina').value = d.costoLamina != null ? d.costoLamina : 45;

@@ -64,7 +64,8 @@ Solo necesitás Python 3:
   El pipeline es `costo base → merma → margen → servicios → cantidad`.
 - El margen único por defecto es **40%**. Banner y vinil adhesivo quedan en `$25/m²`,
   DTF en `$25/ml`; PVC y laminado de vinil se recalibraron con el mismo criterio.
-- Planchado e instalación usan los valores únicos `$1.50` y `$10.00`.
+- Planchado e instalación usan los valores únicos `$1.50` y `$10.00`. La instalación
+  está disponible en vinil y PVC, se cobra por pieza y no recibe margen.
 - En pendones, los bolsillos inician activos con 2 unidades y precio editable de `$2` c/u;
   los tubos se incluyen automáticamente a `$10` por pieza. Ojales (`$1` c/u) y bolsillos
   son excluyentes. La logística inicia desactivada en `$0` y se cobra por lote al activarla.

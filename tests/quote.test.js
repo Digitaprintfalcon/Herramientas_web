@@ -93,6 +93,26 @@ close(pvc.lineas[0].total, 4.1570833333333335, 1e-9);
 close(pvc.lineas[1].total, 2);
 close(pvc.total, 14.157083333333334, 1e-9);
 
+const pvcConInstalacion = quote.build({
+  titulo: 'PVC con instalación',
+  cantidad: 3,
+  materiales: [
+    { nombre: 'Lámina PVC', costoBase: 2.2675 * 3, mermaPct: 10, margenPct: 40 }
+  ],
+  servicios: [
+    {
+      nombre: pricing.SERVICIOS.instalacion.nombre,
+      precio: pricing.SERVICIOS.instalacion.precio,
+      modo: 'pieza'
+    }
+  ]
+});
+
+close(pvcConInstalacion.totalServicios, 30);
+assert.equal(pvcConInstalacion.servicios[0].nombre, 'Instalación');
+assert.equal(pvcConInstalacion.servicios[0].cantidad, 3);
+close(pvcConInstalacion.total, pvcConInstalacion.totalMaterial + 30);
+
 const disenos = quote.build({
   titulo: 'DTF',
   cantidad: 3,

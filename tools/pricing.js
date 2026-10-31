@@ -26,12 +26,12 @@
   };
 
   var SERVICIOS = {
-    diseno: { precio: 5, unidad: 'pieza' },
-    corte: { precio: 5, unidad: 'pieza' },
-    planchado: { precio: 1.5, unidad: 'pieza' },
-    instalacion: { precio: 10, unidad: 'pieza' },
-    prenda: { precio: 5, unidad: 'pieza' },
-    logistica: { precio: 0, unidad: 'lote' }
+    diseno: { nombre: 'Diseño', precio: 5, unidad: 'pieza' },
+    corte: { nombre: 'Corte', precio: 5, unidad: 'pieza' },
+    planchado: { nombre: 'Planchado', precio: 1.5, unidad: 'pieza' },
+    instalacion: { nombre: 'Instalación', precio: 10, unidad: 'pieza' },
+    prenda: { nombre: 'Prenda', precio: 5, unidad: 'pieza' },
+    logistica: { nombre: 'Logística', precio: 0, unidad: 'lote' }
   };
 
   var ACCESORIOS = {

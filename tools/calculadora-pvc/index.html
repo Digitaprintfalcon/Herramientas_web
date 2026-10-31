@@ -190,6 +190,27 @@
         <div class="card p-4 mb-4">
           <div class="hw-section-head">
             <span class="hw-step">3</span>
+            <h2>Servicios</h2>
+          </div>
+          <div class="hw-switch-card">
+            <div class="hw-switch-row">
+              <label for="incluirInstalacion"><i class="bi bi-tools me-1 text-primary"></i>Instalación</label>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="incluirInstalacion">
+              </div>
+            </div>
+            <div class="hw-switch-body d-none" id="cuerpoInstalacion">
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="precioInstalacion" step="0.01" min="0">
+                <span class="input-group-text">$ por pieza</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+          <div class="hw-section-head">
+            <span class="hw-step">4</span>
             <h2>Accesorios</h2>
           </div>
           <div class="hw-switch-card">
@@ -220,7 +241,7 @@
 
         <div class="hw-formula">
           <strong>Cómo se calcula:</strong> área × costo del material → merma → margen.
-          Los separadores solo se aplican cuando la pieza incluye PVC.
+          La instalación se cobra por pieza y no recibe margen. Los separadores solo se aplican cuando la pieza incluye PVC.
         </div>
       </div>
 

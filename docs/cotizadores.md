@@ -11,7 +11,7 @@ herramientas y en el generador de cotizaciones.
 | Pendones | `tools/banner-estimator/` | Banner por m² | Logística opcional, ojales o bolsillos, tubos con bolsillos |
 | Vinil | `tools/vinil-estimator/` | Vinil adhesivo, vinil textil, laminado | Diseño, corte, instalación, planchado |
 | DTF | `tools/dtf-estimator/` | Uno o varios diseños DTF (ancho máx. 57 cm) | Planchado, prenda |
-| PVC | `tools/calculadora-pvc/` | Lámina PVC, vinil, laminado | Separadores |
+| PVC | `tools/calculadora-pvc/` | Lámina PVC, vinil, laminado | Instalación, separadores |
 | Generador | `tools/cotizador-generator/` | Recibe borradores | Documento final, PDF y totales |
 
 El cotizador de corte de vinil ya no es una herramienta independiente. Su ruta
@@ -63,8 +63,9 @@ Valores base actuales:
 | Laminado de vinil | `$12/ml` | `$20/ml` |
 
 Servicios fijos: diseño `$5`, corte `$5`, planchado `$1.50`, instalación `$10`
-y prenda `$5`. La logística inicia en `$0` y solo se cobra por lote cuando el usuario
-la activa en el cotizador de pendones.
+y prenda `$5`. La instalación está disponible en vinil y PVC: se cobra por pieza,
+inicia desactivada y su precio es editable, pero no recibe margen. La logística inicia
+en `$0` y solo se cobra por lote cuando el usuario la activa en el cotizador de pendones.
 
 Accesorios: ojales `$1` c/u, bolsillos `$2` c/u con 2 unidades por pieza, tubos `$10`
 por pieza (se incluyen automáticamente con los bolsillos) y separadores `$2` c/u.
