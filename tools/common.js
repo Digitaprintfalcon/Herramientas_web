@@ -598,7 +598,8 @@
           icon: 'receipt',
           href: '../cotizador-generator/index.html',
           desc: 'Cotizaciones profesionales imprimibles con precios en Bs y USDT a la tasa del día.',
-          keywords: 'generador cotizaciones presupuesto precios usdt bolivares bcv tasa'
+          keywords: 'generador cotizaciones presupuesto precios usdt bolivares bcv tasa',
+          estado: 'En desarrollo'
         }
       ]
     }
