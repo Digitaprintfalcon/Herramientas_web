@@ -57,15 +57,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const trackingList = document.getElementById('trackingList');
 
   function agregarGuia() {
-    const valor = inputNuevaGuia.value.trim();
-    if (valor === '') {
+    const valores = inputNuevaGuia.value
+      .split(',')
+      .map(valor => valor.trim())
+      .filter(Boolean);
+
+    if (valores.length === 0) {
       inputNuevaGuia.focus();
       return;
     }
-    guias.push(valor);
+
+    let agregadas = 0;
+    valores.forEach(valor => {
+      if (guias.indexOf(valor) === -1) {
+        guias.push(valor);
+        agregadas += 1;
+      }
+    });
+
     inputNuevaGuia.value = '';
     renderGuiaList();
     inputNuevaGuia.focus();
+
+    if (agregadas === 0 && window.HW && HW.toast) {
+      HW.toast('Esas guías ya están agregadas', true);
+    }
   }
 
   function renderGuiaList() {

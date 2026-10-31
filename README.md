@@ -92,6 +92,11 @@ y exportación de borradores en JSON, además de un historial de versiones local
 - La primera vez carga un CV de ejemplo; el botón "Limpiar todo" deja el formulario vacío.
 - La foto se redimensiona y comprime antes de guardarse para no agotar `localStorage`.
 
+## Generador de Autorizaciones
+
+El campo de tracking acepta una o varias guías separadas por coma. Cada guía se agrega
+como un chip independiente y se lista en el documento final.
+
 ## Referencias precargadas
 
 El generador de referencias guarda sus referentes en `localStorage` con la clave
