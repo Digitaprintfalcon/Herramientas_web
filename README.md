@@ -87,6 +87,8 @@ y exportación de borradores en JSON, además de un historial de versiones local
 
 - Estado actual: `hw_cv_data`.
 - Borradores guardados: `hw_cv_drafts` (máximo 15).
+- El campo "Cédula" consulta el proxy y autocompleta el nombre; la cédula no se imprime
+  ni se guarda en el borrador del CV.
 - La primera vez carga un CV de ejemplo; el botón "Limpiar todo" deja el formulario vacío.
 - La foto se redimensiona y comprime antes de guardarse para no agotar `localStorage`.
 

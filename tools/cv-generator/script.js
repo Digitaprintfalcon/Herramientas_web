@@ -1200,3 +1200,55 @@
     showToast('Borrador eliminado.');
   }
 })();
+
+// Autocompletar el nombre del CV usando el número de cédula.
+(function () {
+  'use strict';
+
+  function setupCedulaLookup() {
+    if (!window.HW || !window.HW.cedula) return;
+    var btn = document.querySelector('[data-lookup-cedula]');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      if (window.HW.cedula.avisoConfigFalta()) return;
+      var inputId = btn.getAttribute('data-cedula-input');
+      var input = document.getElementById(inputId);
+      var nombreInput = document.getElementById('fullName');
+      if (!input || !nombreInput) return;
+
+      var cedula = input.value || '';
+      var num = cedula.replace(/\D/g, '');
+      if (!num || num.length < 5 || num.length > 10) {
+        if (window.HW.toast) window.HW.toast('Ingresa un número de cédula válido', true);
+        return;
+      }
+
+      var nac = /^E/i.test(cedula.trim()) ? 'e' : 'v';
+      var icon = btn.querySelector('i');
+      var prevIcon = icon ? icon.className : '';
+      if (icon) icon.className = 'bi bi-arrow-clockwise hw-bcv-spin';
+      btn.disabled = true;
+
+      Promise.resolve().then(function () {
+        return window.HW.cedula.consultar(cedula, nac);
+      }).then(function (data) {
+        var nombre = window.HW.cedula.nombreCompleto(data);
+        nombreInput.value = nombre;
+        nombreInput.dispatchEvent(new Event('input', { bubbles: true }));
+        input.value = window.HW.cedula.formatearCedula(num, data.nacionalidad || (nac === 'e' ? 'E' : 'V'));
+        if (window.HW.toast) window.HW.toast('Datos cargados desde cédula');
+      }).catch(function (error) {
+        if (window.HW.toast) window.HW.toast(error.message || 'Error al consultar cédula', true);
+      }).finally(function () {
+        btn.disabled = false;
+        if (icon) icon.className = prevIcon;
+      });
+    });
+
+    if (window.HW.cedula.setupEnterLookup) window.HW.cedula.setupEnterLookup();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupCedulaLookup);
+  else setupCedulaLookup();
+})();
